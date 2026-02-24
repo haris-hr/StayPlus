@@ -109,8 +109,8 @@ export function HeroBanner({ tenant, locale, guestName }: HeroBannerProps) {
           background: `linear-gradient(135deg, ${primaryColor}15 0%, ${accentColor}10 100%)`,
         }}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12 lg:py-14">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10 items-center">
             {/* Left: Text Content */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
@@ -136,7 +136,7 @@ export function HeroBanner({ tenant, locale, guestName }: HeroBannerProps) {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
-                className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4"
+                className="text-3xl sm:text-4xl lg:text-[2.75rem] font-bold text-foreground mb-4"
               >
                 {tenant.name}
               </motion.h1>
@@ -157,46 +157,23 @@ export function HeroBanner({ tenant, locale, guestName }: HeroBannerProps) {
               <ContactPills dark />
             </motion.div>
 
-            {/* Right: Square Image */}
+            {/* Right: Image */}
             {tenant.branding?.heroImage && (
               <motion.div
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.6, delay: 0.2 }}
-                className="relative aspect-square rounded-2xl overflow-hidden shadow-2xl bg-surface-100"
+                className="w-full flex justify-center lg:justify-end"
               >
-                {/* Background layer (fills the square nicely) */}
-                <Image
-                  src={tenant.branding.heroImage}
-                  alt=""
-                  fill
-                  className="object-cover scale-110 blur-2xl opacity-40"
-                  priority
-                />
-                {/* Foreground layer (shows more of the image / less zoom) */}
-                <div className="absolute inset-6 rounded-xl overflow-hidden">
+                <div className="relative w-full max-w-[420px] lg:max-w-[460px] aspect-[4/5] rounded-2xl overflow-hidden shadow-2xl bg-surface-100">
                   <Image
                     src={tenant.branding.heroImage}
                     alt={tenant.name}
                     fill
-                    className="object-contain"
+                    className="object-cover scale-[1.02]"
                     priority
                   />
                 </div>
-                <Image
-                  src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=="
-                  alt=""
-                  width={1}
-                  height={1}
-                  className="hidden"
-                />{/* keep Next/Image from complaining about conditional layout in some versions */}
-                {/* Subtle colored border */}
-                <div 
-                  className="absolute inset-0 rounded-2xl ring-4 ring-inset"
-                  style={{ 
-                    boxShadow: `inset 0 0 0 4px ${primaryColor}30`,
-                  }}
-                />
               </motion.div>
             )}
           </div>
