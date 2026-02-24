@@ -34,15 +34,17 @@ export default function GuestPortalPage() {
   const [guestName, setGuestName] = useState<string>("");
   const [showNameModal, setShowNameModal] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [hasAttemptedLoad, setHasAttemptedLoad] = useState(false);
-
-  // Combined loading state - wait for both stores to load AND for us to attempt finding the tenant
-  const isLoading = tenantsLoading || servicesLoading || !hasAttemptedLoad;
+  const [dataLoaded, setDataLoaded] = useState(false);
+  
+  // Show loading until stores are ready AND we've processed the data
+  const isLoading = tenantsLoading || servicesLoading || !dataLoaded;
 
   // Load data once stores are ready
   useEffect(() => {
-    // Wait for stores to finish loading before attempting to find tenant
-    if (tenantsLoading || servicesLoading) return;
+    // Wait for stores to finish loading
+    if (tenantsLoading || servicesLoading) {
+      return;
+    }
     
     // Get tenant by slug from the store (includes user edits)
     const currentTenant = getTenantBySlug(slug);
@@ -61,8 +63,8 @@ export default function GuestPortalPage() {
       setTenant(null);
     }
     
-    // Mark that we've attempted to load the tenant
-    setHasAttemptedLoad(true);
+    // Mark data as loaded after processing
+    setDataLoaded(true);
   }, [slug, getTenantBySlug, getServicesByTenantId, tenantsLoading, servicesLoading]);
 
   // Check for saved guest name
@@ -105,8 +107,59 @@ export default function GuestPortalPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-surface-50">
-        <Spinner size="lg" />
+      <div className="min-h-screen bg-surface-50">
+        {/* Skeleton Header */}
+        <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-surface-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div className="flex items-center justify-between">
+              <div className="h-8 w-32 bg-surface-200 rounded animate-pulse" />
+              <div className="h-8 w-24 bg-surface-200 rounded animate-pulse" />
+            </div>
+          </div>
+        </header>
+
+        {/* Skeleton Hero Banner */}
+        <div className="relative h-64 sm:h-80 bg-surface-200 animate-pulse">
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+          <div className="absolute bottom-6 left-6 right-6 space-y-3">
+            <div className="h-8 w-48 bg-white/20 rounded animate-pulse" />
+            <div className="h-5 w-64 bg-white/20 rounded animate-pulse" />
+          </div>
+        </div>
+
+        {/* Skeleton Main Content */}
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-8">
+          {/* Skeleton Title */}
+          <div className="mb-8 space-y-3">
+            <div className="h-8 w-56 bg-surface-200 rounded animate-pulse" />
+            <div className="h-5 w-40 bg-surface-200 rounded animate-pulse" />
+          </div>
+
+          {/* Skeleton Category Tabs */}
+          <div className="mb-8 flex gap-3 overflow-hidden">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="h-10 w-28 bg-surface-200 rounded-full animate-pulse flex-shrink-0" />
+            ))}
+          </div>
+
+          {/* Skeleton Service Cards Grid */}
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div key={i} className="bg-white rounded-2xl border border-surface-200 overflow-hidden">
+                <div className="h-40 bg-surface-200 animate-pulse" />
+                <div className="p-4 space-y-3">
+                  <div className="h-5 w-3/4 bg-surface-200 rounded animate-pulse" />
+                  <div className="h-4 w-full bg-surface-200 rounded animate-pulse" />
+                  <div className="h-4 w-1/2 bg-surface-200 rounded animate-pulse" />
+                  <div className="flex justify-between items-center pt-2">
+                    <div className="h-6 w-16 bg-surface-200 rounded animate-pulse" />
+                    <div className="h-8 w-20 bg-surface-200 rounded-lg animate-pulse" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </main>
       </div>
     );
   }

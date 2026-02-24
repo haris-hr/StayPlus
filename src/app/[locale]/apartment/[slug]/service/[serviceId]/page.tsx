@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
@@ -27,11 +27,12 @@ export default function ServiceRequestPage() {
   const slug = params.slug as string;
   const serviceId = params.serviceId as string;
 
-  const { getTenantBySlug } = useTenantsStore();
-  const { getServiceById } = useServicesStore();
+  const { getTenantBySlug, isLoading: tenantsLoading } = useTenantsStore();
+  const { getServiceById, isLoading: servicesLoading } = useServicesStore();
 
-  const [isLoading, setIsLoading] = useState(true);
+  const [dataLoaded, setDataLoaded] = useState(false);
   const [service, setService] = useState<Service | null>(null);
+  const [tenant, setTenant] = useState<ReturnType<typeof getTenantBySlug>>(undefined);
   const [selectedTier, setSelectedTier] = useState<ServiceTier | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -46,8 +47,10 @@ export default function ServiceRequestPage() {
     notes: "",
   });
 
-  const tenant = useMemo(() => getTenantBySlug(slug), [slug, getTenantBySlug]);
   const primaryColor = tenant?.branding?.primaryColor || "#f96d4a";
+  
+  // Show loading until stores are ready AND we've processed the data
+  const isLoading = tenantsLoading || servicesLoading || !dataLoaded;
 
   // Load guest name from localStorage
   useEffect(() => {
@@ -59,8 +62,15 @@ export default function ServiceRequestPage() {
     }
   }, [slug]);
 
-  // Load service
+  // Load service and tenant once stores are ready
   useEffect(() => {
+    if (tenantsLoading || servicesLoading) {
+      return;
+    }
+    
+    const foundTenant = getTenantBySlug(slug);
+    setTenant(foundTenant);
+    
     const foundService = getServiceById(serviceId);
     if (foundService) {
       setService(foundService);
@@ -69,8 +79,9 @@ export default function ServiceRequestPage() {
         setSelectedTier(foundService.tiers[0]);
       }
     }
-    setIsLoading(false);
-  }, [serviceId, getServiceById]);
+    
+    setDataLoaded(true);
+  }, [slug, serviceId, getTenantBySlug, getServiceById, tenantsLoading, servicesLoading]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -100,8 +111,73 @@ export default function ServiceRequestPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-surface-50">
-        <Spinner size="lg" />
+      <div className="min-h-screen bg-surface-50">
+        {/* Skeleton Header */}
+        <header className="sticky top-0 z-40 bg-white border-b border-surface-200">
+          <div className="max-w-3xl mx-auto px-4 py-4">
+            <div className="h-5 w-32 bg-surface-200 rounded animate-pulse" />
+          </div>
+        </header>
+
+        <main className="max-w-3xl mx-auto px-4 py-6 pb-32">
+          {/* Skeleton Image */}
+          <div className="h-48 sm:h-64 rounded-2xl bg-surface-200 animate-pulse mb-6" />
+          
+          {/* Skeleton Title & Description */}
+          <div className="mb-8 space-y-3">
+            <div className="h-8 w-3/4 bg-surface-200 rounded animate-pulse" />
+            <div className="h-4 w-full bg-surface-200 rounded animate-pulse" />
+            <div className="h-4 w-2/3 bg-surface-200 rounded animate-pulse" />
+          </div>
+
+          {/* Skeleton Tier Cards */}
+          <div className="space-y-4 mb-6">
+            <div className="h-6 w-40 bg-surface-200 rounded animate-pulse" />
+            {[1, 2].map((i) => (
+              <div key={i} className="rounded-2xl border-2 border-surface-200 p-5">
+                <div className="flex justify-between items-start">
+                  <div className="space-y-2 flex-1">
+                    <div className="h-5 w-32 bg-surface-200 rounded animate-pulse" />
+                    <div className="h-4 w-48 bg-surface-200 rounded animate-pulse" />
+                  </div>
+                  <div className="h-6 w-16 bg-surface-200 rounded animate-pulse" />
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Skeleton Form Fields */}
+          <div className="space-y-6">
+            <div className="bg-white rounded-2xl p-5 border border-surface-200">
+              <div className="h-6 w-48 bg-surface-200 rounded animate-pulse mb-4" />
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div className="h-12 bg-surface-200 rounded-xl animate-pulse" />
+                <div className="h-12 bg-surface-200 rounded-xl animate-pulse" />
+              </div>
+            </div>
+            <div className="bg-white rounded-2xl p-5 border border-surface-200">
+              <div className="h-6 w-36 bg-surface-200 rounded animate-pulse mb-4" />
+              <div className="space-y-4">
+                <div className="h-12 bg-surface-200 rounded-xl animate-pulse" />
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div className="h-12 bg-surface-200 rounded-xl animate-pulse" />
+                  <div className="h-12 bg-surface-200 rounded-xl animate-pulse" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+
+        {/* Skeleton Bottom Bar */}
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-surface-200 p-4 z-50">
+          <div className="max-w-3xl mx-auto flex items-center justify-between gap-4">
+            <div className="space-y-2">
+              <div className="h-4 w-20 bg-surface-200 rounded animate-pulse" />
+              <div className="h-7 w-16 bg-surface-200 rounded animate-pulse" />
+            </div>
+            <div className="h-12 w-36 bg-surface-200 rounded-xl animate-pulse" />
+          </div>
+        </div>
       </div>
     );
   }
