@@ -15,7 +15,7 @@ export default function TenantsPage() {
 
   const handleDelete = async (tenantId: string) => {
     if (confirm("Are you sure you want to delete this tenant?")) {
-      deleteTenant(tenantId);
+      await deleteTenant(tenantId);
     }
   };
 
@@ -30,7 +30,7 @@ export default function TenantsPage() {
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-foreground">{t("tenants")}</h1>
           <p className="text-foreground/60 mt-1 text-sm sm:text-base">
-            Manage your property tenants ({tenants.length} total)
+            {t("manageTenants")} ({tenants.length} {t("total")})
           </p>
         </div>
         <Button

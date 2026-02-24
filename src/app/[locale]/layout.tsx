@@ -4,6 +4,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
+import { FirebaseInitializer } from "@/components/FirebaseInitializer";
 import "../globals.css";
 
 const outfit = Outfit({
@@ -46,6 +47,7 @@ export default async function LocaleLayout({
     <html lang={locale} className={outfit.variable}>
       <body className="min-h-screen bg-background font-sans antialiased">
         <NextIntlClientProvider messages={messages}>
+          <FirebaseInitializer />
           {children}
         </NextIntlClientProvider>
       </body>

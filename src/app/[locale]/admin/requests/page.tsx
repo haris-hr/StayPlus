@@ -6,85 +6,8 @@ import { motion } from "framer-motion";
 import { RequestsTable, RequestDetailModal } from "@/components/admin";
 import { Card, CardHeader, CardTitle, CardContent, Spinner, Select } from "@/components/ui";
 import type { ServiceRequest, Locale, RequestStatus } from "@/types";
-
-// Mock data
-const mockRequests: ServiceRequest[] = [
-  {
-    id: "req-001",
-    tenantId: "demo",
-    serviceId: "3",
-    serviceName: { en: "Airport Transfer", bs: "Aerodromski Transfer" },
-    categoryId: "transport",
-    guestName: "John Smith",
-    guestEmail: "john@example.com",
-    status: "pending",
-    currency: "EUR",
-    createdAt: new Date(Date.now() - 1000 * 60 * 30),
-    updatedAt: new Date(),
-  },
-  {
-    id: "req-002",
-    tenantId: "demo",
-    serviceId: "7",
-    serviceName: { en: "Breakfast", bs: "Doručak" },
-    categoryId: "food",
-    guestName: "Maria Garcia",
-    guestEmail: "maria@example.com",
-    guestPhone: "+387 61 234 567",
-    status: "confirmed",
-    date: new Date(Date.now() + 1000 * 60 * 60 * 24),
-    time: "08:00",
-    currency: "EUR",
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2),
-    updatedAt: new Date(),
-  },
-  {
-    id: "req-003",
-    tenantId: "demo",
-    serviceId: "5",
-    serviceName: { en: "Erma Safari", bs: "Erma Safari" },
-    categoryId: "tours",
-    guestName: "Alex Johnson",
-    status: "completed",
-    selectedTier: "Premium",
-    price: 75,
-    currency: "EUR",
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24),
-    updatedAt: new Date(),
-  },
-  {
-    id: "req-004",
-    tenantId: "demo",
-    serviceId: "9",
-    serviceName: { en: "Romantic Setup", bs: "Romantična Priprema" },
-    categoryId: "special",
-    guestName: "Michael Brown",
-    guestEmail: "michael@example.com",
-    status: "in_progress",
-    notes: "Anniversary celebration, please add extra candles",
-    currency: "EUR",
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 5),
-    updatedAt: new Date(),
-  },
-  {
-    id: "req-005",
-    tenantId: "demo",
-    serviceId: "10",
-    serviceName: { en: "Shopping Run", bs: "Kupovina" },
-    categoryId: "convenience",
-    guestName: "Sarah Wilson",
-    guestEmail: "sarah@example.com",
-    status: "cancelled",
-    notes: "Guest cancelled - no longer needed",
-    currency: "EUR",
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 48),
-    updatedAt: new Date(),
-  },
-];
-
-const mockTenantNames: Record<string, string> = {
-  demo: "Sunny Sarajevo Apartment",
-};
+import { subscribeRequests, updateRequestStatus } from "@/lib/firebase/firestore";
+import { useTenantsStore } from "@/hooks";
 
 const statusOptions = [
   { value: "", label: "All Statuses" },
@@ -98,6 +21,7 @@ const statusOptions = [
 export default function RequestsPage() {
   const t = useTranslations("admin");
   const locale = useLocale() as Locale;
+  const { tenants } = useTenantsStore();
   
   const [requests, setRequests] = useState<ServiceRequest[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -105,11 +29,14 @@ export default function RequestsPage() {
   const [showRequestModal, setShowRequestModal] = useState(false);
   const [filterStatus, setFilterStatus] = useState<string>("");
 
+  // Subscribe to real-time requests from Firestore
   useEffect(() => {
-    setTimeout(() => {
-      setRequests(mockRequests);
+    const unsubscribe = subscribeRequests((updatedRequests) => {
+      setRequests(updatedRequests);
       setIsLoading(false);
-    }, 500);
+    });
+
+    return () => unsubscribe();
   }, []);
 
   const handleViewRequest = (request: ServiceRequest) => {
@@ -118,15 +45,24 @@ export default function RequestsPage() {
   };
 
   const handleUpdateStatus = async (requestId: string, status: RequestStatus) => {
-    setRequests(
-      requests.map((r) => (r.id === requestId ? { ...r, status } : r))
-    );
-    setSelectedRequest((prev) => (prev ? { ...prev, status } : null));
+    try {
+      await updateRequestStatus(requestId, status);
+      // Update local state for the modal
+      setSelectedRequest((prev) => (prev ? { ...prev, status } : null));
+    } catch (error) {
+      console.error("Failed to update request status:", error);
+    }
   };
 
   const filteredRequests = requests.filter((r) => {
     if (filterStatus && r.status !== filterStatus) return false;
     return true;
+  });
+
+  // Build tenant names map for display
+  const tenantNames: Record<string, string> = {};
+  tenants.forEach((t) => {
+    tenantNames[t.id] = t.name;
   });
 
   if (isLoading) {
@@ -186,7 +122,7 @@ export default function RequestsPage() {
               locale={locale}
               onViewRequest={handleViewRequest}
               showTenant
-              tenantNames={mockTenantNames}
+              tenantNames={tenantNames}
             />
           </CardContent>
         </Card>

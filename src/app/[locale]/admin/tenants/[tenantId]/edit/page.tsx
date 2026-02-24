@@ -15,12 +15,12 @@ export default function EditTenantPage() {
   const tenant = getTenantById(tenantId) || null;
 
   const handleSave = async (data: Partial<Tenant>) => {
-    updateTenant(tenantId, data);
+    await updateTenant(tenantId, data);
     router.push("/admin/tenants");
   };
 
   const handleDelete = async () => {
-    deleteTenant(tenantId);
+    await deleteTenant(tenantId);
     router.push("/admin/tenants");
   };
 

@@ -12,97 +12,31 @@ import {
   Layers,
 } from "lucide-react";
 import { StatsCard, RequestsTable, RequestDetailModal } from "@/components/admin";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui";
+import { Card, CardHeader, CardTitle, CardContent, Spinner } from "@/components/ui";
 import type { ServiceRequest, Locale, RequestStatus } from "@/types";
-
-// Mock data for development
-const mockRequests: ServiceRequest[] = [
-  {
-    id: "req-001",
-    tenantId: "demo",
-    serviceId: "3",
-    serviceName: { en: "Airport Transfer", bs: "Aerodromski Transfer" },
-    categoryId: "transport",
-    guestName: "John Smith",
-    guestEmail: "john@example.com",
-    status: "pending",
-    currency: "EUR",
-    createdAt: new Date(Date.now() - 1000 * 60 * 30), // 30 mins ago
-    updatedAt: new Date(),
-  },
-  {
-    id: "req-002",
-    tenantId: "demo",
-    serviceId: "7",
-    serviceName: { en: "Breakfast", bs: "Doručak" },
-    categoryId: "food",
-    guestName: "Maria Garcia",
-    guestEmail: "maria@example.com",
-    guestPhone: "+387 61 234 567",
-    status: "confirmed",
-    date: new Date(Date.now() + 1000 * 60 * 60 * 24),
-    time: "08:00",
-    currency: "EUR",
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 hours ago
-    updatedAt: new Date(),
-  },
-  {
-    id: "req-003",
-    tenantId: "demo",
-    serviceId: "5",
-    serviceName: { en: "Erma Safari", bs: "Erma Safari" },
-    categoryId: "tours",
-    guestName: "Alex Johnson",
-    status: "completed",
-    selectedTier: "Premium",
-    price: 75,
-    currency: "EUR",
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24), // 1 day ago
-    updatedAt: new Date(),
-  },
-  {
-    id: "req-004",
-    tenantId: "demo",
-    serviceId: "9",
-    serviceName: { en: "Romantic Setup", bs: "Romantična Priprema" },
-    categoryId: "special",
-    guestName: "Michael Brown",
-    guestEmail: "michael@example.com",
-    status: "in_progress",
-    notes: "Anniversary celebration, please add extra candles",
-    currency: "EUR",
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 5), // 5 hours ago
-    updatedAt: new Date(),
-  },
-];
-
-const mockTenantNames: Record<string, string> = {
-  demo: "Sunny Sarajevo Apartment",
-};
+import { subscribeRequests, updateRequestStatus } from "@/lib/firebase/firestore";
+import { useTenantsStore, useServicesStore } from "@/hooks";
 
 export default function AdminDashboardPage() {
   const t = useTranslations("admin");
   const locale = useLocale() as Locale;
   
+  const { tenants } = useTenantsStore();
+  const { services } = useServicesStore();
+  
   const [requests, setRequests] = useState<ServiceRequest[]>([]);
   const [selectedRequest, setSelectedRequest] = useState<ServiceRequest | null>(null);
   const [showRequestModal, setShowRequestModal] = useState(false);
-  const [, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
 
+  // Subscribe to real-time requests from Firestore
   useEffect(() => {
-    // In production, fetch from Firebase
-    // const fetchData = async () => {
-    //   const requests = await getAllRequests();
-    //   setRequests(requests);
-    //   setIsLoading(false);
-    // };
-    // fetchData();
-
-    // Mock data for development
-    setTimeout(() => {
-      setRequests(mockRequests);
+    const unsubscribe = subscribeRequests((updatedRequests) => {
+      setRequests(updatedRequests);
       setIsLoading(false);
-    }, 500);
+    });
+
+    return () => unsubscribe();
   }, []);
 
   const handleViewRequest = (request: ServiceRequest) => {
@@ -111,12 +45,19 @@ export default function AdminDashboardPage() {
   };
 
   const handleUpdateStatus = async (requestId: string, status: RequestStatus) => {
-    // In production: await updateRequest(requestId, { status });
-    setRequests(
-      requests.map((r) => (r.id === requestId ? { ...r, status } : r))
-    );
-    setSelectedRequest((prev) => (prev ? { ...prev, status } : null));
+    try {
+      await updateRequestStatus(requestId, status);
+      setSelectedRequest((prev) => (prev ? { ...prev, status } : null));
+    } catch (error) {
+      console.error("Failed to update request status:", error);
+    }
   };
+
+  // Build tenant names map for display
+  const tenantNames: Record<string, string> = {};
+  tenants.forEach((t) => {
+    tenantNames[t.id] = t.name;
+  });
 
   // Calculate stats - memoized to avoid recalculating on every render
   const stats = useMemo(() => {
@@ -128,6 +69,33 @@ export default function AdminDashboardPage() {
       thisWeek: requests.filter((r) => r.createdAt.getTime() > weekAgo).length,
     };
   }, [requests]);
+
+  // Calculate popular services
+  const popularServices = useMemo(() => {
+    const serviceCounts: Record<string, { name: string; count: number }> = {};
+    requests.forEach((r) => {
+      const name = r.serviceName.en;
+      if (!serviceCounts[r.serviceId]) {
+        serviceCounts[r.serviceId] = { name, count: 0 };
+      }
+      serviceCounts[r.serviceId].count++;
+    });
+    return Object.values(serviceCounts)
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 3);
+  }, [requests]);
+
+  // Count active tenants and services
+  const activeTenants = tenants.filter((t) => t.active).length;
+  const activeServices = services.filter((s) => s.active).length;
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Spinner size="lg" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
@@ -174,8 +142,6 @@ export default function AdminDashboardPage() {
           icon={TrendingUp}
           iconBg="bg-purple-100"
           iconColor="text-purple-600"
-          change="+12% from last week"
-          changeType="positive"
           delay={0.3}
         />
       </div>
@@ -195,7 +161,7 @@ export default function AdminDashboardPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-4xl font-bold text-foreground mb-2">1</div>
+              <div className="text-4xl font-bold text-foreground mb-2">{activeTenants}</div>
               <p className="text-foreground/60 text-sm">Active tenants</p>
             </CardContent>
           </Card>
@@ -214,7 +180,7 @@ export default function AdminDashboardPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-4xl font-bold text-foreground mb-2">10</div>
+              <div className="text-4xl font-bold text-foreground mb-2">{activeServices}</div>
               <p className="text-foreground/60 text-sm">Active services</p>
             </CardContent>
           </Card>
@@ -231,21 +197,21 @@ export default function AdminDashboardPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {[
-                  { name: "Airport Transfer", count: 12 },
-                  { name: "Breakfast", count: 8 },
-                  { name: "Day Trip", count: 5 },
-                ].map((service, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center justify-between"
-                  >
-                    <span className="text-foreground">{service.name}</span>
-                    <span className="text-foreground/60 text-sm">
-                      {service.count} requests
-                    </span>
-                  </div>
-                ))}
+                {popularServices.length > 0 ? (
+                  popularServices.map((service, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center justify-between"
+                    >
+                      <span className="text-foreground">{service.name}</span>
+                      <span className="text-foreground/60 text-sm">
+                        {service.count} request{service.count !== 1 ? "s" : ""}
+                      </span>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-foreground/60 text-sm">No requests yet</p>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -268,7 +234,7 @@ export default function AdminDashboardPage() {
               locale={locale}
               onViewRequest={handleViewRequest}
               showTenant
-              tenantNames={mockTenantNames}
+              tenantNames={tenantNames}
             />
           </CardContent>
         </Card>

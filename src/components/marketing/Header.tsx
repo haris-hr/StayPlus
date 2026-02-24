@@ -4,9 +4,8 @@ import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { motion } from "framer-motion";
-import { Menu, X, Sparkles } from "lucide-react";
-import { Button } from "@/components/ui";
-import { LanguageSwitcher } from "@/components/ui";
+import { Menu, X } from "lucide-react";
+import { Button, LanguageSwitcher, Logo, LogoText } from "@/components/ui";
 import { cn } from "@/lib/utils";
 
 const Header = () => {
@@ -41,12 +40,8 @@ const Header = () => {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center shadow-lg shadow-primary-500/25 group-hover:shadow-xl group-hover:shadow-primary-500/30 transition-all duration-300">
-              <Sparkles className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-xl font-bold text-foreground">
-              Stay<span className="text-primary-500">Plus</span>
-            </span>
+            <Logo size="md" />
+            <LogoText className="text-xl" />
           </Link>
 
           {/* Desktop Navigation */}

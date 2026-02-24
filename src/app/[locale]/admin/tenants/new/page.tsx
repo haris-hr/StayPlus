@@ -23,7 +23,7 @@ export default function NewTenantPage() {
       updatedAt: now,
     };
 
-    addTenant(newTenant);
+    await addTenant(newTenant);
     router.push("/admin/tenants");
   };
 

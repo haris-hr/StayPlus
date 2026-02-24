@@ -19,9 +19,10 @@ import {
   type DocumentData,
 } from "firebase/firestore";
 import { getDb } from "./config";
-import type { Tenant, Service } from "@/types";
+import type { Tenant, Service, ServiceCategory, ServiceRequest, RequestStatus } from "@/types";
 import { tenants as seedTenantsRecord } from "@/data/tenants";
 import { allServices as seedServices } from "@/data/services";
+import { categories as seedCategoriesData } from "@/data/categories";
 
 // Convert tenants record to array
 const seedTenants = Object.values(seedTenantsRecord);
@@ -29,6 +30,8 @@ const seedTenants = Object.values(seedTenantsRecord);
 // Collection names
 const TENANTS_COLLECTION = "tenants";
 const SERVICES_COLLECTION = "services";
+const CATEGORIES_COLLECTION = "categories";
+const REQUESTS_COLLECTION = "requests";
 
 // Helper to convert Firestore timestamps to Dates
 function convertTimestamps<T extends Record<string, unknown>>(data: T): T {
@@ -300,4 +303,268 @@ export async function resetDatabase(): Promise<void> {
   
   // Re-seed
   await seedDatabase();
+}
+
+// ==================== CATEGORIES ====================
+
+export async function getAllCategories(): Promise<ServiceCategory[]> {
+  const db = await getDb();
+  const q = query(collection(db, CATEGORIES_COLLECTION), orderBy("order", "asc"));
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }) as ServiceCategory);
+}
+
+export async function getCategoryById(categoryId: string): Promise<ServiceCategory | null> {
+  const db = await getDb();
+  const docRef = doc(db, CATEGORIES_COLLECTION, categoryId);
+  const snapshot = await getDoc(docRef);
+  if (!snapshot.exists()) return null;
+  return { ...snapshot.data(), id: snapshot.id } as ServiceCategory;
+}
+
+export async function createCategory(category: ServiceCategory): Promise<void> {
+  const db = await getDb();
+  const docRef = doc(db, CATEGORIES_COLLECTION, category.id);
+  await setDoc(docRef, category);
+}
+
+export async function updateCategory(categoryId: string, data: Partial<ServiceCategory>): Promise<void> {
+  const db = await getDb();
+  const docRef = doc(db, CATEGORIES_COLLECTION, categoryId);
+  await updateDoc(docRef, data as Record<string, unknown>);
+}
+
+export async function deleteCategory(categoryId: string): Promise<void> {
+  const db = await getDb();
+  const docRef = doc(db, CATEGORIES_COLLECTION, categoryId);
+  await deleteDoc(docRef);
+}
+
+export function subscribeCategories(callback: (categories: ServiceCategory[]) => void): Unsubscribe {
+  let unsubscribe: Unsubscribe = () => {};
+  
+  getDb().then((db) => {
+    const q = query(collection(db, CATEGORIES_COLLECTION), orderBy("order", "asc"));
+    unsubscribe = onSnapshot(q, (snapshot) => {
+      const categories = snapshot.docs.map((doc) => 
+        ({ ...doc.data(), id: doc.id }) as ServiceCategory
+      );
+      callback(categories);
+    });
+  });
+  
+  return () => unsubscribe();
+}
+
+export async function seedCategoriesCollection(): Promise<number> {
+  const db = await getDb();
+  
+  // Check if already seeded
+  const snapshot = await getDocs(collection(db, CATEGORIES_COLLECTION));
+  if (!snapshot.empty) {
+    return 0;
+  }
+  
+  const batch = writeBatch(db);
+  for (const category of seedCategoriesData) {
+    const docRef = doc(db, CATEGORIES_COLLECTION, category.id);
+    batch.set(docRef, category);
+  }
+  await batch.commit();
+  
+  return seedCategoriesData.length;
+}
+
+// ==================== REQUESTS ====================
+
+export async function getAllRequests(): Promise<ServiceRequest[]> {
+  const db = await getDb();
+  const q = query(collection(db, REQUESTS_COLLECTION), orderBy("createdAt", "desc"));
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map((doc) => convertTimestamps({ ...doc.data(), id: doc.id }) as ServiceRequest);
+}
+
+export async function getRequestById(requestId: string): Promise<ServiceRequest | null> {
+  const db = await getDb();
+  const docRef = doc(db, REQUESTS_COLLECTION, requestId);
+  const snapshot = await getDoc(docRef);
+  if (!snapshot.exists()) return null;
+  return convertTimestamps({ ...snapshot.data(), id: snapshot.id }) as ServiceRequest;
+}
+
+export async function getRequestsByTenantId(tenantId: string): Promise<ServiceRequest[]> {
+  const db = await getDb();
+  const q = query(
+    collection(db, REQUESTS_COLLECTION),
+    where("tenantId", "==", tenantId),
+    orderBy("createdAt", "desc")
+  );
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map((doc) => convertTimestamps({ ...doc.data(), id: doc.id }) as ServiceRequest);
+}
+
+export async function getRequestsByStatus(status: RequestStatus): Promise<ServiceRequest[]> {
+  const db = await getDb();
+  const q = query(
+    collection(db, REQUESTS_COLLECTION),
+    where("status", "==", status),
+    orderBy("createdAt", "desc")
+  );
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map((doc) => convertTimestamps({ ...doc.data(), id: doc.id }) as ServiceRequest);
+}
+
+export async function createRequest(request: ServiceRequest): Promise<void> {
+  const db = await getDb();
+  const docRef = doc(db, REQUESTS_COLLECTION, request.id);
+  await setDoc(docRef, prepareForFirestore(request as unknown as Record<string, unknown>));
+}
+
+export async function updateRequest(requestId: string, data: Partial<ServiceRequest>): Promise<void> {
+  const db = await getDb();
+  const docRef = doc(db, REQUESTS_COLLECTION, requestId);
+  await updateDoc(docRef, prepareForFirestore({ ...data, updatedAt: new Date() } as unknown as Record<string, unknown>));
+}
+
+export async function updateRequestStatus(requestId: string, status: RequestStatus): Promise<void> {
+  return updateRequest(requestId, { status });
+}
+
+export async function deleteRequest(requestId: string): Promise<void> {
+  const db = await getDb();
+  const docRef = doc(db, REQUESTS_COLLECTION, requestId);
+  await deleteDoc(docRef);
+}
+
+export function subscribeRequests(callback: (requests: ServiceRequest[]) => void): Unsubscribe {
+  let unsubscribe: Unsubscribe = () => {};
+  
+  getDb().then((db) => {
+    const q = query(collection(db, REQUESTS_COLLECTION), orderBy("createdAt", "desc"));
+    unsubscribe = onSnapshot(q, (snapshot) => {
+      const requests = snapshot.docs.map((doc) => 
+        convertTimestamps({ ...doc.data(), id: doc.id }) as ServiceRequest
+      );
+      callback(requests);
+    });
+  });
+  
+  return () => unsubscribe();
+}
+
+export function subscribeRequestsByTenant(
+  tenantId: string,
+  callback: (requests: ServiceRequest[]) => void
+): Unsubscribe {
+  let unsubscribe: Unsubscribe = () => {};
+  
+  getDb().then((db) => {
+    const q = query(
+      collection(db, REQUESTS_COLLECTION),
+      where("tenantId", "==", tenantId),
+      orderBy("createdAt", "desc")
+    );
+    unsubscribe = onSnapshot(q, (snapshot) => {
+      const requests = snapshot.docs.map((doc) => 
+        convertTimestamps({ ...doc.data(), id: doc.id }) as ServiceRequest
+      );
+      callback(requests);
+    });
+  });
+  
+  return () => unsubscribe();
+}
+
+// Seed sample requests for demo purposes
+export async function seedRequests(): Promise<number> {
+  const db = await getDb();
+  
+  // Check if already seeded
+  const snapshot = await getDocs(collection(db, REQUESTS_COLLECTION));
+  if (!snapshot.empty) {
+    return 0;
+  }
+  
+  const sampleRequests: ServiceRequest[] = [
+    {
+      id: "req-001",
+      tenantId: "sunny-sarajevo",
+      serviceId: "sunny-sarajevo-airport-transfer",
+      serviceName: { en: "Airport Transfer", bs: "Aerodromski Transfer" },
+      categoryId: "transport",
+      guestName: "John Smith",
+      guestEmail: "john@example.com",
+      status: "pending",
+      currency: "EUR",
+      createdAt: new Date(Date.now() - 1000 * 60 * 30),
+      updatedAt: new Date(),
+    },
+    {
+      id: "req-002",
+      tenantId: "sunny-sarajevo",
+      serviceId: "sunny-sarajevo-breakfast",
+      serviceName: { en: "Breakfast", bs: "Doručak" },
+      categoryId: "food",
+      guestName: "Maria Garcia",
+      guestEmail: "maria@example.com",
+      guestPhone: "+387 61 234 567",
+      status: "confirmed",
+      date: new Date(Date.now() + 1000 * 60 * 60 * 24),
+      time: "08:00",
+      currency: "EUR",
+      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2),
+      updatedAt: new Date(),
+    },
+    {
+      id: "req-003",
+      tenantId: "sunny-sarajevo",
+      serviceId: "sunny-sarajevo-erma-safari",
+      serviceName: { en: "Erma Safari", bs: "Erma Safari" },
+      categoryId: "tours",
+      guestName: "Alex Johnson",
+      status: "completed",
+      selectedTier: "Premium",
+      price: 75,
+      currency: "EUR",
+      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24),
+      updatedAt: new Date(),
+    },
+    {
+      id: "req-004",
+      tenantId: "sunny-sarajevo",
+      serviceId: "sunny-sarajevo-romantic-setup",
+      serviceName: { en: "Romantic Setup", bs: "Romantična Priprema" },
+      categoryId: "special",
+      guestName: "Michael Brown",
+      guestEmail: "michael@example.com",
+      status: "in_progress",
+      notes: "Anniversary celebration, please add extra candles",
+      currency: "EUR",
+      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 5),
+      updatedAt: new Date(),
+    },
+    {
+      id: "req-005",
+      tenantId: "sunny-sarajevo",
+      serviceId: "sunny-sarajevo-shopping-run",
+      serviceName: { en: "Shopping Run", bs: "Kupovina" },
+      categoryId: "convenience",
+      guestName: "Sarah Wilson",
+      guestEmail: "sarah@example.com",
+      status: "cancelled",
+      notes: "Guest cancelled - no longer needed",
+      currency: "EUR",
+      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 48),
+      updatedAt: new Date(),
+    },
+  ];
+  
+  const batch = writeBatch(db);
+  for (const request of sampleRequests) {
+    const docRef = doc(db, REQUESTS_COLLECTION, request.id);
+    batch.set(docRef, prepareForFirestore(request as unknown as Record<string, unknown>));
+  }
+  await batch.commit();
+  
+  return sampleRequests.length;
 }

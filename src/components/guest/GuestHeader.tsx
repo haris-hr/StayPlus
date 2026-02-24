@@ -2,8 +2,8 @@
 
 import Image from "next/image";
 import { Link } from "@/i18n/routing";
-import { Sparkles, User } from "lucide-react";
-import { LanguageSwitcher } from "@/components/ui";
+import { User } from "lucide-react";
+import { LanguageSwitcher, Logo, LogoText } from "@/components/ui";
 import type { Tenant } from "@/types";
 
 interface GuestHeaderProps {
@@ -41,11 +41,9 @@ const GuestHeader = ({ tenant, guestName }: GuestHeaderProps) => {
                   />
                 ) : (
                   <Link href="/" className="flex items-center gap-2">
-                    <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center shadow-md">
-                      <Sparkles className="w-4 h-4 text-white" />
-                    </div>
-                    <span className="text-lg font-bold text-foreground hidden sm:block">
-                      Stay<span className="text-primary-500">Plus</span>
+                    <Logo size="sm" />
+                    <span className="hidden sm:block">
+                      <LogoText />
                     </span>
                   </Link>
                 )}

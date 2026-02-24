@@ -13,12 +13,11 @@ import {
   Users,
   Settings,
   Languages,
-  Sparkles,
   LogOut,
   ChevronLeft,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Avatar } from "@/components/ui";
+import { Avatar, Logo, LogoText } from "@/components/ui";
 
 interface AdminSidebarProps {
   isCollapsed: boolean;
@@ -77,17 +76,14 @@ const AdminSidebar = ({
       {/* Header */}
       <div className="h-16 flex items-center justify-between px-4 border-b border-surface-200">
         <Link href="/admin" className="flex items-center gap-3" aria-label="StayPlus Admin Home">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center shadow-md flex-shrink-0">
-            <Sparkles className="w-5 h-5 text-white" aria-hidden="true" />
-          </div>
+          <Logo size="md" />
           {(!isCollapsed || isMobile) && (
             <motion.span
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="text-lg font-bold text-foreground"
             >
-              Stay<span className="text-primary-500">Plus</span>
+              <LogoText />
             </motion.span>
           )}
         </Link>

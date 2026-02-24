@@ -6,67 +6,10 @@ import { motion } from "framer-motion";
 import { Card, Spinner, Select, Badge } from "@/components/ui";
 import { formatDateTime, getLocalizedText } from "@/lib/utils";
 import type { ServiceRequest, Locale, RequestStatus } from "@/types";
+import { subscribeRequestsByTenant } from "@/lib/firebase/firestore";
 
-// Mock data
-const mockRequests: ServiceRequest[] = [
-  {
-    id: "req-001",
-    tenantId: "demo",
-    serviceId: "3",
-    serviceName: { en: "Airport Transfer", bs: "Aerodromski Transfer" },
-    categoryId: "transport",
-    guestName: "John Smith",
-    guestEmail: "john@example.com",
-    status: "pending",
-    currency: "EUR",
-    createdAt: new Date(Date.now() - 1000 * 60 * 30),
-    updatedAt: new Date(),
-  },
-  {
-    id: "req-002",
-    tenantId: "demo",
-    serviceId: "7",
-    serviceName: { en: "Breakfast", bs: "Doručak" },
-    categoryId: "food",
-    guestName: "Maria Garcia",
-    guestEmail: "maria@example.com",
-    guestPhone: "+387 61 234 567",
-    status: "confirmed",
-    date: new Date(Date.now() + 1000 * 60 * 60 * 24),
-    time: "08:00",
-    currency: "EUR",
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2),
-    updatedAt: new Date(),
-  },
-  {
-    id: "req-003",
-    tenantId: "demo",
-    serviceId: "5",
-    serviceName: { en: "Erma Safari", bs: "Erma Safari" },
-    categoryId: "tours",
-    guestName: "Alex Johnson",
-    status: "completed",
-    selectedTier: "Premium",
-    price: 75,
-    currency: "EUR",
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24),
-    updatedAt: new Date(),
-  },
-  {
-    id: "req-004",
-    tenantId: "demo",
-    serviceId: "9",
-    serviceName: { en: "Romantic Setup", bs: "Romantična Priprema" },
-    categoryId: "special",
-    guestName: "Michael Brown",
-    guestEmail: "michael@example.com",
-    status: "in_progress",
-    notes: "Anniversary celebration",
-    currency: "EUR",
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 5),
-    updatedAt: new Date(),
-  },
-];
+// For now, hardcode the tenant ID - in production this would come from auth context
+const CURRENT_TENANT_ID = "sunny-sarajevo";
 
 const statusOptions = [
   { value: "", label: "All Statuses" },
@@ -94,11 +37,14 @@ export default function TenantRequestsPage() {
   const [filterStatus, setFilterStatus] = useState<string>("");
   const [selectedRequest, setSelectedRequest] = useState<ServiceRequest | null>(null);
 
+  // Subscribe to real-time requests for this tenant from Firestore
   useEffect(() => {
-    setTimeout(() => {
-      setRequests(mockRequests);
+    const unsubscribe = subscribeRequestsByTenant(CURRENT_TENANT_ID, (updatedRequests) => {
+      setRequests(updatedRequests);
       setIsLoading(false);
-    }, 500);
+    });
+
+    return () => unsubscribe();
   }, []);
 
   const filteredRequests = requests.filter((r) => {

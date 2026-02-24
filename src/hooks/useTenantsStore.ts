@@ -1,71 +1,26 @@
 "use client";
 
-import { useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback } from "react";
 import type { Tenant } from "@/types";
-import { getAllTenants } from "@/data/tenants";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
-
-const STORAGE_KEY = "stayplus.tenants.v1";
-
-function reviveDate(value: unknown): Date {
-  if (value instanceof Date) return value;
-  if (typeof value === "string") {
-    const d = new Date(value);
-    if (!Number.isNaN(d.getTime())) return d;
-  }
-  return new Date();
-}
-
-function reviveTenant(value: unknown): Tenant | null {
-  if (!value || typeof value !== "object") return null;
-  const v = value as Record<string, unknown>;
-
-  const id = v.id;
-  const slug = v.slug;
-  const name = v.name;
-  if (typeof id !== "string" || typeof slug !== "string" || typeof name !== "string") {
-    return null;
-  }
-
-  const description = v.description;
-  const branding = v.branding;
-  const contact = v.contact;
-  const active = v.active;
-  const createdAt = v.createdAt;
-  const updatedAt = v.updatedAt;
-
-  return {
-    id,
-    slug,
-    name,
-    description: description as Tenant["description"],
-    branding: (branding ?? {}) as Tenant["branding"],
-    contact: (contact ?? { email: "" }) as Tenant["contact"],
-    active: Boolean(active),
-    createdAt: reviveDate(createdAt),
-    updatedAt: reviveDate(updatedAt),
-  };
-}
-
-function reviveTenants(value: unknown): Tenant[] {
-  if (!Array.isArray(value)) return [];
-  return value
-    .map(reviveTenant)
-    .filter((t): t is Tenant => Boolean(t));
-}
+import * as firestoreService from "@/lib/firebase/firestore";
 
 export function useTenantsStore() {
-  const initialTenants = useMemo(() => getAllTenants(), []);
-  const [rawTenants, setRawTenants] = useLocalStorage<unknown>(
-    STORAGE_KEY,
-    initialTenants
-  );
+  const [tenants, setTenants] = useState<Tenant[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const tenants = useMemo(() => {
-    const revived = reviveTenants(rawTenants);
-    // If storage is empty/corrupt, fall back to initial data.
-    return revived.length > 0 ? revived : initialTenants;
-  }, [rawTenants, initialTenants]);
+  // Subscribe to real-time updates
+  useEffect(() => {
+    setIsLoading(true);
+    setError(null);
+
+    const unsubscribe = firestoreService.subscribeTenants((updatedTenants) => {
+      setTenants(updatedTenants);
+      setIsLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const getTenantById = useCallback(
     (tenantId: string) => tenants.find((t) => t.id === tenantId),
@@ -77,49 +32,41 @@ export function useTenantsStore() {
     [tenants]
   );
 
-  const addTenant = useCallback(
-    (tenant: Tenant) => {
-      setRawTenants((prev: unknown) => {
-        const prevTenants = reviveTenants(prev);
-        return [...prevTenants, tenant];
-      });
-    },
-    [setRawTenants]
-  );
+  const addTenant = useCallback(async (tenant: Tenant) => {
+    try {
+      await firestoreService.createTenant(tenant);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to add tenant");
+      throw err;
+    }
+  }, []);
 
-  const updateTenant = useCallback(
-    (tenantId: string, patch: Partial<Tenant>) => {
-      setRawTenants((prev: unknown) => {
-        const prevTenants = reviveTenants(prev);
-        return prevTenants.map((t) =>
-          t.id === tenantId ? { ...t, ...patch, updatedAt: new Date() } : t
-        );
-      });
-    },
-    [setRawTenants]
-  );
+  const updateTenant = useCallback(async (tenantId: string, data: Partial<Tenant>) => {
+    try {
+      await firestoreService.updateTenant(tenantId, data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to update tenant");
+      throw err;
+    }
+  }, []);
 
-  const deleteTenant = useCallback(
-    (tenantId: string) => {
-      setRawTenants((prev: unknown) =>
-        reviveTenants(prev).filter((t) => t.id !== tenantId)
-      );
-    },
-    [setRawTenants]
-  );
-
-  const resetToSeed = useCallback(() => {
-    setRawTenants(initialTenants);
-  }, [setRawTenants, initialTenants]);
+  const deleteTenant = useCallback(async (tenantId: string) => {
+    try {
+      await firestoreService.deleteTenant(tenantId);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to delete tenant");
+      throw err;
+    }
+  }, []);
 
   return {
     tenants,
+    isLoading,
+    error,
     getTenantById,
     getTenantBySlug,
     addTenant,
     updateTenant,
     deleteTenant,
-    resetToSeed,
   };
 }
-

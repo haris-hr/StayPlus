@@ -12,7 +12,7 @@ import { getLocalizedText, getPricingDisplay } from "@/lib/utils";
 import { categories as allCategories } from "@/data/categories";
 import type { Locale, Service, ServiceCategory } from "@/types";
 import { useTenantsStore } from "@/hooks";
-import * as firebase from "@/lib/firebase";
+import { getServicesPage, deleteService as deleteServiceFromDb } from "@/lib/firebase/firestore";
 import type { DocumentData, QueryDocumentSnapshot } from "firebase/firestore";
 
 export default function ServicesPage() {
@@ -41,16 +41,12 @@ export default function ServicesPage() {
     setIsLoading(true);
     setLoadError(null);
     try {
-      const res = (await (firebase as any).getServicesPage({
+      const res = await getServicesPage({
         pageSize: 10,
         tenantId: filterTenant || undefined,
         categoryId: filterCategory || undefined,
         cursor,
-      })) as {
-        services: Service[];
-        nextCursor: QueryDocumentSnapshot<DocumentData> | null;
-        hasMore: boolean;
-      };
+      });
       setServices(res.services);
       setNextCursor(res.nextCursor);
       setHasMore(res.hasMore);
@@ -82,7 +78,7 @@ export default function ServicesPage() {
     if (!deleteTarget) return;
     setIsDeleting(true);
     try {
-      await (firebase as any).deleteService(deleteTarget.id);
+      await deleteServiceFromDb(deleteTarget.id);
       const cursor = pageCursors[pageIndex] ?? null;
       await loadPage(cursor);
     } finally {

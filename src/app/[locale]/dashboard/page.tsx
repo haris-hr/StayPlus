@@ -7,52 +7,10 @@ import { ClipboardList, Clock, CheckCircle, TrendingUp } from "lucide-react";
 import { StatsCard, RequestsTable } from "@/components/admin";
 import { Card, CardHeader, CardTitle, CardContent, Spinner } from "@/components/ui";
 import type { ServiceRequest, Locale } from "@/types";
+import { subscribeRequestsByTenant } from "@/lib/firebase/firestore";
 
-// Mock data for the tenant's requests
-const mockRequests: ServiceRequest[] = [
-  {
-    id: "req-001",
-    tenantId: "demo",
-    serviceId: "3",
-    serviceName: { en: "Airport Transfer", bs: "Aerodromski Transfer" },
-    categoryId: "transport",
-    guestName: "John Smith",
-    guestEmail: "john@example.com",
-    status: "pending",
-    currency: "EUR",
-    createdAt: new Date(Date.now() - 1000 * 60 * 30),
-    updatedAt: new Date(),
-  },
-  {
-    id: "req-002",
-    tenantId: "demo",
-    serviceId: "7",
-    serviceName: { en: "Breakfast", bs: "Doručak" },
-    categoryId: "food",
-    guestName: "Maria Garcia",
-    guestEmail: "maria@example.com",
-    status: "confirmed",
-    date: new Date(Date.now() + 1000 * 60 * 60 * 24),
-    time: "08:00",
-    currency: "EUR",
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2),
-    updatedAt: new Date(),
-  },
-  {
-    id: "req-003",
-    tenantId: "demo",
-    serviceId: "5",
-    serviceName: { en: "Erma Safari", bs: "Erma Safari" },
-    categoryId: "tours",
-    guestName: "Alex Johnson",
-    status: "completed",
-    selectedTier: "Premium",
-    price: 75,
-    currency: "EUR",
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24),
-    updatedAt: new Date(),
-  },
-];
+// For now, hardcode the tenant ID - in production this would come from auth context
+const CURRENT_TENANT_ID = "sunny-sarajevo";
 
 export default function TenantDashboardPage() {
   const t = useTranslations("admin");
@@ -61,12 +19,14 @@ export default function TenantDashboardPage() {
   const [requests, setRequests] = useState<ServiceRequest[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Subscribe to real-time requests for this tenant from Firestore
   useEffect(() => {
-    // In production, fetch tenant's requests from Firebase
-    setTimeout(() => {
-      setRequests(mockRequests);
+    const unsubscribe = subscribeRequestsByTenant(CURRENT_TENANT_ID, (updatedRequests) => {
+      setRequests(updatedRequests);
       setIsLoading(false);
-    }, 500);
+    });
+
+    return () => unsubscribe();
   }, []);
 
   // Calculate stats - memoized to avoid recalculating on every render

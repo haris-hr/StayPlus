@@ -2,8 +2,8 @@
 
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
-import { Sparkles, Mail, Phone, MapPin } from "lucide-react";
-import { LanguageSwitcher } from "@/components/ui";
+import { Mail, Phone, MapPin } from "lucide-react";
+import { LanguageSwitcher, Logo } from "@/components/ui";
 
 const Footer = () => {
   const t = useTranslations();
@@ -33,9 +33,7 @@ const Footer = () => {
           {/* Brand */}
           <div className="lg:col-span-1">
             <Link href="/" className="flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center">
-                <Sparkles className="w-5 h-5 text-white" />
-              </div>
+              <Logo size="md" />
               <span className="text-xl font-bold">
                 Stay<span className="text-primary-400">Plus</span>
               </span>
