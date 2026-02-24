@@ -3,9 +3,8 @@
 import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
-import Image from "next/image";
 import { X, Building2, Palette, Globe, Image as ImageIcon, MapPin } from "lucide-react";
-import { Button, Input, Textarea, Card } from "@/components/ui";
+import { Button, Input, Textarea, Card, ImageUpload } from "@/components/ui";
 import { slugify } from "@/lib/utils";
 import type { Tenant } from "@/types";
 
@@ -242,37 +241,20 @@ const TenantForm = ({ isOpen, onClose, tenant, onSubmit }: TenantFormProps) => {
                       Hero Banner Image
                     </h3>
                   </div>
-                  <div className="space-y-4">
-                    <Input
-                      label="Hero Image URL"
-                      value={formData.heroImage}
-                      onChange={(e) =>
-                        setFormData({ ...formData, heroImage: e.target.value })
-                      }
-                      placeholder="https://images.unsplash.com/..."
-                      hint="Recommended: 1600x600px or larger, landscape orientation"
-                    />
-                    {formData.heroImage && (
-                      <div className="relative rounded-lg overflow-hidden h-32 bg-surface-100">
-                        <Image
-                          src={formData.heroImage}
-                          alt="Hero preview"
-                          fill
-                          className="object-cover"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).style.display = 'none';
-                          }}
-                        />
+                  <ImageUpload
+                    value={formData.heroImage}
+                    onChange={(value) => setFormData({ ...formData, heroImage: value })}
+                    hint="Recommended: 1600x600px or larger. Use a photo of your apartment or scenic view."
+                    previewHeight="h-32"
+                    previewOverlay={
+                      <>
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                         <div className="absolute bottom-2 left-3 text-white text-sm font-medium">
                           {formData.name || "Tenant Name"}
                         </div>
-                      </div>
-                    )}
-                    <p className="text-xs text-foreground/50">
-                      💡 Tip: Use a photo of your apartment, building exterior, or a scenic view. This will be displayed at the top of the guest portal.
-                    </p>
-                  </div>
+                      </>
+                    }
+                  />
                 </Card>
 
                 {/* Branding */}

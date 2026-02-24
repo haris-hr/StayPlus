@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { motion } from "framer-motion";
-import { Plus, Edit2, Trash2, ExternalLink, Image as ImageIcon } from "lucide-react";
+import { Plus, Trash2, ExternalLink, Image as ImageIcon } from "lucide-react";
 import Image from "next/image";
 import { Button, Card, Badge } from "@/components/ui";
 import { Link, useRouter } from "@/i18n/routing";
@@ -57,7 +57,11 @@ export default function TenantsPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
               >
-                <Card hover className="h-full">
+                <Card 
+                  hover 
+                  className="h-full cursor-pointer"
+                  onClick={() => router.push(`/admin/tenants/${tenant.id}/edit`)}
+                >
                   {/* Hero Image or Color Bar */}
                   {heroImage ? (
                     <div className="relative h-32 -mt-6 -mx-6 mb-4 overflow-hidden rounded-t-2xl">
@@ -134,29 +138,23 @@ export default function TenantsPage() {
                   <Link
                     href={`/apartment/${tenant.slug}`}
                     target="_blank"
+                    onClick={(e) => e.stopPropagation()}
                     className="flex items-center gap-1 text-primary-600 hover:text-primary-700 text-sm font-medium"
                   >
                     <ExternalLink className="w-4 h-4" />
                     View Portal
                   </Link>
-                  <div className="flex items-center gap-1">
-                    <button
-                      onClick={() => router.push(`/admin/tenants/${tenant.id}/edit`)}
-                      className="p-2 rounded-lg hover:bg-surface-100 transition-colors"
-                      title="Edit"
-                      aria-label={`Edit ${tenant.name}`}
-                    >
-                      <Edit2 className="w-4 h-4 text-foreground/60" />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(tenant.id)}
-                      className="p-2 rounded-lg hover:bg-red-50 transition-colors"
-                      title="Delete"
-                      aria-label={`Delete ${tenant.name}`}
-                    >
-                      <Trash2 className="w-4 h-4 text-red-500" />
-                    </button>
-                  </div>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDelete(tenant.id);
+                    }}
+                    className="p-2 rounded-lg hover:bg-red-50 transition-colors"
+                    title="Delete"
+                    aria-label={`Delete ${tenant.name}`}
+                  >
+                    <Trash2 className="w-4 h-4 text-red-500" />
+                  </button>
                 </div>
               </Card>
             </motion.div>

@@ -2,9 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import Image from "next/image";
 import { Building2, ChevronLeft, Globe, Image as ImageIcon, MapPin, Palette } from "lucide-react";
-import { Button, Card, Input, Textarea } from "@/components/ui";
+import { Button, Card, Input, Textarea, ImageUpload } from "@/components/ui";
 import { slugify } from "@/lib/utils";
 import type { Tenant } from "@/types";
 import { useRouter } from "@/i18n/routing";
@@ -234,32 +233,19 @@ export function TenantEditorForm({ tenant, mode, onSubmit, onDelete }: TenantEdi
             <ImageIcon className="w-5 h-5 text-primary-600" aria-hidden="true" />
             <h2 className="font-semibold text-foreground">Hero Banner Image</h2>
           </div>
-          <div className="space-y-4">
-            <Input
-              label="Hero Image URL"
-              value={formData.heroImage}
-              onChange={(e) => setFormData((p) => ({ ...p, heroImage: e.target.value }))}
-              placeholder="https://images.unsplash.com/..."
-              hint="Recommended: 1600x600px or larger, landscape orientation"
-            />
-            {formData.heroImage && (
-              <div className="relative rounded-lg overflow-hidden h-40 bg-surface-100">
-                <Image
-                  src={formData.heroImage}
-                  alt="Hero preview"
-                  fill
-                  className="object-cover"
-                />
+          <ImageUpload
+            value={formData.heroImage}
+            onChange={(value) => setFormData((p) => ({ ...p, heroImage: value }))}
+            hint="Recommended: 1600x600px or larger, landscape orientation. Tip: Use a photo of your apartment, building exterior, or a scenic view."
+            previewOverlay={
+              <>
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                 <div className="absolute bottom-2 left-3 text-white text-sm font-medium">
                   {formData.name || "Tenant Name"}
                 </div>
-              </div>
-            )}
-            <p className="text-xs text-foreground/50">
-              Tip: Use a photo of your apartment, building exterior, or a scenic view. This will be displayed at the top of the guest portal.
-            </p>
-          </div>
+              </>
+            }
+          />
         </Card>
 
         {/* Branding */}
