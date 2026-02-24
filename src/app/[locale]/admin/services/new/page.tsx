@@ -8,7 +8,8 @@ import { ChevronLeft, Plus, Trash2 } from "lucide-react";
 import { Button, Input, Textarea, Select, Card, Spinner, ImageUpload } from "@/components/ui";
 import { categories as allCategories } from "@/data/categories";
 import type { Service, ServiceCategory, PricingType, ServiceTier } from "@/types";
-import { useServicesStore, useTenantsStore } from "@/hooks";
+import { useTenantsStore } from "@/hooks";
+import { createService } from "@/lib/firebase";
 
 const pricingTypes: { value: PricingType; label: string }[] = [
   { value: "free", label: "Free" },
@@ -20,7 +21,6 @@ const pricingTypes: { value: PricingType; label: string }[] = [
 export default function NewServicePage() {
   const t = useTranslations("admin");
   const router = useRouter();
-  const { addService } = useServicesStore();
   const { tenants } = useTenantsStore();
 
   const [categories, setCategories] = useState<ServiceCategory[]>([]);
@@ -139,7 +139,7 @@ export default function NewServicePage() {
         updatedAt: now,
       };
 
-      await addService(newService);
+      await createService(newService);
       router.push("/admin/services");
     } finally {
       setIsSubmitting(false);

@@ -233,7 +233,22 @@
     "requestDate": "Request Date",
     "service": "Service",
     "tenant": "Tenant",
-    "activeTenant": "Active Tenant"
+    "activeTenant": "Active Tenant",
+    "manageServices": "Manage services available to guests",
+    "total": "total",
+    "allTenants": "All Tenants",
+    "allCategories": "All Categories",
+    "category": "Category",
+    "status": "Status",
+    "actions": "Actions",
+    "active": "Active",
+    "inactive": "Inactive",
+    "noServicesFound": "No services found",
+    "deleteService": "Delete service?",
+    "deleteServiceConfirm": "This will permanently remove",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "manageTenants": "Manage your property tenants"
   },
   "auth": {
     "signIn": "Sign In",

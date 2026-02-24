@@ -1,43 +1,90 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/routing";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { Plus, Edit2, Trash2, Star, Image as ImageIcon } from "lucide-react";
-import { Button, Card, Badge, Select, ConfirmDialog } from "@/components/ui";
+import { Button, Card, Badge, Select, Spinner } from "@/components/ui";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { getLocalizedText, getPricingDisplay } from "@/lib/utils";
 import { categories as allCategories } from "@/data/categories";
-import type { ServiceCategory, Locale } from "@/types";
-import { useServicesStore, useTenantsStore } from "@/hooks";
+import type { Locale, Service, ServiceCategory } from "@/types";
+import { useTenantsStore } from "@/hooks";
+import * as firebase from "@/lib/firebase";
+import type { DocumentData, QueryDocumentSnapshot } from "firebase/firestore";
 
 export default function ServicesPage() {
   const t = useTranslations("admin");
   const locale = useLocale() as Locale;
   const router = useRouter();
   
-  const { services, deleteService } = useServicesStore();
   const { tenants } = useTenantsStore();
   const categories = allCategories as ServiceCategory[];
   const [filterTenant, setFilterTenant] = useState<string>("");
   const [filterCategory, setFilterCategory] = useState<string>("");
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [services, setServices] = useState<Service[]>([]);
+  const [pageIndex, setPageIndex] = useState(0);
+  const [pageCursors, setPageCursors] = useState<(QueryDocumentSnapshot<DocumentData> | null)[]>([null]);
+  const [nextCursor, setNextCursor] = useState<QueryDocumentSnapshot<DocumentData> | null>(null);
+  const [hasMore, setHasMore] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
-  const filteredServices = useMemo(() => {
-    return services.filter((s) => {
-      if (filterTenant && s.tenantId !== filterTenant) return false;
-      if (filterCategory && s.categoryId !== filterCategory) return false;
-      return true;
-    });
-  }, [services, filterTenant, filterCategory]);
+  // Filters are applied server-side via Firestore query.
+  const filteredServices = useMemo(() => services, [services]);
+
+  const loadPage = async (cursor: QueryDocumentSnapshot<DocumentData> | null) => {
+    setIsLoading(true);
+    setLoadError(null);
+    try {
+      const res = (await (firebase as any).getServicesPage({
+        pageSize: 10,
+        tenantId: filterTenant || undefined,
+        categoryId: filterCategory || undefined,
+        cursor,
+      })) as {
+        services: Service[];
+        nextCursor: QueryDocumentSnapshot<DocumentData> | null;
+        hasMore: boolean;
+      };
+      setServices(res.services);
+      setNextCursor(res.nextCursor);
+      setHasMore(res.hasMore);
+    } catch (err) {
+      setLoadError(err instanceof Error ? err.message : "Failed to load services");
+      setServices([]);
+      setNextCursor(null);
+      setHasMore(false);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Reset pagination + load first page when filters change.
+  useEffect(() => {
+    setPageIndex(0);
+    setPageCursors([null]);
+    void loadPage(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filterTenant, filterCategory]);
+
+  // Load initial page
+  useEffect(() => {
+    void loadPage(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const confirmDelete = async () => {
     if (!deleteTarget) return;
     setIsDeleting(true);
     try {
-      deleteService(deleteTarget.id);
+      await (firebase as any).deleteService(deleteTarget.id);
+      const cursor = pageCursors[pageIndex] ?? null;
+      await loadPage(cursor);
     } finally {
       setIsDeleting(false);
       setDeleteTarget(null);
@@ -58,16 +105,16 @@ export default function ServicesPage() {
     <div className="space-y-8">
       <ConfirmDialog
         isOpen={Boolean(deleteTarget)}
-        title="Delete service?"
+        title={t("deleteService")}
         description={
           deleteTarget ? (
             <>
-              This will permanently remove <span className="font-semibold">{deleteTarget.name}</span>.
+              {t("deleteServiceConfirm")} <span className="font-semibold">{deleteTarget.name}</span>.
             </>
           ) : null
         }
-        confirmText="Delete"
-        cancelText="Cancel"
+        confirmText={t("delete")}
+        cancelText={t("cancel")}
         variant="danger"
         isConfirmLoading={isDeleting}
         onCancel={() => setDeleteTarget(null)}
@@ -82,7 +129,7 @@ export default function ServicesPage() {
         <div>
           <h1 className="text-3xl font-bold text-foreground">{t("services")}</h1>
           <p className="text-foreground/60 mt-1">
-            Manage services available to guests ({filteredServices.length} total)
+            {t("manageServices")} (page {pageIndex + 1})
           </p>
         </div>
         <Button
@@ -102,8 +149,8 @@ export default function ServicesPage() {
       >
         <Select
           options={[
-            { value: "", label: "All Tenants" },
-            ...tenants.map((t) => ({ value: t.id, label: t.name })),
+            { value: "", label: t("allTenants") },
+            ...tenants.map((tenant) => ({ value: tenant.id, label: tenant.name })),
           ]}
           value={filterTenant}
           onChange={(e) => setFilterTenant(e.target.value)}
@@ -111,7 +158,7 @@ export default function ServicesPage() {
         />
         <Select
           options={[
-            { value: "", label: "All Categories" },
+            { value: "", label: t("allCategories") },
             ...categories.map((c) => ({
               value: c.id,
               label: getLocalizedText(c.name, locale),
@@ -130,27 +177,40 @@ export default function ServicesPage() {
         transition={{ delay: 0.2 }}
       >
         <Card padding="none">
+          {isLoading && (
+            <div className="p-6 border-b border-surface-200 bg-white">
+              <div className="flex items-center gap-3 text-sm text-foreground/60">
+                <Spinner size="sm" />
+                Loading services…
+              </div>
+            </div>
+          )}
+          {loadError && (
+            <div className="p-6 border-b border-surface-200 bg-white">
+              <p className="text-sm text-red-600">{loadError}</p>
+            </div>
+          )}
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="border-b border-surface-200 bg-surface-50">
                   <th className="text-left py-3 px-4 text-sm font-medium text-foreground/60">
-                    Service
+                    {t("service")}
                   </th>
                   <th className="text-left py-3 px-4 text-sm font-medium text-foreground/60">
-                    Category
+                    {t("category")}
                   </th>
                   <th className="text-left py-3 px-4 text-sm font-medium text-foreground/60">
-                    Tenant
+                    {t("tenant")}
                   </th>
                   <th className="text-left py-3 px-4 text-sm font-medium text-foreground/60">
-                    Price
+                    {t("price")}
                   </th>
                   <th className="text-left py-3 px-4 text-sm font-medium text-foreground/60">
-                    Status
+                    {t("status")}
                   </th>
                   <th className="text-right py-3 px-4 text-sm font-medium text-foreground/60">
-                    Actions
+                    {t("actions")}
                   </th>
                 </tr>
               </thead>
@@ -223,7 +283,7 @@ export default function ServicesPage() {
                     </td>
                     <td className="py-4 px-4">
                       <Badge variant={service.active ? "success" : "default"}>
-                        {service.active ? "Active" : "Inactive"}
+                        {service.active ? t("active") : t("inactive")}
                       </Badge>
                     </td>
                     <td className="py-4 px-4">
@@ -259,9 +319,52 @@ export default function ServicesPage() {
 
           {filteredServices.length === 0 && (
             <div className="text-center py-12">
-              <p className="text-foreground/60">No services found</p>
+              <p className="text-foreground/60">
+                {isLoading ? "Loading…" : t("noServicesFound")}
+              </p>
             </div>
           )}
+
+          {/* Pagination */}
+          <div className="flex items-center justify-between p-4 border-t border-surface-200 bg-white">
+            <p className="text-sm text-foreground/60">
+              Showing {filteredServices.length} service{filteredServices.length === 1 ? "" : "s"} (10 per page)
+            </p>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={async () => {
+                  if (pageIndex === 0) return;
+                  const prevIndex = pageIndex - 1;
+                  const cursor = pageCursors[prevIndex] ?? null;
+                  setPageIndex(prevIndex);
+                  await loadPage(cursor);
+                }}
+                disabled={pageIndex === 0 || isLoading}
+              >
+                Prev
+              </Button>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={async () => {
+                  if (!hasMore || !nextCursor) return;
+                  const newIndex = pageIndex + 1;
+                  setPageCursors((prev) => {
+                    const next = [...prev];
+                    next[newIndex] = nextCursor;
+                    return next;
+                  });
+                  setPageIndex(newIndex);
+                  await loadPage(nextCursor);
+                }}
+                disabled={!hasMore || isLoading}
+              >
+                Next
+              </Button>
+            </div>
+          </div>
         </Card>
       </motion.div>
     </div>

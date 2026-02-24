@@ -9,7 +9,8 @@ import { ChevronLeft, Plus, Trash2 } from "lucide-react";
 import { Button, Input, Textarea, Select, Card, Spinner, ConfirmDialog, ImageUpload } from "@/components/ui";
 import { categories as allCategories } from "@/data/categories";
 import type { Service, ServiceCategory, PricingType, ServiceTier } from "@/types";
-import { useServicesStore, useTenantsStore } from "@/hooks";
+import { useTenantsStore } from "@/hooks";
+import { deleteService, getServiceById, updateService } from "@/lib/firebase";
 
 const pricingTypes: { value: PricingType; label: string }[] = [
   { value: "free", label: "Free" },
@@ -23,7 +24,6 @@ export default function EditServicePage() {
   const router = useRouter();
   const params = useParams();
   const serviceId = params.id as string;
-  const { getServiceById, updateService, deleteService } = useServicesStore();
   const { tenants } = useTenantsStore();
 
   const [service, setService] = useState<Service | null>(null);
@@ -53,33 +53,38 @@ export default function EditServicePage() {
   });
 
   useEffect(() => {
-    const foundService = getServiceById(serviceId);
-    if (foundService) {
-      setService(foundService);
-      setFormData({
-        tenantId: foundService.tenantId,
-        categoryId: foundService.categoryId,
-        nameEn: foundService.name.en,
-        nameBs: foundService.name.bs,
-        descriptionEn: foundService.description.en,
-        descriptionBs: foundService.description.bs,
-        shortDescriptionEn: foundService.shortDescription?.en || "",
-        shortDescriptionBs: foundService.shortDescription?.bs || "",
-        image: foundService.image || "",
-        pricingType: foundService.pricingType,
-        price: foundService.price?.toString() || "",
-        currency: foundService.currency,
-        tiers: foundService.tiers || [],
-        active: foundService.active,
-        featured: foundService.featured || false,
-        order: foundService.order?.toString() || "0",
-      });
-    } else {
-      setService(null);
-    }
-    setCategories(allCategories);
-    setIsLoading(false);
-  }, [serviceId, getServiceById]);
+    const load = async () => {
+      setIsLoading(true);
+      const foundService = await getServiceById(serviceId);
+      if (foundService) {
+        setService(foundService);
+        setFormData({
+          tenantId: foundService.tenantId,
+          categoryId: foundService.categoryId,
+          nameEn: foundService.name.en,
+          nameBs: foundService.name.bs,
+          descriptionEn: foundService.description.en,
+          descriptionBs: foundService.description.bs,
+          shortDescriptionEn: foundService.shortDescription?.en || "",
+          shortDescriptionBs: foundService.shortDescription?.bs || "",
+          image: foundService.image || "",
+          pricingType: foundService.pricingType,
+          price: foundService.price?.toString() || "",
+          currency: foundService.currency,
+          tiers: foundService.tiers || [],
+          active: foundService.active,
+          featured: foundService.featured || false,
+          order: foundService.order?.toString() || "0",
+        });
+      } else {
+        setService(null);
+      }
+      setCategories(allCategories);
+      setIsLoading(false);
+    };
+
+    void load();
+  }, [serviceId]);
 
   const addTier = () => {
     setFormData({

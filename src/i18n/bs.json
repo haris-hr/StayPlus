@@ -233,7 +233,22 @@
     "requestDate": "Datum Zahtjeva",
     "service": "Usluga",
     "tenant": "Stanodavac",
-    "activeTenant": "Aktivan Stanodavac"
+    "activeTenant": "Aktivan Stanodavac",
+    "manageServices": "Upravljajte uslugama dostupnim gostima",
+    "total": "ukupno",
+    "allTenants": "Svi Stanodavci",
+    "allCategories": "Sve Kategorije",
+    "category": "Kategorija",
+    "status": "Status",
+    "actions": "Akcije",
+    "active": "Aktivno",
+    "inactive": "Neaktivno",
+    "noServicesFound": "Nema pronađenih usluga",
+    "deleteService": "Obrisati uslugu?",
+    "deleteServiceConfirm": "Ovo će trajno ukloniti",
+    "delete": "Obriši",
+    "cancel": "Otkaži",
+    "manageTenants": "Upravljajte vašim stanodavcima"
   },
   "auth": {
     "signIn": "Prijava",
