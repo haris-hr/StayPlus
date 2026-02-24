@@ -11,4 +11,4 @@ export * from "./LanguageSwitcher";
 export * from "./Skeleton";
 export * from "./ImageUpload";
 export * from "./ConfirmDialog";
-export * from "./Logo";
+export { Logo, LogoText } from "./Logo";

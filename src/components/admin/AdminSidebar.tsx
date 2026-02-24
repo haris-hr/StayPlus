@@ -17,7 +17,8 @@ import {
   ChevronLeft,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Avatar, Logo, LogoText } from "@/components/ui";
+import { Avatar } from "@/components/ui";
+import { Logo, LogoText } from "@/components/ui/Logo";
 
 interface AdminSidebarProps {
   isCollapsed: boolean;
@@ -75,7 +76,11 @@ const AdminSidebar = ({
     >
       {/* Header */}
       <div className="h-16 flex items-center justify-between px-4 border-b border-surface-200">
-        <Link href="/admin" className="flex items-center gap-3" aria-label="StayPlus Admin Home">
+        <Link
+          href="/admin"
+          className="flex items-center gap-3 pl-1"
+          aria-label="StayPlus Admin Home"
+        >
           <Logo size="md" />
           {(!isCollapsed || isMobile) && (
             <motion.span
