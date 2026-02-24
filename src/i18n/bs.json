@@ -249,6 +249,8 @@
     "delete": "Obriši",
     "cancel": "Otkaži",
     "manageTenants": "Upravljajte vašim stanodavcima"
+    ,
+    "servicesCount": "{count, plural, one {# usluga} few {# usluge} other {# usluga}}"
   },
   "auth": {
     "signIn": "Prijava",

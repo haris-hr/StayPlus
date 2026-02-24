@@ -43,11 +43,18 @@ const ImageUpload = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const inputId = useId();
 
-  // If the controlled value changes to/from a data URL, keep the UI mode in sync.
+  // Only sync mode on initial mount or when value changes externally
+  // Don't auto-switch mode based on value type - let user control the mode
+  const prevValueRef = useRef(value);
   useEffect(() => {
-    if (!value) return;
-    if (value.startsWith("data:") && mode !== "upload") setMode("upload");
-    if (!value.startsWith("data:") && mode !== "url") setMode("url");
+    // Only auto-switch if the value changed externally (not from user interaction)
+    if (value !== prevValueRef.current) {
+      prevValueRef.current = value;
+      // If a new data URL was set, switch to upload mode
+      if (value?.startsWith("data:") && mode !== "upload") {
+        setMode("upload");
+      }
+    }
   }, [value, mode]);
 
   const handleFileSelect = useCallback(
@@ -163,54 +170,42 @@ const ImageUpload = ({
         />
       )}
 
-      {/* Hidden file input - always in DOM */}
-      <input
-        ref={fileInputRef}
-        id={inputId}
-        type="file"
-        accept="image/*"
-        onChange={handleFileInputChange}
-        style={{
-          position: "absolute",
-          width: "1px",
-          height: "1px",
-          padding: 0,
-          margin: "-1px",
-          overflow: "hidden",
-          clip: "rect(0, 0, 0, 0)",
-          whiteSpace: "nowrap",
-          border: 0,
-        }}
-      />
-
       {/* File Upload */}
       {mode === "upload" && (
-        <label
-          htmlFor={inputId}
+        <div
           onDrop={handleDrop}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           className={cn(
-            "relative block border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-colors",
+            "relative border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-colors",
             isDragging
               ? "border-primary-500 bg-primary-50"
               : "border-surface-300 hover:border-surface-400 hover:bg-surface-50"
           )}
         >
+          {/* File input covers the entire drop zone */}
+          <input
+            ref={fileInputRef}
+            id={inputId}
+            type="file"
+            accept="image/*"
+            onChange={handleFileInputChange}
+            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+          />
           <Upload
             className={cn(
-              "w-8 h-8 mx-auto mb-2",
+              "w-8 h-8 mx-auto mb-2 pointer-events-none",
               isDragging ? "text-primary-500" : "text-foreground/40"
             )}
           />
-          <p className="text-sm text-foreground/70">
+          <p className="text-sm text-foreground/70 pointer-events-none">
             <span className="font-medium text-primary-600">Click to upload</span>{" "}
             or drag and drop
           </p>
-          <p className="text-xs text-foreground/50 mt-1">
+          <p className="text-xs text-foreground/50 mt-1 pointer-events-none">
             PNG, JPG, GIF up to 10MB
           </p>
-        </label>
+        </div>
       )}
 
       {hint && <p className="text-xs text-foreground/50">{hint}</p>}

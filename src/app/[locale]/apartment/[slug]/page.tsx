@@ -25,10 +25,9 @@ export default function GuestPortalPage() {
   const t = useTranslations("guest");
   const router = useRouter();
   const slug = params.slug as string;
-  const { getTenantBySlug } = useTenantsStore();
-  const { getServicesByTenantId } = useServicesStore();
+  const { getTenantBySlug, isLoading: tenantsLoading } = useTenantsStore();
+  const { getServicesByTenantId, isLoading: servicesLoading } = useServicesStore();
   
-  const [isLoading, setIsLoading] = useState(true);
   const [tenant, setTenant] = useState<Tenant | null>(null);
   const [services, setServices] = useState<Service[]>([]);
   const [categories, setCategories] = useState<ServiceCategory[]>([]);
@@ -36,29 +35,30 @@ export default function GuestPortalPage() {
   const [showNameModal, setShowNameModal] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
-  // Load data
-  useEffect(() => {
-    const loadData = async () => {
-      // Get tenant by slug from the store (includes user edits)
-      const currentTenant = getTenantBySlug(slug);
-      
-      if (currentTenant) {
-        setTenant(currentTenant);
-        // Get services for this tenant from the data layer
-        const tenantServices = getServicesByTenantId(currentTenant.id);
-        setServices(tenantServices);
-        
-        // Get unique categories that have services
-        const usedCategoryIds = Array.from(new Set(tenantServices.map(s => s.categoryId)));
-        const usedCategories = allCategories.filter(c => usedCategoryIds.includes(c.id));
-        setCategories(usedCategories);
-      }
-      
-      setIsLoading(false);
-    };
+  // Combined loading state - wait for both stores to load
+  const isLoading = tenantsLoading || servicesLoading;
 
-    loadData();
-  }, [slug, getTenantBySlug, getServicesByTenantId]);
+  // Load data once stores are ready
+  useEffect(() => {
+    if (isLoading) return;
+    
+    // Get tenant by slug from the store (includes user edits)
+    const currentTenant = getTenantBySlug(slug);
+    
+    if (currentTenant) {
+      setTenant(currentTenant);
+      // Get services for this tenant from the data layer
+      const tenantServices = getServicesByTenantId(currentTenant.id);
+      setServices(tenantServices);
+      
+      // Get unique categories that have services
+      const usedCategoryIds = Array.from(new Set(tenantServices.map(s => s.categoryId)));
+      const usedCategories = allCategories.filter(c => usedCategoryIds.includes(c.id));
+      setCategories(usedCategories);
+    } else {
+      setTenant(null);
+    }
+  }, [slug, getTenantBySlug, getServicesByTenantId, isLoading]);
 
   // Check for saved guest name
   useEffect(() => {

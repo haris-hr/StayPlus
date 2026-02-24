@@ -1,17 +1,28 @@
 "use client";
 
+import { useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { motion } from "framer-motion";
-import { Plus, Trash2, ExternalLink, Image as ImageIcon, Edit2 } from "lucide-react";
+import { Plus, Trash2, ExternalLink, Image as ImageIcon, Edit2, Layers } from "lucide-react";
 import Image from "next/image";
 import { Button, Card, Badge } from "@/components/ui";
 import { Link, useRouter } from "@/i18n/routing";
-import { useTenantsStore } from "@/hooks";
+import { useServicesStore, useTenantsStore } from "@/hooks";
 
 export default function TenantsPage() {
   const t = useTranslations("admin");
   const router = useRouter();
   const { tenants, deleteTenant } = useTenantsStore();
+  const { services } = useServicesStore();
+
+  const activeServicesCountByTenantId = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const s of services) {
+      if (!s.active) continue;
+      counts[s.tenantId] = (counts[s.tenantId] ?? 0) + 1;
+    }
+    return counts;
+  }, [services]);
 
   const handleDelete = async (tenantId: string) => {
     if (confirm("Are you sure you want to delete this tenant?")) {
@@ -50,6 +61,7 @@ export default function TenantsPage() {
             // even though it exists in `src/types/index.ts`. Use a typed accessor to avoid blocking.
             const heroImage = (tenant.branding as { heroImage?: string }).heroImage;
             const hasHeroImage = Boolean(heroImage);
+            const servicesCount = activeServicesCountByTenantId[tenant.id] ?? 0;
 
             return (
               <motion.div
@@ -149,12 +161,20 @@ export default function TenantsPage() {
                   )}
                 </div>
 
-                {/* Hero Image Status */}
-                <div className="flex items-center gap-2 text-xs text-foreground/50 mb-4">
-                  <ImageIcon className="w-3.5 h-3.5 flex-shrink-0" />
-                  <span className="truncate">
-                    {heroImage ? "Hero image set" : "No hero image"}
-                  </span>
+                {/* Stats */}
+                <div className="space-y-1 mb-4 text-xs text-foreground/50">
+                  <div className="flex items-center gap-2">
+                    <Layers className="w-3.5 h-3.5 flex-shrink-0" aria-hidden="true" />
+                    <span className="truncate">
+                      {t("servicesCount", { count: servicesCount })}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <ImageIcon className="w-3.5 h-3.5 flex-shrink-0" aria-hidden="true" />
+                    <span className="truncate">
+                      {heroImage ? "Hero image set" : "No hero image"}
+                    </span>
+                  </div>
                 </div>
 
                 {/* Actions */}
