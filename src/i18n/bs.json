@@ -223,7 +223,8 @@
     "guestName": "Ime Gosta",
     "requestDate": "Datum Zahtjeva",
     "service": "Usluga",
-    "tenant": "Stanodavac"
+    "tenant": "Stanodavac",
+    "activeTenant": "Aktivan Stanodavac"
   },
   "auth": {
     "signIn": "Prijava",

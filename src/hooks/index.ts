@@ -8,3 +8,4 @@ export {
   usePrefersDarkMode,
   usePrefersReducedMotion,
 } from "./useMediaQuery";
+export { useTenantsStore } from "./useTenantsStore";

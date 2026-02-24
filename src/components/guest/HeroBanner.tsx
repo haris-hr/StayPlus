@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { MapPin, Phone, Mail, MessageCircle } from "lucide-react";
 import type { Tenant, Locale } from "@/types";
@@ -33,10 +34,12 @@ export function HeroBanner({ tenant, locale, guestName }: HeroBannerProps) {
       {/* Background Image */}
       {tenant.branding?.heroImage ? (
         <div className="absolute inset-0">
-          <img
+          <Image
             src={tenant.branding.heroImage}
             alt={tenant.name}
-            className="w-full h-full object-cover"
+            fill
+            className="object-cover"
+            priority
           />
           {/* Gradient Overlay */}
           <div 

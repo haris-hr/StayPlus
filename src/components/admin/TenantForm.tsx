@@ -112,7 +112,7 @@ const TenantForm = ({ isOpen, onClose, tenant, onSubmit }: TenantFormProps) => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
+            className="fixed inset-0 bg-black/60 z-50"
           />
 
           {/* Modal */}
@@ -409,7 +409,7 @@ const TenantForm = ({ isOpen, onClose, tenant, onSubmit }: TenantFormProps) => {
                     className="w-5 h-5 rounded border-surface-300 text-primary-600 focus:ring-primary-500"
                   />
                   <span className="text-foreground font-medium">
-                    {t("active")} Tenant
+                    {t("activeTenant")}
                   </span>
                 </label>
 

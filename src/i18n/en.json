@@ -223,7 +223,8 @@
     "guestName": "Guest Name",
     "requestDate": "Request Date",
     "service": "Service",
-    "tenant": "Tenant"
+    "tenant": "Tenant",
+    "activeTenant": "Active Tenant"
   },
   "auth": {
     "signIn": "Sign In",

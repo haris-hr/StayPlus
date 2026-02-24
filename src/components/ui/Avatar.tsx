@@ -1,21 +1,32 @@
 "use client";
 
-import { forwardRef, ImgHTMLAttributes } from "react";
+import { forwardRef } from "react";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { User } from "lucide-react";
 
-export interface AvatarProps extends ImgHTMLAttributes<HTMLImageElement> {
+export interface AvatarProps {
   size?: "sm" | "md" | "lg" | "xl";
   fallback?: string;
+  src?: string;
+  alt?: string;
+  className?: string;
 }
 
-const Avatar = forwardRef<HTMLImageElement, AvatarProps>(
-  ({ className, size = "md", src, alt, fallback, ...props }, ref) => {
+const Avatar = forwardRef<HTMLDivElement, AvatarProps>(
+  ({ className, size = "md", src, alt, fallback }, ref) => {
     const sizes = {
       sm: "w-8 h-8 text-xs",
       md: "w-10 h-10 text-sm",
       lg: "w-12 h-12 text-base",
       xl: "w-16 h-16 text-lg",
+    };
+
+    const pixelSizes = {
+      sm: 32,
+      md: 40,
+      lg: 48,
+      xl: 64,
     };
 
     const iconSizes = {
@@ -28,6 +39,7 @@ const Avatar = forwardRef<HTMLImageElement, AvatarProps>(
     if (!src) {
       return (
         <div
+          ref={ref}
           className={cn(
             "rounded-full bg-primary-100 text-primary-600 flex items-center justify-center font-medium",
             sizes[size],
@@ -44,17 +56,22 @@ const Avatar = forwardRef<HTMLImageElement, AvatarProps>(
     }
 
     return (
-      <img
+      <div
         ref={ref}
-        src={src}
-        alt={alt || "Avatar"}
         className={cn(
-          "rounded-full object-cover bg-surface-100",
+          "relative rounded-full overflow-hidden bg-surface-100",
           sizes[size],
           className
         )}
-        {...props}
-      />
+      >
+        <Image
+          src={src}
+          alt={alt || "Avatar"}
+          width={pixelSizes[size]}
+          height={pixelSizes[size]}
+          className="object-cover"
+        />
+      </div>
     );
   }
 );

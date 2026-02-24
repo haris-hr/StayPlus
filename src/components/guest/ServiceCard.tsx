@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { motion } from "framer-motion";
 import {
   Gift,
@@ -79,10 +80,11 @@ const ServiceCard = ({
         {/* Image or gradient header */}
         {service.image ? (
           <div className="relative h-40 overflow-hidden">
-            <img
+            <Image
               src={service.image}
               alt={name}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              fill
+              className="object-cover group-hover:scale-105 transition-transform duration-500"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
             {service.featured && (
