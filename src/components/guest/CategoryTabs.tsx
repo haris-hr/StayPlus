@@ -11,6 +11,7 @@ import {
   ShoppingBag,
   Sparkles,
   LayoutGrid,
+  Camera,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { ServiceCategory, Locale } from "@/types";
@@ -25,6 +26,7 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   shopping: ShoppingBag,
   sparkles: Sparkles,
   grid: LayoutGrid,
+  camera: Camera,
 };
 
 interface CategoryTabsProps {
@@ -59,8 +61,8 @@ const CategoryTabs = ({
   ];
 
   return (
-    <div className="w-full overflow-x-auto scrollbar-hide">
-      <div className="flex gap-2 p-1 min-w-max">
+    <div className="w-full">
+      <div className="flex flex-wrap gap-2 p-1">
         {tabs.map((tab) => {
           const Icon = iconMap[tab.icon] || LayoutGrid;
           const isSelected = selectedCategory === tab.id;

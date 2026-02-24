@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Plus, Trash2 } from "lucide-react";
@@ -23,6 +23,25 @@ const pricingTypes: { value: PricingType; label: string }[] = [
   { value: "quote", label: "Request Quote" },
 ];
 
+const getInitialFormData = (service?: Service | null) => ({
+  tenantId: service?.tenantId || "",
+  categoryId: service?.categoryId || "",
+  nameEn: service?.name?.en || "",
+  nameBs: service?.name?.bs || "",
+  descriptionEn: service?.description?.en || "",
+  descriptionBs: service?.description?.bs || "",
+  shortDescriptionEn: service?.shortDescription?.en || "",
+  shortDescriptionBs: service?.shortDescription?.bs || "",
+  image: service?.image || "",
+  pricingType: service?.pricingType || ("fixed" as PricingType),
+  price: service?.price?.toString() || "",
+  currency: service?.currency || "EUR",
+  tiers: service?.tiers || ([] as ServiceTier[]),
+  active: service?.active ?? true,
+  featured: service?.featured || false,
+  order: service?.order?.toString() || "0",
+});
+
 const ServiceForm = ({
   isOpen,
   onClose,
@@ -34,26 +53,15 @@ const ServiceForm = ({
   const t = useTranslations("admin");
   const isEditing = !!service;
 
-  const [formData, setFormData] = useState({
-    tenantId: service?.tenantId || "",
-    categoryId: service?.categoryId || "",
-    nameEn: service?.name?.en || "",
-    nameBs: service?.name?.bs || "",
-    descriptionEn: service?.description?.en || "",
-    descriptionBs: service?.description?.bs || "",
-    shortDescriptionEn: service?.shortDescription?.en || "",
-    shortDescriptionBs: service?.shortDescription?.bs || "",
-    image: service?.image || "",
-    pricingType: service?.pricingType || ("fixed" as PricingType),
-    price: service?.price?.toString() || "",
-    currency: service?.currency || "EUR",
-    tiers: service?.tiers || ([] as ServiceTier[]),
-    active: service?.active ?? true,
-    featured: service?.featured || false,
-    order: service?.order?.toString() || "0",
-  });
-
+  const [formData, setFormData] = useState(getInitialFormData(service));
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Reset form when modal opens/closes or service changes
+  useEffect(() => {
+    if (isOpen) {
+      setFormData(getInitialFormData(service));
+    }
+  }, [isOpen, service]);
 
   const addTier = () => {
     setFormData({
@@ -139,12 +147,13 @@ const ServiceForm = ({
           />
 
           {/* Modal */}
-          <div className="fixed inset-0 z-50 flex items-start justify-center p-4 overflow-y-auto">
+          <div className="fixed inset-0 z-50 flex items-start justify-center p-4 overflow-y-auto pointer-events-none">
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="w-full max-w-3xl bg-white rounded-2xl shadow-2xl my-8"
+              className="w-full max-w-3xl bg-white rounded-2xl shadow-2xl my-8 pointer-events-auto"
+              onClick={(e) => e.stopPropagation()}
             >
               {/* Header */}
               <div className="p-6 border-b border-surface-200">
@@ -167,28 +176,32 @@ const ServiceForm = ({
                 <div className="grid sm:grid-cols-2 gap-4">
                   <Select
                     label={t("tenant")}
-                    options={tenants.map((t) => ({
-                      value: t.id,
-                      label: t.name,
-                    }))}
+                    options={[
+                      { value: "", label: "Select tenant" },
+                      ...tenants.map((t) => ({
+                        value: t.id,
+                        label: t.name,
+                      })),
+                    ]}
                     value={formData.tenantId}
                     onChange={(e) =>
                       setFormData({ ...formData, tenantId: e.target.value })
                     }
-                    placeholder="Select tenant"
                     required
                   />
                   <Select
                     label={t("serviceCategory")}
-                    options={categories.map((c) => ({
-                      value: c.id,
-                      label: c.name.en,
-                    }))}
+                    options={[
+                      { value: "", label: "Select category" },
+                      ...categories.map((c) => ({
+                        value: c.id,
+                        label: c.name.en,
+                      })),
+                    ]}
                     value={formData.categoryId}
                     onChange={(e) =>
                       setFormData({ ...formData, categoryId: e.target.value })
                     }
-                    placeholder="Select category"
                     required
                   />
                 </div>
@@ -205,6 +218,7 @@ const ServiceForm = ({
                       onChange={(e) =>
                         setFormData({ ...formData, nameEn: e.target.value })
                       }
+                      placeholder="e.g., Airport Transfer"
                       required
                     />
                     <Input
@@ -213,6 +227,7 @@ const ServiceForm = ({
                       onChange={(e) =>
                         setFormData({ ...formData, nameBs: e.target.value })
                       }
+                      placeholder="npr. Aerodromski Transfer"
                       required
                     />
                   </div>
@@ -233,6 +248,7 @@ const ServiceForm = ({
                           descriptionEn: e.target.value,
                         })
                       }
+                      placeholder="Describe the service..."
                       rows={3}
                       required
                     />
@@ -245,6 +261,7 @@ const ServiceForm = ({
                           descriptionBs: e.target.value,
                         })
                       }
+                      placeholder="Opišite uslugu..."
                       rows={3}
                       required
                     />
@@ -279,6 +296,7 @@ const ServiceForm = ({
                             onChange={(e) =>
                               setFormData({ ...formData, price: e.target.value })
                             }
+                            placeholder="0.00"
                           />
                           <Input
                             label={t("currency")}
@@ -412,7 +430,7 @@ const ServiceForm = ({
 
                 {/* Actions */}
                 <div className="flex justify-end gap-3 pt-4 border-t border-surface-200">
-                  <Button variant="ghost" onClick={onClose}>
+                  <Button type="button" variant="ghost" onClick={onClose}>
                     Cancel
                   </Button>
                   <Button type="submit" isLoading={isSubmitting}>

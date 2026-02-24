@@ -26,6 +26,7 @@ interface RequestDetailModalProps {
 }
 
 const statusOptions = [
+  { value: "", label: "Select new status" },
   { value: "pending", label: "Pending" },
   { value: "confirmed", label: "Confirmed" },
   { value: "in_progress", label: "In Progress" },
@@ -104,12 +105,13 @@ const RequestDetailModal = ({
           />
 
           {/* Modal */}
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="w-full max-w-lg bg-white rounded-2xl shadow-2xl overflow-hidden"
+              className="w-full max-w-lg bg-white rounded-2xl shadow-2xl overflow-hidden pointer-events-auto"
+              onClick={(e) => e.stopPropagation()}
             >
               {/* Header */}
               <div className="p-6 border-b border-surface-200">
@@ -193,7 +195,6 @@ const RequestDetailModal = ({
                       options={statusOptions}
                       value={newStatus}
                       onChange={(e) => setNewStatus(e.target.value as RequestStatus)}
-                      placeholder="Select new status"
                       className="flex-1"
                     />
                     <Button

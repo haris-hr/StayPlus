@@ -12,7 +12,7 @@ import type { Tenant } from "@/types";
 // Mock data
 const mockTenants: Tenant[] = [
   {
-    id: "demo",
+    id: "sunny-sarajevo",
     slug: "sunny-sarajevo",
     name: "Sunny Sarajevo Apartment",
     branding: {
@@ -20,12 +20,46 @@ const mockTenants: Tenant[] = [
       accentColor: "#05c7ae",
     },
     contact: {
-      email: "host@example.com",
+      email: "host@sunnysarajevo.com",
       phone: "+387 61 123 456",
       whatsapp: "+387 61 123 456",
     },
     active: true,
     createdAt: new Date("2024-01-15"),
+    updatedAt: new Date(),
+  },
+  {
+    id: "mountain-view",
+    slug: "mountain-view",
+    name: "Mountain View Lodge",
+    branding: {
+      primaryColor: "#2d5a27",
+      accentColor: "#8b4513",
+    },
+    contact: {
+      email: "info@mountainviewlodge.ba",
+      phone: "+387 62 987 654",
+    },
+    active: true,
+    createdAt: new Date("2024-02-20"),
+    updatedAt: new Date(),
+  },
+  {
+    id: "dobrinja-apartments",
+    slug: "dobrinja-apartments",
+    name: "Dobrinja Apartments",
+    branding: {
+      primaryColor: "#1e40af",
+      accentColor: "#0891b2",
+      hideLogo: true, // White-labeled - no StayPlus branding
+    },
+    contact: {
+      email: "info@dobrinja-apartments.ba",
+      phone: "+387 61 555 777",
+      whatsapp: "+387 61 555 777",
+    },
+    active: true,
+    createdAt: new Date("2024-03-01"),
     updatedAt: new Date(),
   },
 ];

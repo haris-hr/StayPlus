@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { motion } from "framer-motion";
 import { TrendingUp, Star, Settings, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui";
+import { Link } from "@/i18n/routing";
 
 const ForHosts = () => {
   const t = useTranslations("home.hosts");
@@ -15,7 +16,7 @@ const ForHosts = () => {
   ];
 
   return (
-    <section id="hosts" className="section-padding bg-white overflow-hidden">
+    <section id="for-hosts" className="section-padding bg-white overflow-hidden">
       <div className="max-w-7xl mx-auto">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Visual */}
@@ -158,9 +159,11 @@ const ForHosts = () => {
               ))}
             </div>
 
-            <Button size="lg" rightIcon={<ArrowRight className="w-5 h-5" />}>
-              {t("cta")}
-            </Button>
+            <Link href="/admin">
+              <Button size="lg" rightIcon={<ArrowRight className="w-5 h-5" />}>
+                {t("cta")}
+              </Button>
+            </Link>
           </motion.div>
         </div>
       </div>

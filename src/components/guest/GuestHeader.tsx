@@ -11,7 +11,7 @@ interface GuestHeaderProps {
 }
 
 const GuestHeader = ({ tenant, guestName }: GuestHeaderProps) => {
-  const showBranding = tenant?.branding?.hideLogo !== true;
+  const hideBranding = tenant?.branding?.hideLogo === true;
   const logo = tenant?.branding?.logo;
 
   return (
@@ -20,7 +20,15 @@ const GuestHeader = ({ tenant, guestName }: GuestHeaderProps) => {
         <div className="flex items-center justify-between h-16">
           {/* Logo / Branding */}
           <div className="flex items-center gap-3">
-            {showBranding && (
+            {hideBranding ? (
+              // White-labeled: Show only tenant name, no StayPlus branding
+              <div className="flex items-center gap-2">
+                <span className="text-lg font-bold text-foreground">
+                  {tenant?.name}
+                </span>
+              </div>
+            ) : (
+              // Show StayPlus branding
               <>
                 {logo ? (
                   <img
@@ -38,12 +46,12 @@ const GuestHeader = ({ tenant, guestName }: GuestHeaderProps) => {
                     </span>
                   </Link>
                 )}
+                {tenant?.name && !logo && (
+                  <span className="text-foreground/60 text-sm hidden sm:block">
+                    {tenant.name}
+                  </span>
+                )}
               </>
-            )}
-            {tenant?.name && !logo && (
-              <span className="text-foreground/60 text-sm hidden sm:block">
-                {tenant.name}
-              </span>
             )}
           </div>
 

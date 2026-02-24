@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { motion } from "framer-motion";
 import { ArrowRight, Star, Users, Zap } from "lucide-react";
 import { Button } from "@/components/ui";
+import { Link } from "@/i18n/routing";
 
 const Hero = () => {
   const t = useTranslations("home.hero");
@@ -77,12 +78,16 @@ const Hero = () => {
 
             {/* CTAs */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <Button size="lg" rightIcon={<ArrowRight className="w-5 h-5" />}>
-                {t("cta")}
-              </Button>
-              <Button variant="outline" size="lg">
-                {t("ctaSecondary")}
-              </Button>
+              <Link href="/apartment/sunny-sarajevo">
+                <Button size="lg" rightIcon={<ArrowRight className="w-5 h-5" />}>
+                  {t("cta")}
+                </Button>
+              </Link>
+              <Link href="#for-hosts">
+                <Button variant="outline" size="lg">
+                  {t("ctaSecondary")}
+                </Button>
+              </Link>
             </div>
 
             {/* Stats */}
