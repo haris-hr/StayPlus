@@ -47,7 +47,7 @@ export function HeroBanner({ tenant, locale, guestName }: HeroBannerProps) {
           className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm transition-colors ${
             dark 
               ? "bg-surface-100 text-foreground/80 hover:bg-surface-200" 
-              : "bg-white/20 backdrop-blur-sm text-white hover:bg-white/30"
+              : "bg-white/20 text-white hover:bg-white/30"
           }`}
         >
           <MapPin className="w-4 h-4" aria-hidden="true" />
@@ -61,7 +61,7 @@ export function HeroBanner({ tenant, locale, guestName }: HeroBannerProps) {
           className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm transition-colors ${
             dark 
               ? "bg-surface-100 text-foreground/80 hover:bg-surface-200" 
-              : "bg-white/20 backdrop-blur-sm text-white hover:bg-white/30"
+              : "bg-white/20 text-white hover:bg-white/30"
           }`}
           aria-label={`Call ${tenant.contact.phone}`}
         >
@@ -89,7 +89,7 @@ export function HeroBanner({ tenant, locale, guestName }: HeroBannerProps) {
           className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm transition-colors ${
             dark 
               ? "bg-surface-100 text-foreground/80 hover:bg-surface-200" 
-              : "bg-white/20 backdrop-blur-sm text-white hover:bg-white/30"
+              : "bg-white/20 text-white hover:bg-white/30"
           }`}
           aria-label={`Email ${tenant.contact.email}`}
         >
@@ -163,15 +163,33 @@ export function HeroBanner({ tenant, locale, guestName }: HeroBannerProps) {
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.6, delay: 0.2 }}
-                className="relative aspect-square rounded-2xl overflow-hidden shadow-2xl"
+                className="relative aspect-square rounded-2xl overflow-hidden shadow-2xl bg-surface-100"
               >
+                {/* Background layer (fills the square nicely) */}
                 <Image
                   src={tenant.branding.heroImage}
-                  alt={tenant.name}
+                  alt=""
                   fill
-                  className="object-cover"
+                  className="object-cover scale-110 blur-2xl opacity-40"
                   priority
                 />
+                {/* Foreground layer (shows more of the image / less zoom) */}
+                <div className="absolute inset-6 rounded-xl overflow-hidden">
+                  <Image
+                    src={tenant.branding.heroImage}
+                    alt={tenant.name}
+                    fill
+                    className="object-contain"
+                    priority
+                  />
+                </div>
+                <Image
+                  src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=="
+                  alt=""
+                  width={1}
+                  height={1}
+                  className="hidden"
+                />{/* keep Next/Image from complaining about conditional layout in some versions */}
                 {/* Subtle colored border */}
                 <div 
                   className="absolute inset-0 rounded-2xl ring-4 ring-inset"
