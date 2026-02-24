@@ -46,6 +46,7 @@ export interface ServiceTier {
   name: I18nText;
   price?: number;
   description?: I18nText;
+  image?: string; // Vehicle/option photo for visual tier selection
 }
 
 export interface Service {

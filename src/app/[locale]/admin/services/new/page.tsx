@@ -62,7 +62,9 @@ export default function NewServicePage() {
         {
           id: `tier-${Date.now()}`,
           name: { en: "", bs: "" },
+          description: { en: "", bs: "" },
           price: undefined,
+          image: "",
         },
       ],
     });
@@ -87,10 +89,25 @@ export default function NewServicePage() {
         ...newTiers[index],
         name: { ...newTiers[index].name, bs: value },
       };
+    } else if (field === "descEn") {
+      newTiers[index] = {
+        ...newTiers[index],
+        description: { ...(newTiers[index].description || { en: "", bs: "" }), en: value },
+      };
+    } else if (field === "descBs") {
+      newTiers[index] = {
+        ...newTiers[index],
+        description: { ...(newTiers[index].description || { en: "", bs: "" }), bs: value },
+      };
     } else if (field === "price") {
       newTiers[index] = {
         ...newTiers[index],
         price: value ? parseFloat(value) : undefined,
+      };
+    } else if (field === "image") {
+      newTiers[index] = {
+        ...newTiers[index],
+        image: value || undefined,
       };
     }
     setFormData({ ...formData, tiers: newTiers });
@@ -351,15 +368,27 @@ export default function NewServicePage() {
               </Button>
             </div>
             {formData.tiers.length > 0 ? (
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {formData.tiers.map((tier, index) => (
                   <div
                     key={tier.id}
-                    className="flex items-start gap-3 p-4 rounded-xl bg-surface-50 border border-surface-200"
+                    className="p-4 rounded-xl bg-surface-50 border border-surface-200"
                   >
-                    <div className="flex-1 grid sm:grid-cols-3 gap-3">
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-sm font-medium text-foreground/60">
+                        Tier {index + 1}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => removeTier(index)}
+                        className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                    <div className="grid sm:grid-cols-2 gap-3 mb-3">
                       <Input
-                        placeholder="Name (English)"
+                        placeholder="Name (English) e.g. Standard"
                         value={tier.name.en}
                         onChange={(e) =>
                           updateTier(index, "nameEn", e.target.value)
@@ -372,6 +401,24 @@ export default function NewServicePage() {
                           updateTier(index, "nameBs", e.target.value)
                         }
                       />
+                    </div>
+                    <div className="grid sm:grid-cols-2 gap-3 mb-3">
+                      <Input
+                        placeholder="Description (English) e.g. Comfortable sedan"
+                        value={tier.description?.en || ""}
+                        onChange={(e) =>
+                          updateTier(index, "descEn", e.target.value)
+                        }
+                      />
+                      <Input
+                        placeholder="Description (Bosanski)"
+                        value={tier.description?.bs || ""}
+                        onChange={(e) =>
+                          updateTier(index, "descBs", e.target.value)
+                        }
+                      />
+                    </div>
+                    <div className="grid sm:grid-cols-2 gap-3">
                       <Input
                         placeholder="Price"
                         type="number"
@@ -381,20 +428,30 @@ export default function NewServicePage() {
                           updateTier(index, "price", e.target.value)
                         }
                       />
+                      <Input
+                        placeholder="Image URL (vehicle photo)"
+                        value={tier.image || ""}
+                        onChange={(e) =>
+                          updateTier(index, "image", e.target.value)
+                        }
+                      />
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => removeTier(index)}
-                      className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                    {tier.image && (
+                      <div className="mt-3 relative rounded-lg overflow-hidden h-24 w-40 bg-surface-100">
+                        <Image
+                          src={tier.image}
+                          alt={tier.name.en || "Tier image"}
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
             ) : (
               <p className="text-foreground/50 text-sm py-4 text-center border-2 border-dashed border-surface-200 rounded-xl">
-                No tiers added yet
+                No tiers added yet. Add tiers like &quot;Standard&quot;, &quot;Premium&quot;, &quot;Luxury&quot; with different prices and vehicle photos.
               </p>
             )}
           </Card>

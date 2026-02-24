@@ -11,19 +11,19 @@ import {
   HeroBanner,
   CategoryTabs,
   ServiceCard,
-  ServiceDetailModal,
 } from "@/components/guest";
 import { Spinner } from "@/components/ui";
-import { Link } from "@/i18n/routing";
+import { Link, useRouter } from "@/i18n/routing";
 import { categories as allCategories } from "@/data/categories";
 import { useTenantsStore } from "@/hooks";
 import { useServicesStore } from "@/hooks";
-import type { Tenant, Service, ServiceCategory, Locale, GuestRequestForm } from "@/types";
+import type { Tenant, Service, ServiceCategory, Locale } from "@/types";
 
 export default function GuestPortalPage() {
   const params = useParams();
   const locale = useLocale() as Locale;
   const t = useTranslations("guest");
+  const router = useRouter();
   const slug = params.slug as string;
   const { getTenantBySlug } = useTenantsStore();
   const { getServicesByTenantId } = useServicesStore();
@@ -35,8 +35,6 @@ export default function GuestPortalPage() {
   const [guestName, setGuestName] = useState<string>("");
   const [showNameModal, setShowNameModal] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [selectedService, setSelectedService] = useState<Service | null>(null);
-  const [showServiceModal, setShowServiceModal] = useState(false);
 
   // Load data
   useEffect(() => {
@@ -90,14 +88,14 @@ export default function GuestPortalPage() {
   const handleNameSubmit = (name: string) => {
     setGuestName(name);
     localStorage.setItem(`guestName_${slug}`, name);
+    // Also save with the new key format for the service page
+    localStorage.setItem(`stayplus.guest.${slug}`, name);
     setShowNameModal(false);
   };
 
-  // Handle service request submission
-  const handleRequestSubmit = async (data: GuestRequestForm) => {
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    console.log("Request submitted:", { ...data, service: selectedService });
+  // Navigate to service request page
+  const handleServiceClick = (service: Service) => {
+    router.push(`/apartment/${slug}/service/${service.id}`);
   };
 
   if (isLoading) {
@@ -199,10 +197,7 @@ export default function GuestPortalPage() {
                     categoryIcon={categoryInfo.icon}
                     categoryColor={categoryInfo.color}
                     locale={locale}
-                    onClick={() => {
-                      setSelectedService(service);
-                      setShowServiceModal(true);
-                    }}
+                    onClick={() => handleServiceClick(service)}
                   />
                 </motion.div>
               );
@@ -233,18 +228,6 @@ export default function GuestPortalPage() {
         )}
       </main>
 
-      {/* Service Detail Modal */}
-      <ServiceDetailModal
-        isOpen={showServiceModal}
-        onClose={() => {
-          setShowServiceModal(false);
-          setSelectedService(null);
-        }}
-        service={selectedService}
-        locale={locale}
-        onSubmit={handleRequestSubmit}
-        guestName={guestName}
-      />
     </div>
   );
 }
