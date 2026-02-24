@@ -4,7 +4,7 @@
   Browser tabs render favicons at a fixed small size (typically 16×16).
   To make the icon *look* bigger, we crop the artwork tightly to a square viewBox.
 -->
-<svg viewBox="110 80 555 555" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+<svg viewBox="255 135 420 420" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
   <defs>
     <linearGradient id="orangeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#FF6A00" />
@@ -12,14 +12,10 @@
     </linearGradient>
   </defs>
 
-  <path
-    d="M80 460 Q400 520 720 460 L720 500 Q400 560 80 500 Z"
-    fill="url(#orangeGradient)"
-  />
-
-  <path d="M160 360 Q150 260 170 200 Q180 260 175 360 Z" fill="url(#orangeGradient)" />
-  <path d="M110 220 Q170 160 230 220 Q170 210 110 220 Z" fill="url(#orangeGradient)" />
-  <path d="M120 190 Q170 140 220 190 Q170 180 120 190 Z" fill="url(#orangeGradient)" />
+  <!--
+    Favicon-optimized:
+    Remove large scene elements (wave/palm/huge curve) so the main mark renders bigger at 16×16.
+  -->
 
   <polygon points="260,330 400,240 540,330 540,440 260,440" fill="url(#orangeGradient)" />
   <rect x="310" y="360" width="60" height="50" fill="white" />
@@ -39,13 +35,5 @@
 
   <rect x="600" y="220" width="30" height="100" rx="10" fill="#FF6A00" />
   <rect x="565" y="255" width="100" height="30" rx="10" fill="#FF6A00" />
-
-  <path
-    d="M200 200 Q400 80 600 180"
-    stroke="url(#orangeGradient)"
-    stroke-width="18"
-    fill="none"
-    stroke-linecap="round"
-  />
 </svg>
 

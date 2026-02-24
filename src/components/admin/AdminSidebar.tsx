@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -44,6 +45,7 @@ const AdminSidebar = ({
 }: AdminSidebarProps) => {
   const t = useTranslations("admin");
   const pathname = usePathname();
+  const [brandImageFailed, setBrandImageFailed] = useState(false);
 
   const menuItems = [
     { icon: LayoutDashboard, label: t("overview"), href: "/admin" },
@@ -84,6 +86,8 @@ const AdminSidebar = ({
         >
           {isCollapsed && !isMobile ? (
             <Logo size="md" />
+          ) : brandImageFailed ? (
+            <Logo size="md" showText />
           ) : (
             <Image
               src="/brand/stayplus-logo.jpg"
@@ -92,6 +96,7 @@ const AdminSidebar = ({
               height={52}
               priority
               className="h-10 w-auto"
+              onError={() => setBrandImageFailed(true)}
             />
           )}
         </Link>
