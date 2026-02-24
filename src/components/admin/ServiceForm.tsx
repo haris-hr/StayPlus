@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Plus, Trash2 } from "lucide-react";
-import { Button, Input, Textarea, Select, Card } from "@/components/ui";
+import { Button, Input, Textarea, Select, Card, ImageUpload } from "@/components/ui";
 import type { Service, ServiceCategory, Tenant, PricingType, ServiceTier } from "@/types";
 
 interface ServiceFormProps {
@@ -383,15 +383,17 @@ const ServiceForm = ({
                 )}
 
                 {/* Image & Options */}
-                <div className="grid sm:grid-cols-2 gap-4">
-                  <Input
-                    label="Image URL"
+                <Card variant="outline" padding="md">
+                  <h3 className="font-semibold text-foreground mb-4">Service Image</h3>
+                  <ImageUpload
                     value={formData.image}
-                    onChange={(e) =>
-                      setFormData({ ...formData, image: e.target.value })
-                    }
-                    placeholder="https://..."
+                    onChange={(value) => setFormData({ ...formData, image: value })}
+                    hint="Upload will be saved as a data URL for now (we can switch to Firebase Storage later)."
+                    previewHeight="h-40"
                   />
+                </Card>
+
+                <div className="grid sm:grid-cols-2 gap-4">
                   <Input
                     label="Display Order"
                     type="number"

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { Upload, Link as LinkIcon, X, Image as ImageIcon, Maximize2, Minimize2 } from "lucide-react";
@@ -35,10 +35,19 @@ const ImageUpload = ({
   defaultObjectFit = "cover",
   showFitToggle = true,
 }: ImageUploadProps) => {
-  const [mode, setMode] = useState<"url" | "upload">("url");
+  const [mode, setMode] = useState<"url" | "upload">(() =>
+    value?.startsWith("data:") ? "upload" : "url"
+  );
   const [isDragging, setIsDragging] = useState(false);
   const [objectFit, setObjectFit] = useState<ObjectFit>(defaultObjectFit);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // If the controlled value changes to/from a data URL, keep the UI mode in sync.
+  useEffect(() => {
+    if (!value) return;
+    if (value.startsWith("data:") && mode !== "upload") setMode("upload");
+    if (!value.startsWith("data:") && mode !== "url") setMode("url");
+  }, [value, mode]);
 
   const handleFileSelect = useCallback(
     (file: File) => {

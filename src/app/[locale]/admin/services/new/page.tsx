@@ -4,9 +4,8 @@ import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/routing";
 import { motion } from "framer-motion";
-import Image from "next/image";
-import { ChevronLeft, Plus, Trash2, Image as ImageIcon } from "lucide-react";
-import { Button, Input, Textarea, Select, Card, Spinner } from "@/components/ui";
+import { ChevronLeft, Plus, Trash2 } from "lucide-react";
+import { Button, Input, Textarea, Select, Card, Spinner, ImageUpload } from "@/components/ui";
 import { categories as allCategories } from "@/data/categories";
 import type { Service, ServiceCategory, PricingType, ServiceTier } from "@/types";
 import { useServicesStore, useTenantsStore } from "@/hooks";
@@ -140,7 +139,7 @@ export default function NewServicePage() {
         updatedAt: now,
       };
 
-      addService(newService);
+      await addService(newService);
       router.push("/admin/services");
     } finally {
       setIsSubmitting(false);
@@ -428,24 +427,18 @@ export default function NewServicePage() {
                           updateTier(index, "price", e.target.value)
                         }
                       />
-                      <Input
-                        placeholder="Image URL (vehicle photo)"
-                        value={tier.image || ""}
-                        onChange={(e) =>
-                          updateTier(index, "image", e.target.value)
-                        }
-                      />
-                    </div>
-                    {tier.image && (
-                      <div className="mt-3 relative rounded-lg overflow-hidden h-24 w-40 bg-surface-100">
-                        <Image
-                          src={tier.image}
-                          alt={tier.name.en || "Tier image"}
-                          fill
-                          className="object-cover"
+                      <div className="sm:col-span-2">
+                        <ImageUpload
+                          label="Tier image"
+                          value={tier.image || ""}
+                          onChange={(value) => updateTier(index, "image", value)}
+                          hint="Optional: upload a photo or paste a URL"
+                          previewHeight="h-24"
+                          defaultObjectFit="cover"
+                          showFitToggle={false}
                         />
                       </div>
-                    )}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -460,36 +453,13 @@ export default function NewServicePage() {
         {/* Image */}
         <Card>
           <h3 className="font-semibold text-foreground mb-4">Service Image</h3>
-          <Input
-            label="Image URL"
+          <ImageUpload
             value={formData.image}
-            onChange={(e) =>
-              setFormData({ ...formData, image: e.target.value })
-            }
-            placeholder="https://images.unsplash.com/..."
-            hint="Recommended: 800x600px or larger"
+            onChange={(value) => setFormData({ ...formData, image: value })}
+            hint="Recommended: 800x600px or larger. Upload will be saved as a data URL for now (we can switch to Firebase Storage later)."
+            previewHeight="h-48"
+            defaultObjectFit="cover"
           />
-          {formData.image && (
-            <div className="mt-4 relative rounded-xl overflow-hidden h-48 bg-surface-100">
-              <Image
-                src={formData.image}
-                alt="Preview"
-                fill
-                className="object-cover"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).style.display = "none";
-                }}
-              />
-            </div>
-          )}
-          {!formData.image && (
-            <div className="mt-4 flex items-center justify-center h-32 bg-surface-50 rounded-xl border-2 border-dashed border-surface-200">
-              <div className="text-center text-foreground/40">
-                <ImageIcon className="w-8 h-8 mx-auto mb-2" />
-                <p className="text-sm">No image preview</p>
-              </div>
-            </div>
-          )}
         </Card>
 
         {/* Options */}
