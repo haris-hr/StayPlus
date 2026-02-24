@@ -17,7 +17,7 @@ import {
   ChevronLeft,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Avatar } from "@/components/ui";
+import { Avatar, LanguageSwitcher } from "@/components/ui";
 import { Logo, LogoText } from "@/components/ui/Logo";
 
 interface AdminSidebarProps {
@@ -110,6 +110,16 @@ const AdminSidebar = ({
 
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto py-4 px-3" aria-label="Admin navigation">
+        <div
+          className={cn(
+            "px-2 pb-4",
+            isCollapsed && !isMobile && "flex justify-center px-0"
+          )}
+        >
+          <LanguageSwitcher
+            variant={isCollapsed && !isMobile ? "compact" : "full"}
+          />
+        </div>
         <ul className="space-y-1" role="list">
           {menuItems.map((item) => {
             const active = isActive(item.href);
