@@ -1,0 +1,240 @@
+{
+  "common": {
+    "appName": "StayPlus",
+    "tagline": "Unaprijedite Svaki Boravak",
+    "loading": "Učitavanje...",
+    "error": "Nešto je pošlo po zlu",
+    "retry": "Pokušaj ponovo",
+    "save": "Sačuvaj",
+    "cancel": "Otkaži",
+    "delete": "Obriši",
+    "edit": "Uredi",
+    "add": "Dodaj",
+    "search": "Pretraži",
+    "filter": "Filtriraj",
+    "all": "Sve",
+    "active": "Aktivno",
+    "inactive": "Neaktivno",
+    "yes": "Da",
+    "no": "Ne",
+    "back": "Nazad",
+    "next": "Dalje",
+    "submit": "Pošalji",
+    "close": "Zatvori",
+    "viewAll": "Pogledaj Sve",
+    "learnMore": "Saznaj Više",
+    "getStarted": "Započni",
+    "contactUs": "Kontaktirajte Nas"
+  },
+  "nav": {
+    "home": "Početna",
+    "services": "Usluge",
+    "about": "O Nama",
+    "contact": "Kontakt",
+    "login": "Prijava",
+    "logout": "Odjava",
+    "dashboard": "Kontrolna Ploča",
+    "admin": "Admin"
+  },
+  "home": {
+    "hero": {
+      "title": "Unaprijedite Iskustvo Gostiju",
+      "subtitle": "Jedna platforma za sve usluge boravka",
+      "description": "Od aerodromskih transfera do romantičnih priprema, omogućite gostima pristup premium uslugama koje čine njihov boravak nezaboravnim.",
+      "cta": "Istraži Usluge",
+      "ctaSecondary": "Za Domaćine"
+    },
+    "features": {
+      "title": "Sve Što Vaši Gosti Trebaju",
+      "subtitle": "Odabrane usluge za poseban boravak",
+      "transport": {
+        "title": "Transport",
+        "description": "Aerodromski transferi, rent-a-car i privatni vozači"
+      },
+      "food": {
+        "title": "Hrana i Restorani",
+        "description": "Doručak, nabavka namirnica i privatni kuhari"
+      },
+      "activities": {
+        "title": "Ture i Aktivnosti",
+        "description": "Jednodnevni izleti, safari i lokalna iskustva"
+      },
+      "special": {
+        "title": "Posebne Prilike",
+        "description": "Romantične pripreme, rođendani i prosidbe"
+      },
+      "convenience": {
+        "title": "Pogodnosti",
+        "description": "Kupovina, apoteka i mjenjačnica"
+      },
+      "extras": {
+        "title": "Dodatno",
+        "description": "Fotografija, pranje auta i posudba predmeta"
+      }
+    },
+    "howItWorks": {
+      "title": "Kako Funkcioniše",
+      "subtitle": "Jednostavno, besprijekorno i bez stresa",
+      "step1": {
+        "title": "Pregledaj Usluge",
+        "description": "Istražite našu odabranu ponudu usluga dostupnih za vaš boravak"
+      },
+      "step2": {
+        "title": "Zatraži Uslugu",
+        "description": "Odaberite što vam treba i pošaljite zahtjev s detaljima"
+      },
+      "step3": {
+        "title": "Potvrda",
+        "description": "Primite potvrdu i uživajte u unaprijeđenom iskustvu boravka"
+      }
+    },
+    "cta": {
+      "title": "Spremni za Unaprijediti Boravak?",
+      "description": "Pregledajte dostupne usluge i učinite boravak nezaboravnim",
+      "button": "Pogledaj Usluge"
+    },
+    "hosts": {
+      "title": "Za Domaćine",
+      "description": "Povećajte prihode i zadovoljstvo gostiju sa StayPlus. Ponudite premium usluge bez muke.",
+      "benefit1": "Povećajte prihod po rezervaciji",
+      "benefit2": "Poboljšajte ocjene gostiju",
+      "benefit3": "Nula operativnih troškova",
+      "cta": "Postanite Partner"
+    }
+  },
+  "guest": {
+    "welcome": "Dobrodošli",
+    "enterName": "Unesite Vaše Ime",
+    "namePlaceholder": "Vaše ime",
+    "continue": "Nastavi",
+    "browseServices": "Pregledaj Usluge",
+    "selectCategory": "Odaberite kategoriju",
+    "allServices": "Sve Usluge",
+    "featured": "Istaknuto",
+    "free": "Besplatno",
+    "requestQuote": "Zatraži Ponudu",
+    "from": "Od",
+    "priceVaries": "Cijena varira",
+    "requestService": "Zatraži Uslugu",
+    "serviceDetails": "Detalji Usluge",
+    "selectOption": "Odaberi Opciju",
+    "quantity": "Količina",
+    "preferredDate": "Željeni Datum",
+    "preferredTime": "Željeno Vrijeme",
+    "additionalNotes": "Dodatne Napomene",
+    "notesPlaceholder": "Posebni zahtjevi ili napomene...",
+    "email": "Email (opcionalno)",
+    "phone": "Telefon (opcionalno)",
+    "submitRequest": "Pošalji Zahtjev",
+    "requestSubmitted": "Zahtjev Poslan!",
+    "requestConfirmation": "Hvala! Primili smo vaš zahtjev i javit ćemo vam se uskoro.",
+    "backToServices": "Nazad na Usluge",
+    "noServices": "Trenutno nema dostupnih usluga",
+    "poweredBy": "Pokreće"
+  },
+  "categories": {
+    "free": "Besplatne Pogodnosti",
+    "transport": "Transport",
+    "tours": "Ture i Aktivnosti",
+    "food": "Hrana i Restorani",
+    "special": "Posebne Prilike",
+    "convenience": "Pogodnosti",
+    "car": "Auto Usluge",
+    "extras": "Dodatno"
+  },
+  "services": {
+    "water": "Besplatna Voda",
+    "coffee": "Nespresso Kafa",
+    "snacks": "Grickalice Dobrodošlice",
+    "rentACar": "Rent-a-Car",
+    "taxi": "Taxi Usluga",
+    "airportTransfer": "Aerodromski Transfer",
+    "privateDriver": "Privatni Vozač",
+    "ermaSafari": "Erma Safari",
+    "dayTrip": "Jednodnevni Izlet",
+    "breakfast": "Doručak",
+    "groceryPrestock": "Nabavka Namirnica",
+    "privateChef": "Privatni Kuhar",
+    "romanticSetup": "Romantična Priprema",
+    "birthdaySetup": "Rođendanska Priprema",
+    "proposalSetup": "Priprema za Prosidbu",
+    "photographer": "Fotograf",
+    "currencyExchange": "Mjenjačnica",
+    "shoppingRun": "Kupovina",
+    "pharmacyRun": "Apoteka",
+    "carWash": "Pranje Auta",
+    "carDetailing": "Detailing Auta",
+    "borrowedItems": "Posudba Predmeta"
+  },
+  "tiers": {
+    "standard": "Standard",
+    "premium": "Premium",
+    "vip": "VIP"
+  },
+  "status": {
+    "pending": "Na Čekanju",
+    "confirmed": "Potvrđeno",
+    "inProgress": "U Toku",
+    "completed": "Završeno",
+    "cancelled": "Otkazano"
+  },
+  "admin": {
+    "dashboard": "Kontrolna Ploča",
+    "overview": "Pregled",
+    "tenants": "Stanodavci",
+    "services": "Usluge",
+    "requests": "Zahtjevi",
+    "categories": "Kategorije",
+    "users": "Korisnici",
+    "settings": "Postavke",
+    "translations": "Prijevodi",
+    "totalRequests": "Ukupno Zahtjeva",
+    "pendingRequests": "Zahtjevi na Čekanju",
+    "completedRequests": "Završeni Zahtjevi",
+    "thisWeek": "Ove Sedmice",
+    "thisMonth": "Ovog Mjeseca",
+    "recentRequests": "Nedavni Zahtjevi",
+    "popularServices": "Popularne Usluge",
+    "noRequests": "Još nema zahtjeva",
+    "addTenant": "Dodaj Stanodavca",
+    "editTenant": "Uredi Stanodavca",
+    "tenantName": "Ime Stanodavca",
+    "tenantSlug": "URL Slug",
+    "tenantEmail": "Kontakt Email",
+    "tenantPhone": "Kontakt Telefon",
+    "tenantWhatsApp": "WhatsApp",
+    "branding": "Brendiranje",
+    "logo": "Logo URL",
+    "primaryColor": "Primarna Boja",
+    "accentColor": "Akcentna Boja",
+    "hideLogo": "Sakrij Logo",
+    "customDomain": "Prilagođena Domena",
+    "addService": "Dodaj Uslugu",
+    "editService": "Uredi Uslugu",
+    "serviceName": "Naziv Usluge",
+    "serviceDescription": "Opis",
+    "serviceCategory": "Kategorija",
+    "pricingType": "Tip Cijene",
+    "price": "Cijena",
+    "currency": "Valuta",
+    "featured": "Istaknuto",
+    "updateStatus": "Ažuriraj Status",
+    "viewDetails": "Pogledaj Detalje",
+    "guestName": "Ime Gosta",
+    "requestDate": "Datum Zahtjeva",
+    "service": "Usluga",
+    "tenant": "Stanodavac"
+  },
+  "auth": {
+    "signIn": "Prijava",
+    "signInWithGoogle": "Prijavi se putem Google-a",
+    "signOut": "Odjava",
+    "unauthorized": "Nemate dozvolu za pristup ovoj stranici",
+    "pendingApproval": "Vaš račun čeka odobrenje"
+  },
+  "footer": {
+    "rights": "Sva prava zadržana",
+    "privacy": "Politika Privatnosti",
+    "terms": "Uslovi Korištenja"
+  }
+}

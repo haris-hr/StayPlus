@@ -2,26 +2,162 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Default Theme - Warm Coral */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #fefefe;
+  --foreground: #1a1a2e;
+  
+  /* Primary - Warm Coral/Terracotta */
+  --primary-50: #fff5f2;
+  --primary-100: #ffe8e1;
+  --primary-200: #ffd4c7;
+  --primary-300: #ffb39e;
+  --primary-400: #ff8a6b;
+  --primary-500: #f96d4a;
+  --primary-600: #e54d2e;
+  --primary-700: #c13d22;
+  --primary-800: #9f3520;
+  --primary-900: #833220;
+  
+  /* Accent - Deep Teal */
+  --accent-50: #effefb;
+  --accent-100: #c8fff4;
+  --accent-200: #91feea;
+  --accent-300: #52f5dc;
+  --accent-400: #1ee3c8;
+  --accent-500: #05c7ae;
+  --accent-600: #00a08f;
+  --accent-700: #058074;
+  --accent-800: #0a655e;
+  --accent-900: #0d534d;
+  
+  /* Surface colors */
+  --surface-50: #ffffff;
+  --surface-100: #f8f9fa;
+  --surface-200: #f1f3f5;
+  --surface-300: #e9ecef;
+  
+  /* Glass effect */
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.3);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* Tenant branding CSS variables - can be overridden per tenant */
+[data-theme="custom"] {
+  --primary-500: var(--tenant-primary, #f96d4a);
+  --primary-600: var(--tenant-primary-dark, #e54d2e);
+  --accent-500: var(--tenant-accent, #05c7ae);
+}
+
+@layer base {
+  * {
+    @apply border-surface-200;
+  }
+  
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display font-semibold tracking-tight;
   }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+@layer components {
+  .glass {
+    @apply bg-white/70 backdrop-blur-md border border-white/30 shadow-lg;
+  }
+  
+  .glass-dark {
+    @apply bg-black/20 backdrop-blur-md border border-white/10;
+  }
+  
+  .gradient-primary {
+    @apply bg-gradient-to-br from-primary-500 to-primary-600;
+  }
+  
+  .gradient-accent {
+    @apply bg-gradient-to-br from-accent-500 to-accent-600;
+  }
+  
+  .gradient-hero {
+    background: linear-gradient(135deg, #fff5f2 0%, #effefb 50%, #f8f9fa 100%);
+  }
+  
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary-500 to-accent-500;
+  }
+  
+  .card-hover {
+    @apply transition-all duration-300 hover:shadow-xl hover:-translate-y-1;
+  }
+  
+  .btn-primary {
+    @apply inline-flex items-center justify-center px-6 py-3 rounded-xl font-medium text-white gradient-primary shadow-lg shadow-primary-500/25 hover:shadow-xl hover:shadow-primary-500/30 transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0;
+  }
+  
+  .btn-secondary {
+    @apply inline-flex items-center justify-center px-6 py-3 rounded-xl font-medium text-primary-600 bg-primary-50 hover:bg-primary-100 transition-all duration-300;
+  }
+  
+  .btn-outline {
+    @apply inline-flex items-center justify-center px-6 py-3 rounded-xl font-medium border-2 border-primary-500 text-primary-600 hover:bg-primary-50 transition-all duration-300;
+  }
+  
+  .input-field {
+    @apply w-full px-4 py-3 rounded-xl border border-surface-300 bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200;
+  }
+  
+  .section-padding {
+    @apply px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24;
+  }
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
+  
+  .animate-delay-100 {
+    animation-delay: 100ms;
+  }
+  
+  .animate-delay-200 {
+    animation-delay: 200ms;
+  }
+  
+  .animate-delay-300 {
+    animation-delay: 300ms;
+  }
+  
+  .animate-delay-400 {
+    animation-delay: 400ms;
+  }
+  
+  .animate-delay-500 {
+    animation-delay: 500ms;
+  }
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-surface-100;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-surface-300 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-primary-300;
+}
+
+/* Selection styling */
+::selection {
+  @apply bg-primary-200 text-primary-900;
 }

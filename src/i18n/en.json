@@ -1,0 +1,240 @@
+{
+  "common": {
+    "appName": "StayPlus",
+    "tagline": "Elevate Every Stay",
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "retry": "Try again",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "search": "Search",
+    "filter": "Filter",
+    "all": "All",
+    "active": "Active",
+    "inactive": "Inactive",
+    "yes": "Yes",
+    "no": "No",
+    "back": "Back",
+    "next": "Next",
+    "submit": "Submit",
+    "close": "Close",
+    "viewAll": "View All",
+    "learnMore": "Learn More",
+    "getStarted": "Get Started",
+    "contactUs": "Contact Us"
+  },
+  "nav": {
+    "home": "Home",
+    "services": "Services",
+    "about": "About",
+    "contact": "Contact",
+    "login": "Login",
+    "logout": "Logout",
+    "dashboard": "Dashboard",
+    "admin": "Admin"
+  },
+  "home": {
+    "hero": {
+      "title": "Enhance Your Guest Experience",
+      "subtitle": "One platform for all your stay services",
+      "description": "From airport transfers to romantic setups, give your guests access to premium services that make their stay unforgettable.",
+      "cta": "Explore Services",
+      "ctaSecondary": "For Hosts"
+    },
+    "features": {
+      "title": "Everything Your Guests Need",
+      "subtitle": "Curated services to make every stay special",
+      "transport": {
+        "title": "Transport",
+        "description": "Airport transfers, car rentals, and private drivers"
+      },
+      "food": {
+        "title": "Food & Dining",
+        "description": "Breakfast, grocery pre-stock, and private chefs"
+      },
+      "activities": {
+        "title": "Tours & Activities",
+        "description": "Day trips, safaris, and local experiences"
+      },
+      "special": {
+        "title": "Special Occasions",
+        "description": "Romantic setups, birthdays, and proposals"
+      },
+      "convenience": {
+        "title": "Convenience",
+        "description": "Shopping runs, pharmacy, and currency exchange"
+      },
+      "extras": {
+        "title": "Extras",
+        "description": "Photography, car wash, and borrowed items"
+      }
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "subtitle": "Simple, seamless, and stress-free",
+      "step1": {
+        "title": "Browse Services",
+        "description": "Explore our curated selection of services available for your stay"
+      },
+      "step2": {
+        "title": "Request Service",
+        "description": "Select what you need and submit your request with details"
+      },
+      "step3": {
+        "title": "Confirmation",
+        "description": "Receive confirmation and enjoy your enhanced stay experience"
+      }
+    },
+    "cta": {
+      "title": "Ready to Elevate Your Stay?",
+      "description": "Browse available services and make your stay unforgettable",
+      "button": "View Services"
+    },
+    "hosts": {
+      "title": "For Property Hosts",
+      "description": "Increase your revenue and guest satisfaction with StayPlus. Offer premium services without the hassle.",
+      "benefit1": "Boost revenue per booking",
+      "benefit2": "Improve guest reviews",
+      "benefit3": "Zero operational overhead",
+      "cta": "Partner With Us"
+    }
+  },
+  "guest": {
+    "welcome": "Welcome",
+    "enterName": "Enter Your Name",
+    "namePlaceholder": "Your name",
+    "continue": "Continue",
+    "browseServices": "Browse Services",
+    "selectCategory": "Select a category",
+    "allServices": "All Services",
+    "featured": "Featured",
+    "free": "Free",
+    "requestQuote": "Request Quote",
+    "from": "From",
+    "priceVaries": "Price varies",
+    "requestService": "Request Service",
+    "serviceDetails": "Service Details",
+    "selectOption": "Select Option",
+    "quantity": "Quantity",
+    "preferredDate": "Preferred Date",
+    "preferredTime": "Preferred Time",
+    "additionalNotes": "Additional Notes",
+    "notesPlaceholder": "Any special requests or notes...",
+    "email": "Email (optional)",
+    "phone": "Phone (optional)",
+    "submitRequest": "Submit Request",
+    "requestSubmitted": "Request Submitted!",
+    "requestConfirmation": "Thank you! We've received your request and will get back to you shortly.",
+    "backToServices": "Back to Services",
+    "noServices": "No services available at the moment",
+    "poweredBy": "Powered by"
+  },
+  "categories": {
+    "free": "Free Amenities",
+    "transport": "Transport",
+    "tours": "Tours & Activities",
+    "food": "Food & Dining",
+    "special": "Special Occasions",
+    "convenience": "Convenience",
+    "car": "Car Services",
+    "extras": "Extras"
+  },
+  "services": {
+    "water": "Complimentary Water",
+    "coffee": "Nespresso Coffee",
+    "snacks": "Welcome Snacks",
+    "rentACar": "Rent a Car",
+    "taxi": "Taxi Service",
+    "airportTransfer": "Airport Transfer",
+    "privateDriver": "Private Driver",
+    "ermaSafari": "Erma Safari",
+    "dayTrip": "Day Trip",
+    "breakfast": "Breakfast",
+    "groceryPrestock": "Grocery Pre-stock",
+    "privateChef": "Private Chef",
+    "romanticSetup": "Romantic Setup",
+    "birthdaySetup": "Birthday Setup",
+    "proposalSetup": "Proposal Setup",
+    "photographer": "Photographer",
+    "currencyExchange": "Currency Exchange",
+    "shoppingRun": "Shopping Run",
+    "pharmacyRun": "Pharmacy Run",
+    "carWash": "Car Wash",
+    "carDetailing": "Car Detailing",
+    "borrowedItems": "Borrowed Items"
+  },
+  "tiers": {
+    "standard": "Standard",
+    "premium": "Premium",
+    "vip": "VIP"
+  },
+  "status": {
+    "pending": "Pending",
+    "confirmed": "Confirmed",
+    "inProgress": "In Progress",
+    "completed": "Completed",
+    "cancelled": "Cancelled"
+  },
+  "admin": {
+    "dashboard": "Dashboard",
+    "overview": "Overview",
+    "tenants": "Tenants",
+    "services": "Services",
+    "requests": "Requests",
+    "categories": "Categories",
+    "users": "Users",
+    "settings": "Settings",
+    "translations": "Translations",
+    "totalRequests": "Total Requests",
+    "pendingRequests": "Pending Requests",
+    "completedRequests": "Completed Requests",
+    "thisWeek": "This Week",
+    "thisMonth": "This Month",
+    "recentRequests": "Recent Requests",
+    "popularServices": "Popular Services",
+    "noRequests": "No requests yet",
+    "addTenant": "Add Tenant",
+    "editTenant": "Edit Tenant",
+    "tenantName": "Tenant Name",
+    "tenantSlug": "URL Slug",
+    "tenantEmail": "Contact Email",
+    "tenantPhone": "Contact Phone",
+    "tenantWhatsApp": "WhatsApp",
+    "branding": "Branding",
+    "logo": "Logo URL",
+    "primaryColor": "Primary Color",
+    "accentColor": "Accent Color",
+    "hideLogo": "Hide Logo",
+    "customDomain": "Custom Domain",
+    "addService": "Add Service",
+    "editService": "Edit Service",
+    "serviceName": "Service Name",
+    "serviceDescription": "Description",
+    "serviceCategory": "Category",
+    "pricingType": "Pricing Type",
+    "price": "Price",
+    "currency": "Currency",
+    "featured": "Featured",
+    "updateStatus": "Update Status",
+    "viewDetails": "View Details",
+    "guestName": "Guest Name",
+    "requestDate": "Request Date",
+    "service": "Service",
+    "tenant": "Tenant"
+  },
+  "auth": {
+    "signIn": "Sign In",
+    "signInWithGoogle": "Sign in with Google",
+    "signOut": "Sign Out",
+    "unauthorized": "You don't have permission to access this page",
+    "pendingApproval": "Your account is pending approval"
+  },
+  "footer": {
+    "rights": "All rights reserved",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service"
+  }
+}
