@@ -33,10 +33,7 @@ const Footer = () => {
           {/* Brand */}
           <div className="lg:col-span-1">
             <Link href="/" className="flex items-center gap-2 mb-4">
-              <Logo size="md" />
-              <span className="text-xl font-bold">
-                Stay<span className="text-primary-400">Plus</span>
-              </span>
+              <Logo size="lg" variant="full" />
             </Link>
             <p className="text-white/60 text-sm mb-4">
               {t("common.tagline")}

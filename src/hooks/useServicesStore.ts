@@ -2,7 +2,17 @@
 
 import { useState, useEffect, useCallback } from "react";
 import type { Service } from "@/types";
-import * as firestoreService from "@/lib/firebase/firestore";
+import {
+  subscribeServices,
+  createService,
+  updateService as updateServiceInDb,
+  deleteService as deleteServiceInDb,
+  resetDatabase,
+} from "@/lib/firebase/firestore";
+import {
+  FIRESTORE_LISTENER_ERROR_EVENT,
+  type FirestoreListenerErrorDetail,
+} from "@/lib/firebase/listenerErrors";
 
 export function useServicesStore() {
   const [services, setServices] = useState<Service[]>([]);
@@ -14,12 +24,30 @@ export function useServicesStore() {
     setIsLoading(true);
     setError(null);
 
-    const unsubscribe = firestoreService.subscribeServices((updatedServices) => {
+    const unsubscribe = subscribeServices((updatedServices) => {
       setServices(updatedServices);
       setIsLoading(false);
     });
 
     return () => unsubscribe();
+  }, []);
+
+  // Listen for Firestore permission/config errors from realtime listeners
+  useEffect(() => {
+    const handler = (event: Event) => {
+      const { detail } = event as CustomEvent<FirestoreListenerErrorDetail>;
+      if (!detail || detail.context !== "services") return;
+
+      const message =
+        detail.code === "permission-denied"
+          ? "Firestore permission denied. Update Firestore Rules or enable real admin auth."
+          : detail.message || "Failed to load services";
+      setError(message);
+      setIsLoading(false);
+    };
+
+    window.addEventListener(FIRESTORE_LISTENER_ERROR_EVENT, handler);
+    return () => window.removeEventListener(FIRESTORE_LISTENER_ERROR_EVENT, handler);
   }, []);
 
   const getServiceById = useCallback(
@@ -34,7 +62,7 @@ export function useServicesStore() {
 
   const addService = useCallback(async (service: Service) => {
     try {
-      await firestoreService.createService(service);
+      await createService(service);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to add service");
       throw err;
@@ -43,7 +71,7 @@ export function useServicesStore() {
 
   const updateService = useCallback(async (serviceId: string, data: Partial<Service>) => {
     try {
-      await firestoreService.updateService(serviceId, data);
+      await updateServiceInDb(serviceId, data);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to update service");
       throw err;
@@ -52,7 +80,7 @@ export function useServicesStore() {
 
   const deleteService = useCallback(async (serviceId: string) => {
     try {
-      await firestoreService.deleteService(serviceId);
+      await deleteServiceInDb(serviceId);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to delete service");
       throw err;
@@ -61,7 +89,7 @@ export function useServicesStore() {
 
   const resetToSeed = useCallback(async () => {
     try {
-      await firestoreService.resetDatabase();
+      await resetDatabase();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to reset database");
       throw err;

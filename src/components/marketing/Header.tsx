@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
-import { Button, LanguageSwitcher, Logo, LogoText } from "@/components/ui";
+import { Button, LanguageSwitcher, Logo } from "@/components/ui";
 import { cn } from "@/lib/utils";
 
 const Header = () => {
@@ -40,8 +40,12 @@ const Header = () => {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group">
-            <Logo size="md" />
-            <LogoText className="text-xl" />
+            <span className="sm:hidden">
+              <Logo size="md" variant="mark" />
+            </span>
+            <span className="hidden sm:block">
+              <Logo size="md" variant="full" />
+            </span>
           </Link>
 
           {/* Desktop Navigation */}

@@ -8,6 +8,10 @@ import { Card, CardHeader, CardTitle, CardContent, Spinner, Select } from "@/com
 import type { ServiceRequest, Locale, RequestStatus } from "@/types";
 import { subscribeRequests, updateRequestStatus } from "@/lib/firebase/firestore";
 import { useTenantsStore } from "@/hooks";
+import {
+  FIRESTORE_LISTENER_ERROR_EVENT,
+  type FirestoreListenerErrorDetail,
+} from "@/lib/firebase/listenerErrors";
 
 const statusOptions = [
   { value: "", label: "All Statuses" },
@@ -25,6 +29,7 @@ export default function RequestsPage() {
   
   const [requests, setRequests] = useState<ServiceRequest[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [selectedRequest, setSelectedRequest] = useState<ServiceRequest | null>(null);
   const [showRequestModal, setShowRequestModal] = useState(false);
   const [filterStatus, setFilterStatus] = useState<string>("");
@@ -34,9 +39,25 @@ export default function RequestsPage() {
     const unsubscribe = subscribeRequests((updatedRequests) => {
       setRequests(updatedRequests);
       setIsLoading(false);
+      setLoadError(null);
     });
 
     return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    const handler = (event: Event) => {
+      const { detail } = event as CustomEvent<FirestoreListenerErrorDetail>;
+      if (!detail || detail.context !== "requests") return;
+      setLoadError(
+        detail.code === "permission-denied"
+          ? "Firestore permission denied. Update Firestore Rules or enable real admin auth."
+          : detail.message || "Failed to load requests"
+      );
+      setIsLoading(false);
+    };
+    window.addEventListener(FIRESTORE_LISTENER_ERROR_EVENT, handler);
+    return () => window.removeEventListener(FIRESTORE_LISTENER_ERROR_EVENT, handler);
   }, []);
 
   const handleViewRequest = (request: ServiceRequest) => {
@@ -69,6 +90,15 @@ export default function RequestsPage() {
     return (
       <div className="flex items-center justify-center py-20">
         <Spinner size="lg" />
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <div className="py-20 text-center">
+        <p className="text-red-600 font-medium">{t("common.error")}</p>
+        <p className="text-foreground/60 mt-2">{loadError}</p>
       </div>
     );
   }

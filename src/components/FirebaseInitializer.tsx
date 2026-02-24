@@ -11,6 +11,13 @@ export function FirebaseInitializer() {
   const [status, setStatus] = useState<"idle" | "seeding" | "done" | "error">("idle");
 
   useEffect(() => {
+    // Only attempt seeding in development. In production, Firestore rules are often locked down
+    // and we don't want to spam console/errors for normal users.
+    if (process.env.NODE_ENV !== "development") {
+      setStatus("done");
+      return;
+    }
+
     const init = async () => {
       try {
         setStatus("seeding");

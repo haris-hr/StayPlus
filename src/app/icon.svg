@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="600" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="orangeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF6A00" />
+      <stop offset="100%" stop-color="#FFB000" />
+    </linearGradient>
+  </defs>
+
+  <path
+    d="M80 460 Q400 520 720 460 L720 500 Q400 560 80 500 Z"
+    fill="url(#orangeGradient)"
+  />
+
+  <path d="M160 360 Q150 260 170 200 Q180 260 175 360 Z" fill="url(#orangeGradient)" />
+  <path d="M110 220 Q170 160 230 220 Q170 210 110 220 Z" fill="url(#orangeGradient)" />
+  <path d="M120 190 Q170 140 220 190 Q170 180 120 190 Z" fill="url(#orangeGradient)" />
+
+  <polygon points="260,330 400,240 540,330 540,440 260,440" fill="url(#orangeGradient)" />
+  <rect x="310" y="360" width="60" height="50" fill="white" />
+  <rect x="410" y="360" width="60" height="50" fill="white" />
+
+  <rect x="470" y="380" width="140" height="90" rx="20" fill="url(#orangeGradient)" />
+  <rect x="510" y="350" width="60" height="40" rx="15" fill="url(#orangeGradient)" />
+
+  <polygon
+    points="420,140 430,170 460,180 430,190 420,220 410,190 380,180 410,170"
+    fill="#FF7A00"
+  />
+  <polygon
+    points="500,160 510,185 535,195 510,205 500,230 490,205 465,195 490,185"
+    fill="#FF7A00"
+  />
+
+  <rect x="600" y="220" width="30" height="100" rx="10" fill="#FF6A00" />
+  <rect x="565" y="255" width="100" height="30" rx="10" fill="#FF6A00" />
+
+  <path
+    d="M200 200 Q400 80 600 180"
+    stroke="url(#orangeGradient)"
+    stroke-width="18"
+    fill="none"
+    stroke-linecap="round"
+  />
+</svg>
+

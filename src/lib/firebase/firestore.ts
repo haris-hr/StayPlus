@@ -23,6 +23,7 @@ import type { Tenant, Service, ServiceCategory, ServiceRequest, RequestStatus } 
 import { tenants as seedTenantsRecord } from "@/data/tenants";
 import { allServices as seedServices } from "@/data/services";
 import { categories as seedCategoriesData } from "@/data/categories";
+import { emitFirestoreListenerError } from "./listenerErrors";
 
 // Convert tenants record to array
 const seedTenants = Object.values(seedTenantsRecord);
@@ -105,12 +106,22 @@ export function subscribeTenants(callback: (tenants: Tenant[]) => void): Unsubsc
   
   getDb().then((db) => {
     const q = query(collection(db, TENANTS_COLLECTION), orderBy("createdAt", "desc"));
-    unsubscribe = onSnapshot(q, (snapshot) => {
-      const tenants = snapshot.docs.map((doc) => 
-        convertTimestamps({ ...doc.data(), id: doc.id }) as Tenant
-      );
-      callback(tenants);
-    });
+    unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        const tenants = snapshot.docs.map(
+          (doc) => convertTimestamps({ ...doc.data(), id: doc.id }) as Tenant
+        );
+        callback(tenants);
+      },
+      (error) => {
+        emitFirestoreListenerError("tenants", error);
+        callback([]);
+      }
+    );
+  }).catch((error) => {
+    emitFirestoreListenerError("tenants", error);
+    callback([]);
   });
   
   return () => unsubscribe();
@@ -207,12 +218,22 @@ export function subscribeServices(callback: (services: Service[]) => void): Unsu
   let unsubscribe: Unsubscribe = () => {};
   
   getDb().then((db) => {
-    unsubscribe = onSnapshot(collection(db, SERVICES_COLLECTION), (snapshot) => {
-      const services = snapshot.docs.map((doc) => 
-        convertTimestamps({ ...doc.data(), id: doc.id }) as Service
-      );
-      callback(services);
-    });
+    unsubscribe = onSnapshot(
+      collection(db, SERVICES_COLLECTION),
+      (snapshot) => {
+        const services = snapshot.docs.map(
+          (doc) => convertTimestamps({ ...doc.data(), id: doc.id }) as Service
+        );
+        callback(services);
+      },
+      (error) => {
+        emitFirestoreListenerError("services", error);
+        callback([]);
+      }
+    );
+  }).catch((error) => {
+    emitFirestoreListenerError("services", error);
+    callback([]);
   });
   
   return () => unsubscribe();
@@ -230,12 +251,22 @@ export function subscribeServicesByTenant(
       where("tenantId", "==", tenantId),
       orderBy("order", "asc")
     );
-    unsubscribe = onSnapshot(q, (snapshot) => {
-      const services = snapshot.docs.map((doc) => 
-        convertTimestamps({ ...doc.data(), id: doc.id }) as Service
-      );
-      callback(services);
-    });
+    unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        const services = snapshot.docs.map(
+          (doc) => convertTimestamps({ ...doc.data(), id: doc.id }) as Service
+        );
+        callback(services);
+      },
+      (error) => {
+        emitFirestoreListenerError("services", error);
+        callback([]);
+      }
+    );
+  }).catch((error) => {
+    emitFirestoreListenerError("services", error);
+    callback([]);
   });
   
   return () => unsubscribe();
@@ -441,12 +472,22 @@ export function subscribeRequests(callback: (requests: ServiceRequest[]) => void
   
   getDb().then((db) => {
     const q = query(collection(db, REQUESTS_COLLECTION), orderBy("createdAt", "desc"));
-    unsubscribe = onSnapshot(q, (snapshot) => {
-      const requests = snapshot.docs.map((doc) => 
-        convertTimestamps({ ...doc.data(), id: doc.id }) as ServiceRequest
-      );
-      callback(requests);
-    });
+    unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        const requests = snapshot.docs.map(
+          (doc) => convertTimestamps({ ...doc.data(), id: doc.id }) as ServiceRequest
+        );
+        callback(requests);
+      },
+      (error) => {
+        emitFirestoreListenerError("requests", error);
+        callback([]);
+      }
+    );
+  }).catch((error) => {
+    emitFirestoreListenerError("requests", error);
+    callback([]);
   });
   
   return () => unsubscribe();
@@ -464,12 +505,22 @@ export function subscribeRequestsByTenant(
       where("tenantId", "==", tenantId),
       orderBy("createdAt", "desc")
     );
-    unsubscribe = onSnapshot(q, (snapshot) => {
-      const requests = snapshot.docs.map((doc) => 
-        convertTimestamps({ ...doc.data(), id: doc.id }) as ServiceRequest
-      );
-      callback(requests);
-    });
+    unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        const requests = snapshot.docs.map(
+          (doc) => convertTimestamps({ ...doc.data(), id: doc.id }) as ServiceRequest
+        );
+        callback(requests);
+      },
+      (error) => {
+        emitFirestoreListenerError("requests", error);
+        callback([]);
+      }
+    );
+  }).catch((error) => {
+    emitFirestoreListenerError("requests", error);
+    callback([]);
   });
   
   return () => unsubscribe();

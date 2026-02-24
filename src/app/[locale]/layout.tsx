@@ -24,6 +24,10 @@ export const metadata: Metadata = {
     "vacation rental",
     "concierge",
   ],
+  icons: {
+    icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
+    shortcut: ["/icon.svg"],
+  },
 };
 
 export default async function LocaleLayout({

@@ -16,6 +16,10 @@ import { Card, CardHeader, CardTitle, CardContent, Spinner } from "@/components/
 import type { ServiceRequest, Locale, RequestStatus } from "@/types";
 import { subscribeRequests, updateRequestStatus } from "@/lib/firebase/firestore";
 import { useTenantsStore, useServicesStore } from "@/hooks";
+import {
+  FIRESTORE_LISTENER_ERROR_EVENT,
+  type FirestoreListenerErrorDetail,
+} from "@/lib/firebase/listenerErrors";
 
 export default function AdminDashboardPage() {
   const t = useTranslations("admin");
@@ -28,15 +32,32 @@ export default function AdminDashboardPage() {
   const [selectedRequest, setSelectedRequest] = useState<ServiceRequest | null>(null);
   const [showRequestModal, setShowRequestModal] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   // Subscribe to real-time requests from Firestore
   useEffect(() => {
     const unsubscribe = subscribeRequests((updatedRequests) => {
       setRequests(updatedRequests);
       setIsLoading(false);
+      setLoadError(null);
     });
 
     return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    const handler = (event: Event) => {
+      const { detail } = event as CustomEvent<FirestoreListenerErrorDetail>;
+      if (!detail || detail.context !== "requests") return;
+      setLoadError(
+        detail.code === "permission-denied"
+          ? "Firestore permission denied. Update Firestore Rules or enable real admin auth."
+          : detail.message || "Failed to load requests"
+      );
+      setIsLoading(false);
+    };
+    window.addEventListener(FIRESTORE_LISTENER_ERROR_EVENT, handler);
+    return () => window.removeEventListener(FIRESTORE_LISTENER_ERROR_EVENT, handler);
   }, []);
 
   const handleViewRequest = (request: ServiceRequest) => {
@@ -93,6 +114,15 @@ export default function AdminDashboardPage() {
     return (
       <div className="flex items-center justify-center py-20">
         <Spinner size="lg" />
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <div className="py-20 text-center">
+        <p className="text-red-600 font-medium">{t("common.error")}</p>
+        <p className="text-foreground/60 mt-2">{loadError}</p>
       </div>
     );
   }

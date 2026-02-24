@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
@@ -17,8 +18,8 @@ import {
   ChevronLeft,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Avatar, LanguageSwitcher } from "@/components/ui";
-import { Logo, LogoText } from "@/components/ui/Logo";
+import { Avatar, LanguageSwitcher } from "../ui";
+import { Logo } from "../ui/Logo";
 
 interface AdminSidebarProps {
   isCollapsed: boolean;
@@ -81,15 +82,17 @@ const AdminSidebar = ({
           className="flex items-center gap-3 pl-1"
           aria-label="StayPlus Admin Home"
         >
-          <Logo size="md" />
-          {(!isCollapsed || isMobile) && (
-            <motion.span
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            >
-              <LogoText />
-            </motion.span>
+          {isCollapsed && !isMobile ? (
+            <Logo size="md" />
+          ) : (
+            <Image
+              src="/brand/stayplus-logo.jpg"
+              alt="StayPlus"
+              width={180}
+              height={52}
+              priority
+              className="h-10 w-auto"
+            />
           )}
         </Link>
         <button
