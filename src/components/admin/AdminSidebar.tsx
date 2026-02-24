@@ -64,12 +64,13 @@ const AdminSidebar = ({
       animate={{ width: isCollapsed ? 80 : 280 }}
       transition={{ duration: 0.3, ease: "easeInOut" }}
       className="fixed left-0 top-0 bottom-0 bg-white border-r border-surface-200 z-40 flex flex-col"
+      aria-label="Admin sidebar"
     >
       {/* Header */}
       <div className="h-16 flex items-center justify-between px-4 border-b border-surface-200">
-        <Link href="/admin" className="flex items-center gap-3">
+        <Link href="/admin" className="flex items-center gap-3" aria-label="StayPlus Admin Home">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center shadow-md flex-shrink-0">
-            <Sparkles className="w-5 h-5 text-white" />
+            <Sparkles className="w-5 h-5 text-white" aria-hidden="true" />
           </div>
           {!isCollapsed && (
             <motion.span
@@ -85,19 +86,22 @@ const AdminSidebar = ({
         <button
           onClick={onToggle}
           className="p-2 rounded-lg hover:bg-surface-100 transition-colors"
+          aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+          aria-expanded={!isCollapsed}
         >
           <ChevronLeft
             className={cn(
               "w-5 h-5 text-foreground/60 transition-transform",
               isCollapsed && "rotate-180"
             )}
+            aria-hidden="true"
           />
         </button>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto py-4 px-3">
-        <ul className="space-y-1">
+      <nav className="flex-1 overflow-y-auto py-4 px-3" aria-label="Admin navigation">
+        <ul className="space-y-1" role="list">
           {menuItems.map((item) => {
             const active = isActive(item.href);
             return (
@@ -110,12 +114,15 @@ const AdminSidebar = ({
                       ? "bg-primary-50 text-primary-600"
                       : "text-foreground/70 hover:bg-surface-100 hover:text-foreground"
                   )}
+                  aria-current={active ? "page" : undefined}
+                  aria-label={isCollapsed ? item.label : undefined}
                 >
                   <item.icon
                     className={cn(
                       "w-5 h-5 flex-shrink-0",
                       active ? "text-primary-600" : "text-foreground/50"
                     )}
+                    aria-hidden="true"
                   />
                   {!isCollapsed && (
                     <motion.span
@@ -130,6 +137,7 @@ const AdminSidebar = ({
                     <motion.div
                       layoutId="activeIndicator"
                       className="ml-auto w-1.5 h-1.5 rounded-full bg-primary-500"
+                      aria-hidden="true"
                     />
                   )}
                 </Link>
@@ -166,9 +174,9 @@ const AdminSidebar = ({
             <button
               onClick={onSignOut}
               className="p-2 rounded-lg hover:bg-surface-200 transition-colors"
-              title="Sign out"
+              aria-label="Sign out"
             >
-              <LogOut className="w-4 h-4 text-foreground/60" />
+              <LogOut className="w-4 h-4 text-foreground/60" aria-hidden="true" />
             </button>
           )}
         </div>

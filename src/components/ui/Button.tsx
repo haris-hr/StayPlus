@@ -23,6 +23,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       rightIcon,
       children,
       disabled,
+      "aria-label": ariaLabel,
       ...props
     },
     ref
@@ -54,15 +55,18 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref}
         className={cn(baseStyles, variants[variant], sizes[size], className)}
         disabled={disabled || isLoading}
+        aria-label={ariaLabel}
+        aria-busy={isLoading}
+        aria-disabled={disabled || isLoading}
         {...props}
       >
         {isLoading ? (
-          <Loader2 className="w-4 h-4 animate-spin" />
+          <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />
         ) : (
-          leftIcon
+          leftIcon && <span aria-hidden="true">{leftIcon}</span>
         )}
         {children}
-        {!isLoading && rightIcon}
+        {!isLoading && rightIcon && <span aria-hidden="true">{rightIcon}</span>}
       </button>
     );
   }

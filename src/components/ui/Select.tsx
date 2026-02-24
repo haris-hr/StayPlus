@@ -19,10 +19,12 @@ export interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
 
 const Select = forwardRef<HTMLSelectElement, SelectProps>(
   (
-    { className, label, error, hint, options, placeholder, id, ...props },
+    { className, label, error, hint, options, placeholder, id, required, ...props },
     ref
   ) => {
     const selectId = id || label?.toLowerCase().replace(/\s+/g, "-");
+    const errorId = error ? `${selectId}-error` : undefined;
+    const hintId = hint && !error ? `${selectId}-hint` : undefined;
 
     return (
       <div className="w-full">
@@ -32,12 +34,17 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(
             className="block text-sm font-medium text-foreground mb-2"
           >
             {label}
+            {required && <span className="text-red-500 ml-1" aria-hidden="true">*</span>}
           </label>
         )}
         <div className="relative">
           <select
             ref={ref}
             id={selectId}
+            required={required}
+            aria-invalid={error ? "true" : undefined}
+            aria-describedby={errorId || hintId}
+            aria-required={required}
             className={cn(
               "w-full px-4 py-3 rounded-xl border bg-white transition-all duration-200 appearance-none cursor-pointer",
               "focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500",
@@ -59,11 +66,20 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(
               </option>
             ))}
           </select>
-          <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground/40 pointer-events-none" />
+          <ChevronDown 
+            className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground/40 pointer-events-none" 
+            aria-hidden="true"
+          />
         </div>
-        {error && <p className="mt-1.5 text-sm text-red-500">{error}</p>}
+        {error && (
+          <p id={errorId} className="mt-1.5 text-sm text-red-500" role="alert">
+            {error}
+          </p>
+        )}
         {hint && !error && (
-          <p className="mt-1.5 text-sm text-foreground/50">{hint}</p>
+          <p id={hintId} className="mt-1.5 text-sm text-foreground/50">
+            {hint}
+          </p>
         )}
       </div>
     );

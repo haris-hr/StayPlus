@@ -29,9 +29,12 @@ const LanguageSwitcher = ({
 
   if (variant === "full") {
     return (
-      <div className={cn("flex items-center gap-2", className)}>
-        <Globe className="w-4 h-4 text-foreground/60" />
-        <div className="flex rounded-lg bg-surface-100 p-1">
+      <nav 
+        className={cn("flex items-center gap-2", className)}
+        aria-label="Language selection"
+      >
+        <Globe className="w-4 h-4 text-foreground/60" aria-hidden="true" />
+        <div className="flex rounded-lg bg-surface-100 p-1" role="group">
           {languages.map((lang) => (
             <button
               key={lang.code}
@@ -42,17 +45,22 @@ const LanguageSwitcher = ({
                   ? "bg-white text-primary-600 shadow-sm"
                   : "text-foreground/60 hover:text-foreground"
               )}
+              aria-label={`Switch to ${lang.fullLabel}`}
+              aria-current={locale === lang.code ? "true" : undefined}
             >
               {lang.fullLabel}
             </button>
           ))}
         </div>
-      </div>
+      </nav>
     );
   }
 
   return (
-    <div className={cn("flex items-center gap-1", className)}>
+    <nav 
+      className={cn("flex items-center gap-1", className)}
+      aria-label="Language selection"
+    >
       {languages.map((lang, index) => (
         <span key={lang.code} className="flex items-center">
           <button
@@ -63,15 +71,17 @@ const LanguageSwitcher = ({
                 ? "text-primary-600"
                 : "text-foreground/50 hover:text-foreground"
             )}
+            aria-label={`Switch to ${lang.fullLabel}`}
+            aria-current={locale === lang.code ? "true" : undefined}
           >
             {lang.label}
           </button>
           {index < languages.length - 1 && (
-            <span className="text-foreground/30">|</span>
+            <span className="text-foreground/30" aria-hidden="true">|</span>
           )}
         </span>
       ))}
-    </div>
+    </nav>
   );
 };
 
