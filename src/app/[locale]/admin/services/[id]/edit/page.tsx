@@ -151,8 +151,8 @@ export default function EditServicePage() {
 
     try {
       // Clean up tiers - remove undefined values from each tier
-      const cleanedTiers = formData.tiers.map(tier => {
-        const cleanTier: Record<string, unknown> = {
+      const cleanedTiers: ServiceTier[] = formData.tiers.map(tier => {
+        const cleanTier: ServiceTier = {
           id: tier.id,
           name: { en: tier.name.en || "", bs: tier.name.bs || "" },
         };
@@ -186,7 +186,7 @@ export default function EditServicePage() {
         pricingType: formData.pricingType,
         ...(formData.price && { price: parseFloat(formData.price) }),
         currency: formData.currency,
-        tiers: cleanedTiers, // Always send array (empty or with items)
+        tiers: cleanedTiers,
         active: formData.active,
         featured: formData.featured,
         order: parseInt(formData.order) || 0,

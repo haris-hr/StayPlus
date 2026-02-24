@@ -120,8 +120,8 @@ export default function NewServicePage() {
       const now = new Date();
       
       // Clean up tiers - remove undefined values from each tier
-      const cleanedTiers = formData.tiers.map(tier => {
-        const cleanTier: Record<string, unknown> = {
+      const cleanedTiers: ServiceTier[] = formData.tiers.map(tier => {
+        const cleanTier: ServiceTier = {
           id: tier.id,
           name: { en: tier.name.en || "", bs: tier.name.bs || "" },
         };
