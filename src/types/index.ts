@@ -9,6 +9,7 @@ export interface I18nText {
 // Tenant types
 export interface TenantBranding {
   logo?: string;
+  heroImage?: string; // Hero banner image for the guest portal
   primaryColor?: string;
   accentColor?: string;
   hideLogo?: boolean;

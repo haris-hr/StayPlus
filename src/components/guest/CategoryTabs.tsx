@@ -61,8 +61,8 @@ const CategoryTabs = ({
   ];
 
   return (
-    <div className="w-full">
-      <div className="flex flex-wrap gap-2 p-1">
+    <div className="w-full overflow-x-auto scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0">
+      <div className="flex gap-2 p-1 min-w-max sm:flex-wrap sm:min-w-0">
         {tabs.map((tab) => {
           const Icon = iconMap[tab.icon] || LayoutGrid;
           const isSelected = selectedCategory === tab.id;
@@ -73,7 +73,7 @@ const CategoryTabs = ({
               onClick={() => onSelectCategory(tab.id)}
               whileTap={{ scale: 0.95 }}
               className={cn(
-                "relative flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium transition-all duration-200",
+                "relative flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium transition-all duration-200 flex-shrink-0",
                 isSelected
                   ? "text-white"
                   : "text-foreground/70 hover:text-foreground hover:bg-surface-100"

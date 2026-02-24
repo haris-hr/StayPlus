@@ -29,6 +29,8 @@ interface AdminSidebarProps {
     photoURL?: string;
   } | null;
   onSignOut: () => void;
+  onMobileClose?: () => void;
+  isMobile?: boolean;
 }
 
 const AdminSidebar = ({
@@ -36,6 +38,8 @@ const AdminSidebar = ({
   onToggle,
   user,
   onSignOut,
+  onMobileClose,
+  isMobile = false,
 }: AdminSidebarProps) => {
   const t = useTranslations("admin");
   const pathname = usePathname();
@@ -61,9 +65,13 @@ const AdminSidebar = ({
   return (
     <motion.aside
       initial={false}
-      animate={{ width: isCollapsed ? 80 : 280 }}
+      animate={{ width: isMobile ? 280 : (isCollapsed ? 80 : 280) }}
       transition={{ duration: 0.3, ease: "easeInOut" }}
-      className="fixed left-0 top-0 bottom-0 bg-white border-r border-surface-200 z-40 flex flex-col"
+      className={cn(
+        "fixed left-0 top-0 bottom-0 bg-white border-r border-surface-200 z-50 flex flex-col",
+        // Hide on mobile unless explicitly opened
+        isMobile ? "block" : "hidden lg:flex"
+      )}
       aria-label="Admin sidebar"
     >
       {/* Header */}
@@ -72,7 +80,7 @@ const AdminSidebar = ({
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center shadow-md flex-shrink-0">
             <Sparkles className="w-5 h-5 text-white" aria-hidden="true" />
           </div>
-          {!isCollapsed && (
+          {(!isCollapsed || isMobile) && (
             <motion.span
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -84,10 +92,10 @@ const AdminSidebar = ({
           )}
         </Link>
         <button
-          onClick={onToggle}
+          onClick={isMobile ? onMobileClose : onToggle}
           className="p-2 rounded-lg hover:bg-surface-100 transition-colors"
-          aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-          aria-expanded={!isCollapsed}
+          aria-label={isMobile ? "Close menu" : (isCollapsed ? "Expand sidebar" : "Collapse sidebar")}
+          aria-expanded={isMobile ? true : !isCollapsed}
         >
           <ChevronLeft
             className={cn(
@@ -108,6 +116,7 @@ const AdminSidebar = ({
               <li key={item.href}>
                 <Link
                   href={item.href}
+                  onClick={onMobileClose}
                   className={cn(
                     "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200",
                     active
@@ -115,7 +124,7 @@ const AdminSidebar = ({
                       : "text-foreground/70 hover:bg-surface-100 hover:text-foreground"
                   )}
                   aria-current={active ? "page" : undefined}
-                  aria-label={isCollapsed ? item.label : undefined}
+                  aria-label={isCollapsed && !isMobile ? item.label : undefined}
                 >
                   <item.icon
                     className={cn(
@@ -124,7 +133,7 @@ const AdminSidebar = ({
                     )}
                     aria-hidden="true"
                   />
-                  {!isCollapsed && (
+                  {(!isCollapsed || isMobile) && (
                     <motion.span
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
@@ -133,7 +142,7 @@ const AdminSidebar = ({
                       {item.label}
                     </motion.span>
                   )}
-                  {active && !isCollapsed && (
+                  {active && (!isCollapsed || isMobile) && (
                     <motion.div
                       layoutId="activeIndicator"
                       className="ml-auto w-1.5 h-1.5 rounded-full bg-primary-500"
@@ -152,7 +161,7 @@ const AdminSidebar = ({
         <div
           className={cn(
             "flex items-center gap-3 p-3 rounded-xl bg-surface-50",
-            isCollapsed && "justify-center"
+            isCollapsed && !isMobile && "justify-center"
           )}
         >
           <Avatar
@@ -160,7 +169,7 @@ const AdminSidebar = ({
             fallback={user?.displayName || user?.email}
             size="sm"
           />
-          {!isCollapsed && (
+          {(!isCollapsed || isMobile) && (
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-foreground truncate">
                 {user?.displayName || "Admin"}
@@ -170,7 +179,7 @@ const AdminSidebar = ({
               </p>
             </div>
           )}
-          {!isCollapsed && (
+          {(!isCollapsed || isMobile) && (
             <button
               onClick={onSignOut}
               className="p-2 rounded-lg hover:bg-surface-200 transition-colors"

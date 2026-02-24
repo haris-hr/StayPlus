@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Building2, Palette, Globe } from "lucide-react";
-import { Button, Input, Card } from "@/components/ui";
+import { X, Building2, Palette, Globe, Image as ImageIcon, MapPin } from "lucide-react";
+import { Button, Input, Textarea, Card } from "@/components/ui";
 import { slugify } from "@/lib/utils";
 import type { Tenant } from "@/types";
 
@@ -22,10 +22,14 @@ const TenantForm = ({ isOpen, onClose, tenant, onSubmit }: TenantFormProps) => {
   const [formData, setFormData] = useState({
     name: tenant?.name || "",
     slug: tenant?.slug || "",
+    descriptionEn: tenant?.description?.en || "",
+    descriptionBs: tenant?.description?.bs || "",
     email: tenant?.contact?.email || "",
     phone: tenant?.contact?.phone || "",
     whatsapp: tenant?.contact?.whatsapp || "",
+    address: tenant?.contact?.address || "",
     logo: tenant?.branding?.logo || "",
+    heroImage: tenant?.branding?.heroImage || "",
     primaryColor: tenant?.branding?.primaryColor || "#f96d4a",
     accentColor: tenant?.branding?.accentColor || "#05c7ae",
     hideLogo: tenant?.branding?.hideLogo || false,
@@ -34,6 +38,27 @@ const TenantForm = ({ isOpen, onClose, tenant, onSubmit }: TenantFormProps) => {
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Reset form when tenant changes
+  useEffect(() => {
+    setFormData({
+      name: tenant?.name || "",
+      slug: tenant?.slug || "",
+      descriptionEn: tenant?.description?.en || "",
+      descriptionBs: tenant?.description?.bs || "",
+      email: tenant?.contact?.email || "",
+      phone: tenant?.contact?.phone || "",
+      whatsapp: tenant?.contact?.whatsapp || "",
+      address: tenant?.contact?.address || "",
+      logo: tenant?.branding?.logo || "",
+      heroImage: tenant?.branding?.heroImage || "",
+      primaryColor: tenant?.branding?.primaryColor || "#f96d4a",
+      accentColor: tenant?.branding?.accentColor || "#05c7ae",
+      hideLogo: tenant?.branding?.hideLogo || false,
+      customDomain: tenant?.branding?.customDomain || "",
+      active: tenant?.active ?? true,
+    });
+  }, [tenant]);
 
   const handleNameChange = (name: string) => {
     setFormData({
@@ -51,13 +76,19 @@ const TenantForm = ({ isOpen, onClose, tenant, onSubmit }: TenantFormProps) => {
       await onSubmit({
         name: formData.name,
         slug: formData.slug,
+        description: (formData.descriptionEn || formData.descriptionBs) ? {
+          en: formData.descriptionEn,
+          bs: formData.descriptionBs,
+        } : undefined,
         contact: {
           email: formData.email,
           phone: formData.phone || undefined,
           whatsapp: formData.whatsapp || undefined,
+          address: formData.address || undefined,
         },
         branding: {
           logo: formData.logo || undefined,
+          heroImage: formData.heroImage || undefined,
           primaryColor: formData.primaryColor || undefined,
           accentColor: formData.accentColor || undefined,
           hideLogo: formData.hideLogo,
@@ -133,6 +164,40 @@ const TenantForm = ({ isOpen, onClose, tenant, onSubmit }: TenantFormProps) => {
                       hint="Used in URL: /apartment/your-slug"
                       required
                     />
+                    <div className="sm:col-span-2">
+                      <Textarea
+                        label="Description (English)"
+                        value={formData.descriptionEn}
+                        onChange={(e) =>
+                          setFormData({ ...formData, descriptionEn: e.target.value })
+                        }
+                        placeholder="Welcome message for your guests..."
+                        rows={2}
+                      />
+                    </div>
+                    <div className="sm:col-span-2">
+                      <Textarea
+                        label="Description (Bosnian)"
+                        value={formData.descriptionBs}
+                        onChange={(e) =>
+                          setFormData({ ...formData, descriptionBs: e.target.value })
+                        }
+                        placeholder="Poruka dobrodošlice za vaše goste..."
+                        rows={2}
+                      />
+                    </div>
+                  </div>
+                </Card>
+
+                {/* Contact Info */}
+                <Card variant="outline" padding="md">
+                  <div className="flex items-center gap-2 mb-4">
+                    <MapPin className="w-5 h-5 text-primary-600" />
+                    <h3 className="font-semibold text-foreground">
+                      Contact Information
+                    </h3>
+                  </div>
+                  <div className="grid sm:grid-cols-2 gap-4">
                     <Input
                       label={t("tenantEmail")}
                       type="email"
@@ -157,6 +222,54 @@ const TenantForm = ({ isOpen, onClose, tenant, onSubmit }: TenantFormProps) => {
                       }
                       placeholder="+387 61 123 456"
                     />
+                    <Input
+                      label="Address"
+                      value={formData.address}
+                      onChange={(e) =>
+                        setFormData({ ...formData, address: e.target.value })
+                      }
+                      placeholder="Street, City, ZIP"
+                    />
+                  </div>
+                </Card>
+
+                {/* Hero Image */}
+                <Card variant="outline" padding="md">
+                  <div className="flex items-center gap-2 mb-4">
+                    <ImageIcon className="w-5 h-5 text-primary-600" />
+                    <h3 className="font-semibold text-foreground">
+                      Hero Banner Image
+                    </h3>
+                  </div>
+                  <div className="space-y-4">
+                    <Input
+                      label="Hero Image URL"
+                      value={formData.heroImage}
+                      onChange={(e) =>
+                        setFormData({ ...formData, heroImage: e.target.value })
+                      }
+                      placeholder="https://images.unsplash.com/..."
+                      hint="Recommended: 1600x600px or larger, landscape orientation"
+                    />
+                    {formData.heroImage && (
+                      <div className="relative rounded-lg overflow-hidden h-32 bg-surface-100">
+                        <img
+                          src={formData.heroImage}
+                          alt="Hero preview"
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = 'none';
+                          }}
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                        <div className="absolute bottom-2 left-3 text-white text-sm font-medium">
+                          {formData.name || "Tenant Name"}
+                        </div>
+                      </div>
+                    )}
+                    <p className="text-xs text-foreground/50">
+                      💡 Tip: Use a photo of your apartment, building exterior, or a scenic view. This will be displayed at the top of the guest portal.
+                    </p>
                   </div>
                 </Card>
 
@@ -176,6 +289,7 @@ const TenantForm = ({ isOpen, onClose, tenant, onSubmit }: TenantFormProps) => {
                         setFormData({ ...formData, logo: e.target.value })
                       }
                       placeholder="https://..."
+                      hint="Your logo image URL"
                     />
                     <div className="flex items-end gap-4">
                       <div className="flex-1">
@@ -192,7 +306,7 @@ const TenantForm = ({ isOpen, onClose, tenant, onSubmit }: TenantFormProps) => {
                                 primaryColor: e.target.value,
                               })
                             }
-                            className="w-10 h-10 rounded-lg cursor-pointer"
+                            className="w-10 h-10 rounded-lg cursor-pointer border border-surface-200"
                           />
                           <Input
                             value={formData.primaryColor}
@@ -219,7 +333,7 @@ const TenantForm = ({ isOpen, onClose, tenant, onSubmit }: TenantFormProps) => {
                                 accentColor: e.target.value,
                               })
                             }
-                            className="w-10 h-10 rounded-lg cursor-pointer"
+                            className="w-10 h-10 rounded-lg cursor-pointer border border-surface-200"
                           />
                           <Input
                             value={formData.accentColor}
@@ -232,6 +346,15 @@ const TenantForm = ({ isOpen, onClose, tenant, onSubmit }: TenantFormProps) => {
                           />
                         </div>
                       </div>
+                    </div>
+                    {/* Color Preview */}
+                    <div className="sm:col-span-2">
+                      <div 
+                        className="h-3 rounded-full"
+                        style={{
+                          background: `linear-gradient(to right, ${formData.primaryColor}, ${formData.accentColor})`,
+                        }}
+                      />
                     </div>
                     <div className="sm:col-span-2">
                       <label className="flex items-center gap-3 cursor-pointer">
@@ -246,7 +369,12 @@ const TenantForm = ({ isOpen, onClose, tenant, onSubmit }: TenantFormProps) => {
                           }
                           className="w-5 h-5 rounded border-surface-300 text-primary-600 focus:ring-primary-500"
                         />
-                        <span className="text-foreground">{t("hideLogo")}</span>
+                        <div>
+                          <span className="text-foreground">{t("hideLogo")}</span>
+                          <p className="text-xs text-foreground/50">
+                            Enable white-label mode - removes all StayPlus branding
+                          </p>
+                        </div>
                       </label>
                     </div>
                   </div>

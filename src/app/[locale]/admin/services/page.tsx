@@ -3,346 +3,14 @@
 import { useState, useEffect } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { motion } from "framer-motion";
-import { Plus, Edit2, Trash2, Star } from "lucide-react";
+import { Plus, Edit2, Trash2, Star, Image as ImageIcon } from "lucide-react";
 import { ServiceForm } from "@/components/admin";
 import { Button, Card, Badge, Spinner, Select } from "@/components/ui";
 import { getLocalizedText, getPricingDisplay } from "@/lib/utils";
+import { categories as allCategories } from "@/data/categories";
+import { getAllTenants } from "@/data/tenants";
+import { allServices as initialServices } from "@/data/services";
 import type { Service, ServiceCategory, Tenant, Locale } from "@/types";
-
-// Mock data
-const mockCategories: ServiceCategory[] = [
-  { id: "free", name: { en: "Free Amenities", bs: "Besplatne Pogodnosti" }, icon: "gift", order: 1, active: true },
-  { id: "transport", name: { en: "Transport", bs: "Transport" }, icon: "car", order: 2, active: true },
-  { id: "tours", name: { en: "Tours & Activities", bs: "Ture i Aktivnosti" }, icon: "mountain", order: 3, active: true },
-  { id: "food", name: { en: "Food & Dining", bs: "Hrana i Restorani" }, icon: "utensils", order: 4, active: true },
-  { id: "special", name: { en: "Special Occasions", bs: "Posebne Prilike" }, icon: "heart", order: 5, active: true },
-  { id: "convenience", name: { en: "Convenience", bs: "Pogodnosti" }, icon: "shopping", order: 6, active: true },
-  { id: "car-services", name: { en: "Car Services", bs: "Auto Usluge" }, icon: "car", order: 7, active: true },
-  { id: "photography", name: { en: "Photography", bs: "Fotografija" }, icon: "camera", order: 8, active: true },
-];
-
-const mockTenants: Tenant[] = [
-  {
-    id: "sunny-sarajevo",
-    slug: "sunny-sarajevo",
-    name: "Sunny Sarajevo Apartment",
-    branding: { primaryColor: "#f96d4a" },
-    contact: { email: "host@sunnysarajevo.com" },
-    active: true,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: "mountain-view",
-    slug: "mountain-view",
-    name: "Mountain View Lodge",
-    branding: { primaryColor: "#2d5a27" },
-    contact: { email: "info@mountainviewlodge.ba" },
-    active: true,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: "dobrinja-apartments",
-    slug: "dobrinja-apartments",
-    name: "Dobrinja Apartments",
-    branding: { primaryColor: "#1e40af", hideLogo: true },
-    contact: { email: "info@dobrinja-apartments.ba" },
-    active: true,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-];
-
-const mockServices: Service[] = [
-  // Sunny Sarajevo Services
-  {
-    id: "1",
-    tenantId: "sunny-sarajevo",
-    categoryId: "free",
-    name: { en: "Complimentary Water & Snacks", bs: "Besplatna Voda i Grickalice" },
-    description: { en: "Water, chocolates & fruits", bs: "Voda, čokolade i voće" },
-    pricingType: "free",
-    currency: "EUR",
-    active: true,
-    order: 1,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: "2",
-    tenantId: "sunny-sarajevo",
-    categoryId: "transport",
-    name: { en: "Airport Transfer", bs: "Aerodromski Transfer" },
-    description: { en: "Airport pickup & dropoff", bs: "Prevoz od/do aerodroma" },
-    pricingType: "fixed",
-    price: 25,
-    currency: "EUR",
-    active: true,
-    featured: true,
-    order: 1,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: "3",
-    tenantId: "sunny-sarajevo",
-    categoryId: "transport",
-    name: { en: "Rent a Car", bs: "Rent-a-Car" },
-    description: { en: "Freedom to explore", bs: "Sloboda istraživanja" },
-    pricingType: "variable",
-    price: 35,
-    currency: "EUR",
-    tiers: [
-      { id: "economy", name: { en: "Economy (VW Polo)", bs: "Ekonomija (VW Polo)" }, price: 35 },
-      { id: "standard", name: { en: "Standard (VW Golf)", bs: "Standard (VW Golf)" }, price: 45 },
-      { id: "premium", name: { en: "Premium (Mercedes C220d)", bs: "Premium (Mercedes C220d)" }, price: 85 },
-    ],
-    active: true,
-    featured: true,
-    order: 2,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: "4",
-    tenantId: "sunny-sarajevo",
-    categoryId: "tours",
-    name: { en: "Erma Safari Adventure", bs: "Erma Safari Avantura" },
-    description: { en: "Off-road nature adventure", bs: "Off-road avantura u prirodi" },
-    pricingType: "variable",
-    price: 45,
-    currency: "EUR",
-    tiers: [
-      { id: "standard", name: { en: "Standard (Shared)", bs: "Standard (Grupni)" }, price: 45 },
-      { id: "premium", name: { en: "Premium (Private)", bs: "Premium (Privatni)" }, price: 95 },
-      { id: "vip", name: { en: "VIP Package", bs: "VIP Paket" }, price: 150 },
-    ],
-    active: true,
-    featured: true,
-    order: 1,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: "5",
-    tenantId: "sunny-sarajevo",
-    categoryId: "tours",
-    name: { en: "Mostar & Kravice Day Trip", bs: "Jednodnevni Izlet Mostar i Kravice" },
-    description: { en: "Old Bridge & waterfalls", bs: "Stari Most i vodopadi" },
-    pricingType: "variable",
-    price: 65,
-    currency: "EUR",
-    active: true,
-    featured: true,
-    order: 2,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: "6",
-    tenantId: "sunny-sarajevo",
-    categoryId: "food",
-    name: { en: "Traditional Breakfast Delivery", bs: "Dostava Tradicionalnog Doručka" },
-    description: { en: "Authentic Bosnian breakfast", bs: "Autentičan bosanski doručak" },
-    pricingType: "fixed",
-    price: 15,
-    currency: "EUR",
-    active: true,
-    featured: true,
-    order: 1,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: "7",
-    tenantId: "sunny-sarajevo",
-    categoryId: "special",
-    name: { en: "Romantic Setup", bs: "Romantična Priprema" },
-    description: { en: "Love is in the air", bs: "Ljubav je u zraku" },
-    pricingType: "variable",
-    price: 50,
-    currency: "EUR",
-    tiers: [
-      { id: "basic", name: { en: "Basic", bs: "Osnovni" }, price: 50 },
-      { id: "premium", name: { en: "Premium + Champagne", bs: "Premium + Šampanjac" }, price: 90 },
-      { id: "proposal", name: { en: "Proposal Package", bs: "Paket za Prosidbu" }, price: 150 },
-    ],
-    active: true,
-    featured: true,
-    order: 1,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  // Mountain View Services
-  {
-    id: "mv-1",
-    tenantId: "mountain-view",
-    categoryId: "free",
-    name: { en: "Welcome Basket", bs: "Korpa Dobrodošlice" },
-    description: { en: "Local treats", bs: "Lokalni specijaliteti" },
-    pricingType: "free",
-    currency: "EUR",
-    active: true,
-    order: 1,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: "mv-2",
-    tenantId: "mountain-view",
-    categoryId: "tours",
-    name: { en: "Guided Mountain Hike", bs: "Vođena Planinska Šetnja" },
-    description: { en: "Mountain adventure", bs: "Planinska avantura" },
-    pricingType: "variable",
-    price: 30,
-    currency: "EUR",
-    tiers: [
-      { id: "easy", name: { en: "Easy Trail (2h)", bs: "Lagana Staza (2h)" }, price: 30 },
-      { id: "medium", name: { en: "Medium Trail (4h)", bs: "Srednja Staza (4h)" }, price: 50 },
-      { id: "challenging", name: { en: "Challenging (Full Day)", bs: "Zahtjevna (Cijeli Dan)" }, price: 80 },
-    ],
-    active: true,
-    featured: true,
-    order: 1,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: "mv-3",
-    tenantId: "mountain-view",
-    categoryId: "tours",
-    name: { en: "Ski Equipment Rental", bs: "Iznajmljivanje Ski Opreme" },
-    description: { en: "Ski & snowboard gear", bs: "Ski i snowboard oprema" },
-    pricingType: "variable",
-    price: 25,
-    currency: "EUR",
-    active: true,
-    featured: true,
-    order: 2,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  // Dobrinja Apartments Services (same as Sunny Sarajevo)
-  {
-    id: "d-1",
-    tenantId: "dobrinja-apartments",
-    categoryId: "free",
-    name: { en: "Complimentary Water & Snacks", bs: "Besplatna Voda i Grickalice" },
-    description: { en: "Water, chocolates & fruits", bs: "Voda, čokolade i voće" },
-    pricingType: "free",
-    currency: "EUR",
-    active: true,
-    order: 1,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: "d-2",
-    tenantId: "dobrinja-apartments",
-    categoryId: "transport",
-    name: { en: "Airport Transfer", bs: "Aerodromski Transfer" },
-    description: { en: "Airport pickup & dropoff", bs: "Prevoz od/do aerodroma" },
-    pricingType: "fixed",
-    price: 25,
-    currency: "EUR",
-    active: true,
-    featured: true,
-    order: 1,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: "d-3",
-    tenantId: "dobrinja-apartments",
-    categoryId: "transport",
-    name: { en: "Rent a Car", bs: "Rent-a-Car" },
-    description: { en: "Freedom to explore", bs: "Sloboda istraživanja" },
-    pricingType: "variable",
-    price: 35,
-    currency: "EUR",
-    tiers: [
-      { id: "economy", name: { en: "Economy (VW Polo)", bs: "Ekonomija (VW Polo)" }, price: 35 },
-      { id: "standard", name: { en: "Standard (VW Golf)", bs: "Standard (VW Golf)" }, price: 45 },
-      { id: "premium", name: { en: "Premium (Mercedes C220d)", bs: "Premium (Mercedes C220d)" }, price: 85 },
-    ],
-    active: true,
-    featured: true,
-    order: 2,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: "d-4",
-    tenantId: "dobrinja-apartments",
-    categoryId: "tours",
-    name: { en: "Erma Safari Adventure", bs: "Erma Safari Avantura" },
-    description: { en: "Off-road nature adventure", bs: "Off-road avantura u prirodi" },
-    pricingType: "variable",
-    price: 45,
-    currency: "EUR",
-    tiers: [
-      { id: "standard", name: { en: "Standard (Shared)", bs: "Standard (Grupni)" }, price: 45 },
-      { id: "premium", name: { en: "Premium (Private)", bs: "Premium (Privatni)" }, price: 95 },
-      { id: "vip", name: { en: "VIP Package", bs: "VIP Paket" }, price: 150 },
-    ],
-    active: true,
-    featured: true,
-    order: 1,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: "d-5",
-    tenantId: "dobrinja-apartments",
-    categoryId: "tours",
-    name: { en: "Mostar & Kravice Day Trip", bs: "Jednodnevni Izlet Mostar i Kravice" },
-    description: { en: "Old Bridge & waterfalls", bs: "Stari Most i vodopadi" },
-    pricingType: "variable",
-    price: 65,
-    currency: "EUR",
-    active: true,
-    featured: true,
-    order: 2,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: "d-6",
-    tenantId: "dobrinja-apartments",
-    categoryId: "food",
-    name: { en: "Traditional Breakfast Delivery", bs: "Dostava Tradicionalnog Doručka" },
-    description: { en: "Authentic Bosnian breakfast", bs: "Autentičan bosanski doručak" },
-    pricingType: "fixed",
-    price: 15,
-    currency: "EUR",
-    active: true,
-    featured: true,
-    order: 1,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: "d-7",
-    tenantId: "dobrinja-apartments",
-    categoryId: "special",
-    name: { en: "Romantic Setup", bs: "Romantična Priprema" },
-    description: { en: "Love is in the air", bs: "Ljubav je u zraku" },
-    pricingType: "variable",
-    price: 50,
-    currency: "EUR",
-    tiers: [
-      { id: "basic", name: { en: "Basic", bs: "Osnovni" }, price: 50 },
-      { id: "premium", name: { en: "Premium + Champagne", bs: "Premium + Šampanjac" }, price: 90 },
-      { id: "proposal", name: { en: "Proposal Package", bs: "Paket za Prosidbu" }, price: 150 },
-    ],
-    active: true,
-    featured: true,
-    order: 1,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-];
 
 export default function ServicesPage() {
   const t = useTranslations("admin");
@@ -358,12 +26,13 @@ export default function ServicesPage() {
   const [filterCategory, setFilterCategory] = useState<string>("");
 
   useEffect(() => {
+    // Load data from the data layer
     setTimeout(() => {
-      setServices(mockServices);
-      setCategories(mockCategories);
-      setTenants(mockTenants);
+      setServices(initialServices);
+      setCategories(allCategories);
+      setTenants(getAllTenants());
       setIsLoading(false);
-    }, 500);
+    }, 300);
   }, []);
 
   const handleSubmit = async (data: Partial<Service>) => {
@@ -443,7 +112,7 @@ export default function ServicesPage() {
         <div>
           <h1 className="text-3xl font-bold text-foreground">{t("services")}</h1>
           <p className="text-foreground/60 mt-1">
-            Manage services available to guests
+            Manage services available to guests ({filteredServices.length} total)
           </p>
         </div>
         <Button
@@ -524,11 +193,25 @@ export default function ServicesPage() {
                     key={service.id}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.05 }}
+                    transition={{ delay: Math.min(index * 0.02, 0.5) }}
                     className="border-b border-surface-100 hover:bg-surface-50 transition-colors"
                   >
                     <td className="py-4 px-4">
                       <div className="flex items-center gap-3">
+                        {/* Service Image Thumbnail */}
+                        {service.image ? (
+                          <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 bg-surface-100">
+                            <img
+                              src={service.image}
+                              alt=""
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        ) : (
+                          <div className="w-12 h-12 rounded-lg bg-surface-100 flex items-center justify-center flex-shrink-0">
+                            <ImageIcon className="w-5 h-5 text-foreground/30" />
+                          </div>
+                        )}
                         <div>
                           <div className="flex items-center gap-2">
                             <p className="font-medium text-foreground">
@@ -538,8 +221,8 @@ export default function ServicesPage() {
                               <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
                             )}
                           </div>
-                          <p className="text-xs text-foreground/60 line-clamp-1">
-                            {getLocalizedText(service.description, locale)}
+                          <p className="text-xs text-foreground/60 line-clamp-1 max-w-xs">
+                            {getLocalizedText(service.shortDescription || service.description, locale)}
                           </p>
                         </div>
                       </div>
@@ -581,6 +264,7 @@ export default function ServicesPage() {
                           onClick={() => handleEdit(service)}
                           className="p-2 rounded-lg hover:bg-surface-100 transition-colors"
                           title="Edit"
+                          aria-label={`Edit ${getLocalizedText(service.name, locale)}`}
                         >
                           <Edit2 className="w-4 h-4 text-foreground/60" />
                         </button>
@@ -588,6 +272,7 @@ export default function ServicesPage() {
                           onClick={() => handleDelete(service.id)}
                           className="p-2 rounded-lg hover:bg-red-50 transition-colors"
                           title="Delete"
+                          aria-label={`Delete ${getLocalizedText(service.name, locale)}`}
                         >
                           <Trash2 className="w-4 h-4 text-red-500" />
                         </button>

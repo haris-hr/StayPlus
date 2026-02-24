@@ -3,66 +3,12 @@
 import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { motion } from "framer-motion";
-import { Plus, Edit2, Trash2, ExternalLink } from "lucide-react";
+import { Plus, Edit2, Trash2, ExternalLink, Image as ImageIcon } from "lucide-react";
 import { TenantForm } from "@/components/admin";
 import { Button, Card, Badge, Spinner } from "@/components/ui";
 import { Link } from "@/i18n/routing";
+import { getAllTenants } from "@/data/tenants";
 import type { Tenant } from "@/types";
-
-// Mock data
-const mockTenants: Tenant[] = [
-  {
-    id: "sunny-sarajevo",
-    slug: "sunny-sarajevo",
-    name: "Sunny Sarajevo Apartment",
-    branding: {
-      primaryColor: "#f96d4a",
-      accentColor: "#05c7ae",
-    },
-    contact: {
-      email: "host@sunnysarajevo.com",
-      phone: "+387 61 123 456",
-      whatsapp: "+387 61 123 456",
-    },
-    active: true,
-    createdAt: new Date("2024-01-15"),
-    updatedAt: new Date(),
-  },
-  {
-    id: "mountain-view",
-    slug: "mountain-view",
-    name: "Mountain View Lodge",
-    branding: {
-      primaryColor: "#2d5a27",
-      accentColor: "#8b4513",
-    },
-    contact: {
-      email: "info@mountainviewlodge.ba",
-      phone: "+387 62 987 654",
-    },
-    active: true,
-    createdAt: new Date("2024-02-20"),
-    updatedAt: new Date(),
-  },
-  {
-    id: "dobrinja-apartments",
-    slug: "dobrinja-apartments",
-    name: "Dobrinja Apartments",
-    branding: {
-      primaryColor: "#1e40af",
-      accentColor: "#0891b2",
-      hideLogo: true, // White-labeled - no StayPlus branding
-    },
-    contact: {
-      email: "info@dobrinja-apartments.ba",
-      phone: "+387 61 555 777",
-      whatsapp: "+387 61 555 777",
-    },
-    active: true,
-    createdAt: new Date("2024-03-01"),
-    updatedAt: new Date(),
-  },
-];
 
 export default function TenantsPage() {
   const t = useTranslations("admin");
@@ -72,11 +18,11 @@ export default function TenantsPage() {
   const [editingTenant, setEditingTenant] = useState<Tenant | null>(null);
 
   useEffect(() => {
-    // In production, fetch from Firebase
+    // Load from data layer
     setTimeout(() => {
-      setTenants(mockTenants);
+      setTenants(getAllTenants());
       setIsLoading(false);
-    }, 500);
+    }, 300);
   }, []);
 
   const handleSubmit = async (data: Partial<Tenant>) => {
@@ -93,6 +39,7 @@ export default function TenantsPage() {
         id: `tenant-${Date.now()}`,
         slug: data.slug!,
         name: data.name!,
+        description: data.description,
         branding: data.branding || {},
         contact: data.contact!,
         active: data.active ?? true,
@@ -129,12 +76,12 @@ export default function TenantsPage() {
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex items-center justify-between"
+        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
       >
         <div>
-          <h1 className="text-3xl font-bold text-foreground">{t("tenants")}</h1>
-          <p className="text-foreground/60 mt-1">
-            Manage your property tenants and their settings
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">{t("tenants")}</h1>
+          <p className="text-foreground/60 mt-1 text-sm sm:text-base">
+            Manage your property tenants ({tenants.length} total)
           </p>
         </div>
         <Button
@@ -143,6 +90,7 @@ export default function TenantsPage() {
             setShowForm(true);
           }}
           leftIcon={<Plus className="w-5 h-5" />}
+          className="w-full sm:w-auto"
         >
           {t("addTenant")}
         </Button>
@@ -159,36 +107,78 @@ export default function TenantsPage() {
               transition={{ delay: index * 0.1 }}
             >
               <Card hover className="h-full">
-                {/* Color bar */}
-                <div
-                  className="h-2 rounded-t-2xl -mt-6 -mx-6 mb-4"
-                  style={{
-                    background: `linear-gradient(to right, ${
-                      tenant.branding.primaryColor || "#f96d4a"
-                    }, ${tenant.branding.accentColor || "#05c7ae"})`,
-                  }}
-                />
-
-                <div className="flex items-start justify-between mb-4">
-                  <div>
-                    <h3 className="font-semibold text-foreground text-lg">
-                      {tenant.name}
-                    </h3>
-                    <p className="text-foreground/60 text-sm">
-                      /{tenant.slug}
-                    </p>
+                {/* Hero Image or Color Bar */}
+                {tenant.branding.heroImage ? (
+                  <div className="relative h-32 -mt-6 -mx-6 mb-4 overflow-hidden rounded-t-2xl">
+                    <img
+                      src={tenant.branding.heroImage}
+                      alt={tenant.name}
+                      className="w-full h-full object-cover"
+                    />
+                    <div 
+                      className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"
+                    />
+                    <div className="absolute bottom-3 left-4 right-4">
+                      <h3 className="font-semibold text-white text-lg drop-shadow">
+                        {tenant.name}
+                      </h3>
+                    </div>
                   </div>
-                  <Badge variant={tenant.active ? "success" : "default"}>
-                    {tenant.active ? "Active" : "Inactive"}
-                  </Badge>
+                ) : (
+                  <>
+                    {/* Color bar fallback */}
+                    <div
+                      className="h-2 rounded-t-2xl -mt-6 -mx-6 mb-4 overflow-hidden"
+                      style={{
+                        background: `linear-gradient(to right, ${
+                          tenant.branding.primaryColor || "#f96d4a"
+                        }, ${tenant.branding.accentColor || "#05c7ae"})`,
+                      }}
+                    />
+                    <div className="flex items-start justify-between mb-2">
+                      <h3 className="font-semibold text-foreground text-lg">
+                        {tenant.name}
+                      </h3>
+                    </div>
+                  </>
+                )}
+
+                {/* Slug and Badges */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+                  <p className="text-foreground/60 text-sm">
+                    /{tenant.slug}
+                  </p>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    {tenant.branding.hideLogo && (
+                      <Badge variant="warning" className="text-xs whitespace-nowrap">
+                        White-label
+                      </Badge>
+                    )}
+                    <Badge variant={tenant.active ? "success" : "default"} className="whitespace-nowrap">
+                      {tenant.active ? "Active" : "Inactive"}
+                    </Badge>
+                  </div>
                 </div>
 
-                <div className="space-y-2 text-sm text-foreground/70 mb-6">
-                  <p>{tenant.contact.email}</p>
+                {/* Contact Info */}
+                <div className="space-y-1.5 text-sm text-foreground/70 mb-4">
+                  <p className="truncate">{tenant.contact.email}</p>
                   {tenant.contact.phone && <p>{tenant.contact.phone}</p>}
+                  {tenant.contact.address && (
+                    <p className="text-xs text-foreground/50 truncate">{tenant.contact.address}</p>
+                  )}
                 </div>
 
-                <div className="flex items-center justify-between pt-4 border-t border-surface-200">
+                {/* Hero Image Status */}
+                <div className="flex items-center gap-2 text-xs text-foreground/50 mb-4">
+                  <ImageIcon className="w-3.5 h-3.5 flex-shrink-0" />
+                  <span className="truncate">
+                    {tenant.branding.heroImage ? "Hero image set" : "No hero image"}
+                  </span>
+                </div>
+
+                {/* Actions */}
+                <div className="flex items-center justify-between pt-4 border-t border-surface-200 gap-2">
                   <Link
                     href={`/apartment/${tenant.slug}`}
                     target="_blank"
@@ -202,6 +192,7 @@ export default function TenantsPage() {
                       onClick={() => handleEdit(tenant)}
                       className="p-2 rounded-lg hover:bg-surface-100 transition-colors"
                       title="Edit"
+                      aria-label={`Edit ${tenant.name}`}
                     >
                       <Edit2 className="w-4 h-4 text-foreground/60" />
                     </button>
@@ -209,6 +200,7 @@ export default function TenantsPage() {
                       onClick={() => handleDelete(tenant.id)}
                       className="p-2 rounded-lg hover:bg-red-50 transition-colors"
                       title="Delete"
+                      aria-label={`Delete ${tenant.name}`}
                     >
                       <Trash2 className="w-4 h-4 text-red-500" />
                     </button>

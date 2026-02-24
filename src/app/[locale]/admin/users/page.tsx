@@ -154,11 +154,11 @@ export default function UsersPage() {
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex items-center justify-between"
+        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
       >
         <div>
-          <h1 className="text-3xl font-bold text-foreground">{t("users")}</h1>
-          <p className="text-foreground/60 mt-1">
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">{t("users")}</h1>
+          <p className="text-foreground/60 mt-1 text-sm sm:text-base">
             Manage admin users and their permissions
           </p>
         </div>
@@ -168,8 +168,10 @@ export default function UsersPage() {
             setShowForm(true);
           }}
           leftIcon={<Plus className="w-5 h-5" />}
+          className="w-full sm:w-auto whitespace-nowrap"
         >
-          Add User
+          <span className="sm:hidden">Add</span>
+          <span className="hidden sm:inline">Add User</span>
         </Button>
       </motion.div>
 
