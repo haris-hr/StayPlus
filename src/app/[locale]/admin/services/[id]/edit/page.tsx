@@ -151,13 +151,28 @@ export default function EditServicePage() {
 
     try {
       // Clean up tiers - remove undefined values from each tier
-      const cleanedTiers = formData.tiers.map(tier => ({
-        id: tier.id,
-        name: tier.name,
-        description: tier.description,
-        ...(tier.price !== undefined && { price: tier.price }),
-        ...(tier.image && { image: tier.image }),
-      }));
+      const cleanedTiers = formData.tiers.map(tier => {
+        const cleanTier: Record<string, unknown> = {
+          id: tier.id,
+          name: { en: tier.name.en || "", bs: tier.name.bs || "" },
+        };
+        // Only add description if it has content
+        if (tier.description?.en || tier.description?.bs) {
+          cleanTier.description = { 
+            en: tier.description?.en || "", 
+            bs: tier.description?.bs || "" 
+          };
+        }
+        // Only add price if defined
+        if (tier.price !== undefined && tier.price !== null) {
+          cleanTier.price = tier.price;
+        }
+        // Only add image if it has a value
+        if (tier.image) {
+          cleanTier.image = tier.image;
+        }
+        return cleanTier;
+      });
 
       await updateService(serviceId, {
         tenantId: formData.tenantId,
