@@ -80,7 +80,7 @@ const Features = () => {
   };
 
   return (
-    <section id="features" className="section-padding bg-white">
+    <section id="services" className="section-padding bg-white">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <motion.div

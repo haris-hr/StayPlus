@@ -23,9 +23,9 @@ const Header = () => {
   }, []);
 
   const navLinks = [
-    { href: "#features", label: t("nav.services") },
+    { href: "#services", label: t("nav.services") },
     { href: "#how-it-works", label: t("home.howItWorks.title") },
-    { href: "#hosts", label: t("home.hosts.title") },
+    { href: "#for-hosts", label: t("home.hosts.title") },
   ];
 
   return (
@@ -65,9 +65,11 @@ const Header = () => {
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center gap-4">
             <LanguageSwitcher />
-            <Button variant="primary" size="sm">
-              {t("common.getStarted")}
-            </Button>
+            <Link href="/admin">
+              <Button variant="primary" size="sm">
+                {t("common.getStarted")}
+              </Button>
+            </Link>
           </div>
 
           {/* Mobile Menu Button */}
@@ -105,9 +107,11 @@ const Header = () => {
               <div className="pt-4 border-t border-surface-200 flex items-center justify-between">
                 <LanguageSwitcher variant="full" />
               </div>
-              <Button variant="primary" className="w-full mt-2">
-                {t("common.getStarted")}
-              </Button>
+              <Link href="/admin" className="w-full mt-2">
+                <Button variant="primary" className="w-full">
+                  {t("common.getStarted")}
+                </Button>
+              </Link>
             </nav>
           </motion.div>
         )}

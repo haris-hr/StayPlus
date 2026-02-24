@@ -78,7 +78,7 @@ const Hero = () => {
 
             {/* CTAs */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <Link href="/apartment/sunny-sarajevo">
+              <Link href="#services">
                 <Button size="lg" rightIcon={<ArrowRight className="w-5 h-5" />}>
                   {t("cta")}
                 </Button>
