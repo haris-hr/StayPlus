@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { motion } from "framer-motion";
-import { Plus, Trash2, ExternalLink, Image as ImageIcon } from "lucide-react";
+import { Plus, Trash2, ExternalLink, Image as ImageIcon, Edit2 } from "lucide-react";
 import Image from "next/image";
 import { Button, Card, Badge } from "@/components/ui";
 import { Link, useRouter } from "@/i18n/routing";
@@ -49,6 +49,7 @@ export default function TenantsPage() {
             // NOTE: TS toolchain is currently not recognizing `heroImage` on TenantBranding
             // even though it exists in `src/types/index.ts`. Use a typed accessor to avoid blocking.
             const heroImage = (tenant.branding as { heroImage?: string }).heroImage;
+            const hasHeroImage = Boolean(heroImage);
 
             return (
               <motion.div
@@ -59,9 +60,32 @@ export default function TenantsPage() {
               >
                 <Card 
                   hover 
-                  className="h-full cursor-pointer"
+                  className="group relative h-full cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-surface-900/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/30"
                   onClick={() => router.push(`/admin/tenants/${tenant.id}/edit`)}
+                  role="link"
+                  tabIndex={0}
+                  aria-label={`Edit ${tenant.name}`}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      router.push(`/admin/tenants/${tenant.id}/edit`);
+                    }
+                  }}
                 >
+                  {/* Hover / focus hint */}
+                  <div className="pointer-events-none absolute right-4 top-4 z-20 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
+                    <div
+                      className={
+                        hasHeroImage
+                          ? "inline-flex items-center gap-1 rounded-full bg-black/40 text-white px-2.5 py-1 text-xs font-medium backdrop-blur border border-white/20"
+                          : "inline-flex items-center gap-1 rounded-full bg-white/80 text-foreground px-2.5 py-1 text-xs font-medium backdrop-blur border border-surface-200 shadow-sm"
+                      }
+                    >
+                      <Edit2 className="w-3.5 h-3.5" aria-hidden="true" />
+                      <span>Click to edit</span>
+                    </div>
+                  </div>
+
                   {/* Hero Image or Color Bar */}
                   {heroImage ? (
                     <div className="relative h-32 -mt-6 -mx-6 mb-4 overflow-hidden rounded-t-2xl">

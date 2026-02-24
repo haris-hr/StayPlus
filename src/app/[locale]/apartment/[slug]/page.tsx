@@ -16,8 +16,8 @@ import {
 import { Spinner } from "@/components/ui";
 import { Link } from "@/i18n/routing";
 import { categories as allCategories } from "@/data/categories";
-import { getTenantBySlug } from "@/data/tenants";
 import { getServicesByTenantId } from "@/data/services";
+import { useTenantsStore } from "@/hooks";
 import type { Tenant, Service, ServiceCategory, Locale, GuestRequestForm } from "@/types";
 
 export default function GuestPortalPage() {
@@ -25,6 +25,7 @@ export default function GuestPortalPage() {
   const locale = useLocale() as Locale;
   const t = useTranslations("guest");
   const slug = params.slug as string;
+  const { getTenantBySlug } = useTenantsStore();
   
   const [isLoading, setIsLoading] = useState(true);
   const [tenant, setTenant] = useState<Tenant | null>(null);
@@ -39,7 +40,7 @@ export default function GuestPortalPage() {
   // Load data
   useEffect(() => {
     const loadData = async () => {
-      // Get tenant by slug
+      // Get tenant by slug from the store (includes user edits)
       const currentTenant = getTenantBySlug(slug);
       
       if (currentTenant) {
@@ -58,7 +59,7 @@ export default function GuestPortalPage() {
     };
 
     loadData();
-  }, [slug]);
+  }, [slug, getTenantBySlug]);
 
   // Check for saved guest name
   useEffect(() => {
