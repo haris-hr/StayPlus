@@ -118,20 +118,30 @@ export default function NewServicePage() {
 
     try {
       const now = new Date();
+      
+      // Clean up tiers - remove undefined values from each tier
+      const cleanedTiers = formData.tiers.map(tier => ({
+        id: tier.id,
+        name: tier.name,
+        description: tier.description,
+        ...(tier.price !== undefined && { price: tier.price }),
+        ...(tier.image && { image: tier.image }),
+      }));
+
       const newService: Service = {
         id: `service-${Date.now()}`,
         tenantId: formData.tenantId,
         categoryId: formData.categoryId,
         name: { en: formData.nameEn, bs: formData.nameBs },
         description: { en: formData.descriptionEn, bs: formData.descriptionBs },
-        shortDescription: formData.shortDescriptionEn
-          ? { en: formData.shortDescriptionEn, bs: formData.shortDescriptionBs }
-          : undefined,
-        image: formData.image || undefined,
+        ...(formData.shortDescriptionEn && {
+          shortDescription: { en: formData.shortDescriptionEn, bs: formData.shortDescriptionBs }
+        }),
+        ...(formData.image && { image: formData.image }),
         pricingType: formData.pricingType,
-        price: formData.price ? parseFloat(formData.price) : undefined,
+        ...(formData.price && { price: parseFloat(formData.price) }),
         currency: formData.currency,
-        tiers: formData.tiers.length > 0 ? formData.tiers : undefined,
+        tiers: cleanedTiers, // Always send array (empty or with items)
         active: formData.active,
         featured: formData.featured,
         order: parseInt(formData.order) || 0,
