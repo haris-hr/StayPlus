@@ -34,13 +34,15 @@ export default function GuestPortalPage() {
   const [guestName, setGuestName] = useState<string>("");
   const [showNameModal, setShowNameModal] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [hasAttemptedLoad, setHasAttemptedLoad] = useState(false);
 
-  // Combined loading state - wait for both stores to load
-  const isLoading = tenantsLoading || servicesLoading;
+  // Combined loading state - wait for both stores to load AND for us to attempt finding the tenant
+  const isLoading = tenantsLoading || servicesLoading || !hasAttemptedLoad;
 
   // Load data once stores are ready
   useEffect(() => {
-    if (isLoading) return;
+    // Wait for stores to finish loading before attempting to find tenant
+    if (tenantsLoading || servicesLoading) return;
     
     // Get tenant by slug from the store (includes user edits)
     const currentTenant = getTenantBySlug(slug);
@@ -58,7 +60,10 @@ export default function GuestPortalPage() {
     } else {
       setTenant(null);
     }
-  }, [slug, getTenantBySlug, getServicesByTenantId, isLoading]);
+    
+    // Mark that we've attempted to load the tenant
+    setHasAttemptedLoad(true);
+  }, [slug, getTenantBySlug, getServicesByTenantId, tenantsLoading, servicesLoading]);
 
   // Check for saved guest name
   useEffect(() => {
