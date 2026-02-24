@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/routing";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { Plus, Edit2, Trash2, Star, Image as ImageIcon } from "lucide-react";
-import { Button, Card, Badge, Select } from "@/components/ui";
+import { Button, Card, Badge, Select, ConfirmDialog } from "@/components/ui";
 import { getLocalizedText, getPricingDisplay } from "@/lib/utils";
 import { categories as allCategories } from "@/data/categories";
 import type { ServiceCategory, Locale } from "@/types";
@@ -22,18 +22,27 @@ export default function ServicesPage() {
   const categories = allCategories as ServiceCategory[];
   const [filterTenant, setFilterTenant] = useState<string>("");
   const [filterCategory, setFilterCategory] = useState<string>("");
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  const handleDelete = async (serviceId: string) => {
-    if (confirm("Are you sure you want to delete this service?")) {
-      deleteService(serviceId);
+  const filteredServices = useMemo(() => {
+    return services.filter((s) => {
+      if (filterTenant && s.tenantId !== filterTenant) return false;
+      if (filterCategory && s.categoryId !== filterCategory) return false;
+      return true;
+    });
+  }, [services, filterTenant, filterCategory]);
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
+    try {
+      deleteService(deleteTarget.id);
+    } finally {
+      setIsDeleting(false);
+      setDeleteTarget(null);
     }
   };
-
-  const filteredServices = services.filter((s) => {
-    if (filterTenant && s.tenantId !== filterTenant) return false;
-    if (filterCategory && s.categoryId !== filterCategory) return false;
-    return true;
-  });
 
   const getCategoryName = (categoryId: string) => {
     const category = categories.find((c) => c.id === categoryId);
@@ -47,6 +56,23 @@ export default function ServicesPage() {
 
   return (
     <div className="space-y-8">
+      <ConfirmDialog
+        isOpen={Boolean(deleteTarget)}
+        title="Delete service?"
+        description={
+          deleteTarget ? (
+            <>
+              This will permanently remove <span className="font-semibold">{deleteTarget.name}</span>.
+            </>
+          ) : null
+        }
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="danger"
+        isConfirmLoading={isDeleting}
+        onCancel={() => setDeleteTarget(null)}
+        onConfirm={confirmDelete}
+      />
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
@@ -211,7 +237,12 @@ export default function ServicesPage() {
                           <Edit2 className="w-4 h-4 text-foreground/60" />
                         </button>
                         <button
-                          onClick={() => handleDelete(service.id)}
+                          onClick={() =>
+                            setDeleteTarget({
+                              id: service.id,
+                              name: getLocalizedText(service.name, locale),
+                            })
+                          }
                           className="p-2 rounded-lg hover:bg-red-50 transition-colors"
                           title="Delete"
                           aria-label={`Delete ${getLocalizedText(service.name, locale)}`}

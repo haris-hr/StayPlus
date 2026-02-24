@@ -7,7 +7,7 @@ import { useRouter } from "@/i18n/routing";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { ChevronLeft, Plus, Trash2, Image as ImageIcon } from "lucide-react";
-import { Button, Input, Textarea, Select, Card, Spinner } from "@/components/ui";
+import { Button, Input, Textarea, Select, Card, Spinner, ConfirmDialog } from "@/components/ui";
 import { categories as allCategories } from "@/data/categories";
 import type { Service, ServiceCategory, PricingType, ServiceTier } from "@/types";
 import { useServicesStore, useTenantsStore } from "@/hooks";
@@ -32,6 +32,7 @@ export default function EditServicePage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const [formData, setFormData] = useState({
     tenantId: "",
@@ -152,7 +153,6 @@ export default function EditServicePage() {
   };
 
   const handleDelete = async () => {
-    if (!confirm("Are you sure you want to delete this service?")) return;
     setIsDeleting(true);
     try {
       deleteService(serviceId);
@@ -188,6 +188,27 @@ export default function EditServicePage() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
+      <ConfirmDialog
+        isOpen={isDeleteDialogOpen}
+        title="Delete service?"
+        description={
+          service ? (
+            <>
+              This will permanently remove{" "}
+              <span className="font-semibold">{service.name.en}</span>.
+            </>
+          ) : "This will permanently remove this service."
+        }
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="danger"
+        isConfirmLoading={isDeleting}
+        onCancel={() => setIsDeleteDialogOpen(false)}
+        onConfirm={async () => {
+          await handleDelete();
+          setIsDeleteDialogOpen(false);
+        }}
+      />
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
@@ -214,7 +235,7 @@ export default function EditServicePage() {
         </div>
         <Button
           variant="danger"
-          onClick={handleDelete}
+          onClick={() => setIsDeleteDialogOpen(true)}
           isLoading={isDeleting}
         >
           Delete Service
