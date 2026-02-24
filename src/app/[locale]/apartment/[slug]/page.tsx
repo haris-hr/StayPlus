@@ -701,7 +701,7 @@ export default function GuestPortalPage() {
         setServices(tenantServices);
         
         // Get unique categories that have services
-        const usedCategoryIds = [...new Set(tenantServices.map(s => s.categoryId))];
+        const usedCategoryIds = Array.from(new Set(tenantServices.map(s => s.categoryId)));
         const usedCategories = mockCategories.filter(c => usedCategoryIds.includes(c.id));
         setCategories(usedCategories);
       }
