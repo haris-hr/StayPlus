@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { useLocale, useTranslations } from "next-intl";
+import { useRouter } from "@/i18n/routing";
 import { motion } from "framer-motion";
+import Image from "next/image";
 import { Plus, Edit2, Trash2, Star, Image as ImageIcon } from "lucide-react";
-import { ServiceForm } from "@/components/admin";
 import { Button, Card, Badge, Spinner, Select } from "@/components/ui";
 import { getLocalizedText, getPricingDisplay } from "@/lib/utils";
 import { categories as allCategories } from "@/data/categories";
@@ -15,13 +16,12 @@ import type { Service, ServiceCategory, Tenant, Locale } from "@/types";
 export default function ServicesPage() {
   const t = useTranslations("admin");
   const locale = useLocale() as Locale;
+  const router = useRouter();
   
   const [services, setServices] = useState<Service[]>([]);
   const [categories, setCategories] = useState<ServiceCategory[]>([]);
   const [tenants, setTenants] = useState<Tenant[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [showForm, setShowForm] = useState(false);
-  const [editingService, setEditingService] = useState<Service | null>(null);
   const [filterTenant, setFilterTenant] = useState<string>("");
   const [filterCategory, setFilterCategory] = useState<string>("");
 
@@ -34,42 +34,6 @@ export default function ServicesPage() {
       setIsLoading(false);
     }, 300);
   }, []);
-
-  const handleSubmit = async (data: Partial<Service>) => {
-    if (editingService) {
-      setServices(
-        services.map((s) =>
-          s.id === editingService.id ? { ...s, ...data, updatedAt: new Date() } : s
-        )
-      );
-    } else {
-      const newService: Service = {
-        id: `service-${Date.now()}`,
-        tenantId: data.tenantId!,
-        categoryId: data.categoryId!,
-        name: data.name!,
-        description: data.description!,
-        shortDescription: data.shortDescription,
-        image: data.image,
-        pricingType: data.pricingType!,
-        price: data.price,
-        currency: data.currency || "EUR",
-        tiers: data.tiers,
-        active: data.active ?? true,
-        featured: data.featured,
-        order: data.order || 0,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
-      setServices([...services, newService]);
-    }
-    setEditingService(null);
-  };
-
-  const handleEdit = (service: Service) => {
-    setEditingService(service);
-    setShowForm(true);
-  };
 
   const handleDelete = async (serviceId: string) => {
     if (confirm("Are you sure you want to delete this service?")) {
@@ -116,10 +80,7 @@ export default function ServicesPage() {
           </p>
         </div>
         <Button
-          onClick={() => {
-            setEditingService(null);
-            setShowForm(true);
-          }}
+          onClick={() => router.push("/admin/services/new")}
           leftIcon={<Plus className="w-5 h-5" />}
         >
           {t("addService")}
@@ -200,11 +161,12 @@ export default function ServicesPage() {
                       <div className="flex items-center gap-3">
                         {/* Service Image Thumbnail */}
                         {service.image ? (
-                          <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 bg-surface-100">
-                            <img
+                          <div className="relative w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 bg-surface-100">
+                            <Image
                               src={service.image}
                               alt=""
-                              className="w-full h-full object-cover"
+                              fill
+                              className="object-cover"
                             />
                           </div>
                         ) : (
@@ -261,7 +223,7 @@ export default function ServicesPage() {
                     <td className="py-4 px-4">
                       <div className="flex items-center justify-end gap-1">
                         <button
-                          onClick={() => handleEdit(service)}
+                          onClick={() => router.push(`/admin/services/${service.id}/edit`)}
                           className="p-2 rounded-lg hover:bg-surface-100 transition-colors"
                           title="Edit"
                           aria-label={`Edit ${getLocalizedText(service.name, locale)}`}
@@ -291,19 +253,6 @@ export default function ServicesPage() {
           )}
         </Card>
       </motion.div>
-
-      {/* Service Form Modal */}
-      <ServiceForm
-        isOpen={showForm}
-        onClose={() => {
-          setShowForm(false);
-          setEditingService(null);
-        }}
-        service={editingService}
-        categories={categories}
-        tenants={tenants}
-        onSubmit={handleSubmit}
-      />
     </div>
   );
 }

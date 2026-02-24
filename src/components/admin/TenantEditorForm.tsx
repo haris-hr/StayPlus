@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
+import Image from "next/image";
 import { Building2, ChevronLeft, Globe, Image as ImageIcon, MapPin, Palette } from "lucide-react";
 import { Button, Card, Input, Textarea } from "@/components/ui";
 import { slugify } from "@/lib/utils";
@@ -243,10 +244,11 @@ export function TenantEditorForm({ tenant, mode, onSubmit, onDelete }: TenantEdi
             />
             {formData.heroImage && (
               <div className="relative rounded-lg overflow-hidden h-40 bg-surface-100">
-                <img
+                <Image
                   src={formData.heroImage}
                   alt="Hero preview"
-                  className="w-full h-full object-cover"
+                  fill
+                  className="object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                 <div className="absolute bottom-2 left-3 text-white text-sm font-medium">

@@ -18,19 +18,32 @@ function reviveDate(value: unknown): Date {
 
 function reviveTenant(value: unknown): Tenant | null {
   if (!value || typeof value !== "object") return null;
-  const v = value as any;
-  if (!v.id || !v.slug || !v.name) return null;
+  const v = value as Record<string, unknown>;
+
+  const id = v.id;
+  const slug = v.slug;
+  const name = v.name;
+  if (typeof id !== "string" || typeof slug !== "string" || typeof name !== "string") {
+    return null;
+  }
+
+  const description = v.description;
+  const branding = v.branding;
+  const contact = v.contact;
+  const active = v.active;
+  const createdAt = v.createdAt;
+  const updatedAt = v.updatedAt;
 
   return {
-    id: String(v.id),
-    slug: String(v.slug),
-    name: String(v.name),
-    description: v.description,
-    branding: v.branding ?? {},
-    contact: v.contact ?? { email: "" },
-    active: Boolean(v.active),
-    createdAt: reviveDate(v.createdAt),
-    updatedAt: reviveDate(v.updatedAt),
+    id,
+    slug,
+    name,
+    description: description as Tenant["description"],
+    branding: (branding ?? {}) as Tenant["branding"],
+    contact: (contact ?? { email: "" }) as Tenant["contact"],
+    active: Boolean(active),
+    createdAt: reviveDate(createdAt),
+    updatedAt: reviveDate(updatedAt),
   };
 }
 

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
 import { X, Building2, Palette, Globe, Image as ImageIcon, MapPin } from "lucide-react";
 import { Button, Input, Textarea, Card } from "@/components/ui";
 import { slugify } from "@/lib/utils";
@@ -253,10 +254,11 @@ const TenantForm = ({ isOpen, onClose, tenant, onSubmit }: TenantFormProps) => {
                     />
                     {formData.heroImage && (
                       <div className="relative rounded-lg overflow-hidden h-32 bg-surface-100">
-                        <img
+                        <Image
                           src={formData.heroImage}
                           alt="Hero preview"
-                          className="w-full h-full object-cover"
+                          fill
+                          className="object-cover"
                           onError={(e) => {
                             (e.target as HTMLImageElement).style.display = 'none';
                           }}

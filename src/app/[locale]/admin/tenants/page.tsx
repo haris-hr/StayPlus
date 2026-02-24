@@ -3,10 +3,10 @@
 import { useTranslations } from "next-intl";
 import { motion } from "framer-motion";
 import { Plus, Edit2, Trash2, ExternalLink, Image as ImageIcon } from "lucide-react";
-import { Button, Card, Badge, Spinner } from "@/components/ui";
+import Image from "next/image";
+import { Button, Card, Badge } from "@/components/ui";
 import { Link, useRouter } from "@/i18n/routing";
 import { useTenantsStore } from "@/hooks";
-import type { Tenant } from "@/types";
 
 export default function TenantsPage() {
   const t = useTranslations("admin");
@@ -61,10 +61,11 @@ export default function TenantsPage() {
                   {/* Hero Image or Color Bar */}
                   {heroImage ? (
                     <div className="relative h-32 -mt-6 -mx-6 mb-4 overflow-hidden rounded-t-2xl">
-                      <img
+                      <Image
                         src={heroImage}
                         alt={tenant.name}
-                        className="w-full h-full object-cover"
+                        fill
+                        className="object-cover"
                       />
                       <div
                         className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"

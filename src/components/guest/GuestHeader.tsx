@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { Link } from "@/i18n/routing";
 import { Sparkles, User } from "lucide-react";
 import { LanguageSwitcher } from "@/components/ui";
@@ -31,9 +32,11 @@ const GuestHeader = ({ tenant, guestName }: GuestHeaderProps) => {
               // Show StayPlus branding
               <>
                 {logo ? (
-                  <img
+                  <Image
                     src={logo}
                     alt={tenant?.name || "Logo"}
+                    width={120}
+                    height={32}
                     className="h-8 w-auto"
                   />
                 ) : (

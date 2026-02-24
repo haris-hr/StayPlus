@@ -16,7 +16,7 @@ import {
 import { Spinner } from "@/components/ui";
 import { Link } from "@/i18n/routing";
 import { categories as allCategories } from "@/data/categories";
-import { tenants, getTenantBySlug } from "@/data/tenants";
+import { getTenantBySlug } from "@/data/tenants";
 import { getServicesByTenantId } from "@/data/services";
 import type { Tenant, Service, ServiceCategory, Locale, GuestRequestForm } from "@/types";
 
