@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg width="800" height="600" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+<!--
+  Favicon note:
+  Browser tabs render favicons at a fixed small size (typically 16×16).
+  To make the icon *look* bigger, we crop the artwork tightly to a square viewBox.
+-->
+<svg viewBox="110 80 555 555" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
   <defs>
     <linearGradient id="orangeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#FF6A00" />
