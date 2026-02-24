@@ -3,7 +3,8 @@
 import Image from "next/image";
 import { Link } from "@/i18n/routing";
 import { User } from "lucide-react";
-import { LanguageSwitcher, Logo } from "@/components/ui";
+import { LanguageSwitcher } from "@/components/ui";
+import { Logo, LogoText } from "@/components/ui/Logo";
 import type { Tenant } from "@/types";
 
 interface GuestHeaderProps {
@@ -41,11 +42,9 @@ const GuestHeader = ({ tenant, guestName }: GuestHeaderProps) => {
                   />
                 ) : (
                   <Link href="/" className="flex items-center gap-2">
-                    <span className="sm:hidden">
-                      <Logo size="sm" variant="mark" />
-                    </span>
+                    <Logo size="sm" />
                     <span className="hidden sm:block">
-                      <Logo size="sm" variant="full" />
+                      <LogoText />
                     </span>
                   </Link>
                 )}

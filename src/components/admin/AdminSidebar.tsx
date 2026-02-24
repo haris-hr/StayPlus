@@ -1,7 +1,5 @@
 "use client";
 
-import { useState } from "react";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
@@ -19,8 +17,8 @@ import {
   ChevronLeft,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Avatar, LanguageSwitcher } from "../ui";
-import { Logo } from "../ui/Logo";
+import { Avatar, LanguageSwitcher } from "@/components/ui";
+import { Logo, LogoText } from "@/components/ui/Logo";
 
 interface AdminSidebarProps {
   isCollapsed: boolean;
@@ -45,7 +43,6 @@ const AdminSidebar = ({
 }: AdminSidebarProps) => {
   const t = useTranslations("admin");
   const pathname = usePathname();
-  const [brandImageFailed, setBrandImageFailed] = useState(false);
 
   const menuItems = [
     { icon: LayoutDashboard, label: t("overview"), href: "/admin" },
@@ -84,20 +81,11 @@ const AdminSidebar = ({
           className="flex items-center gap-3 pl-1"
           aria-label="StayPlus Admin Home"
         >
-          {isCollapsed && !isMobile ? (
-            <Logo size="md" />
-          ) : brandImageFailed ? (
-            <Logo size="md" showText />
-          ) : (
-            <Image
-              src="/brand/stayplus-logo.jpg"
-              alt="StayPlus"
-              width={180}
-              height={52}
-              priority
-              className="h-10 w-auto"
-              onError={() => setBrandImageFailed(true)}
-            />
+          <Logo size="md" />
+          {(!isCollapsed || isMobile) && (
+            <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+              <LogoText />
+            </motion.span>
           )}
         </Link>
         <button

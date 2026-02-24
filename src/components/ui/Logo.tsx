@@ -1,14 +1,12 @@
 "use client";
 
-import Image from "next/image";
-import { useMemo, useState } from "react";
-import { cn } from "@/lib/utils";
+import * as React from "react";
+import { cn } from "../../lib/utils/cn";
 
 interface LogoProps {
   size?: "sm" | "md" | "lg" | "xl";
   className?: string;
   showText?: boolean;
-  variant?: "mark" | "full";
 }
 
 const sizeMap = {
@@ -18,25 +16,13 @@ const sizeMap = {
   xl: "w-16 h-16",
 };
 
-const fullSizeMap: Record<NonNullable<LogoProps["size"]>, { w: number; h: number; className: string }> = {
-  sm: { w: 140, h: 40, className: "h-8 w-auto" },
-  md: { w: 180, h: 52, className: "h-10 w-auto" },
-  lg: { w: 220, h: 64, className: "h-12 w-auto" },
-  xl: { w: 280, h: 80, className: "h-16 w-auto" },
-};
-
 export function Logo({
   size = "md",
   className,
   showText = false,
-  variant = "mark",
 }: LogoProps) {
-  const [fullImageFailed, setFullImageFailed] = useState(false);
-
-  const fullSrc = "/brand/stayplus-logo.jpg";
-
-  const renderMark = useMemo(
-    () => (
+  return (
+    <div className={cn("flex items-center gap-3", className)}>
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 512 512"
@@ -79,14 +65,14 @@ export function Logo({
           filter="url(#softShadow)"
           fill="url(#spGrad)"
           d="
-              M256 40
-              C168.4 40 97 111.4 97 199
-              c0 116.5 128 245.7 147.2 264.3
-              a18 18 0 0 0 23.6 0
-              C287 444.7 415 315.5 415 199
-              C415 111.4 343.6 40 256 40
-              Z
-            "
+            M256 40
+            C168.4 40 97 111.4 97 199
+            c0 116.5 128 245.7 147.2 264.3
+            a18 18 0 0 0 23.6 0
+            C287 444.7 415 315.5 415 199
+            C415 111.4 343.6 40 256 40
+            Z
+          "
         />
 
         {/* Inner cutout */}
@@ -94,14 +80,14 @@ export function Logo({
           fill="#fff"
           opacity="0.92"
           d="
-              M256 92
-              C196.1 92 147 141.1 147 201
-              c0 83.7 85.2 171.6 99.3 186
-              a12 12 0 0 0 19.4 0
-              C279.8 372.6 365 284.7 365 201
-              C365 141.1 315.9 92 256 92
-              Z
-            "
+            M256 92
+            C196.1 92 147 141.1 147 201
+            c0 83.7 85.2 171.6 99.3 186
+            a12 12 0 0 0 19.4 0
+            C279.8 372.6 365 284.7 365 201
+            C365 141.1 315.9 92 256 92
+            Z
+          "
         />
 
         {/* House (simple + rounded) */}
@@ -120,38 +106,10 @@ export function Logo({
             fill="#fff"
             opacity="0.95"
           />
-          <rect
-            x="244"
-            y="252"
-            width="10"
-            height="10"
-            rx="2"
-            fill="url(#spGrad)"
-          />
-          <rect
-            x="258"
-            y="252"
-            width="10"
-            height="10"
-            rx="2"
-            fill="url(#spGrad)"
-          />
-          <rect
-            x="244"
-            y="266"
-            width="10"
-            height="10"
-            rx="2"
-            fill="url(#spGrad)"
-          />
-          <rect
-            x="258"
-            y="266"
-            width="10"
-            height="10"
-            rx="2"
-            fill="url(#spGrad)"
-          />
+          <rect x="244" y="252" width="10" height="10" rx="2" fill="url(#spGrad)" />
+          <rect x="258" y="252" width="10" height="10" rx="2" fill="url(#spGrad)" />
+          <rect x="244" y="266" width="10" height="10" rx="2" fill="url(#spGrad)" />
+          <rect x="258" y="266" width="10" height="10" rx="2" fill="url(#spGrad)" />
         </g>
 
         {/* Plus (top-right of pin) */}
@@ -174,43 +132,24 @@ export function Logo({
         <path
           fill="url(#spGrad)"
           d="
-              M346 96
-              l34 -12
-              c6 -2 12 4 10 10
-              l-12 34
-              -10 -10
-              -14 14
-              -10 -10
-              14 -14
-              Z
-            "
+            M346 96
+            l34 -12
+            c6 -2 12 4 10 10
+            l-12 34
+            -10 -10
+            -14 14
+            -10 -10
+            14 -14
+            Z
+          "
         />
 
         {/* Small sparkle dots near plus */}
         <circle cx="460" cy="220" r="6" fill="url(#spGrad)" />
         <circle cx="442" cy="242" r="4" fill="url(#spGrad)" />
       </svg>
-    ),
-    [size]
-  );
 
-  return (
-    <div className={cn("flex items-center gap-3", className)}>
-      {variant === "full" && !fullImageFailed ? (
-        <Image
-          src={fullSrc}
-          alt="StayPlus"
-          width={fullSizeMap[size].w}
-          height={fullSizeMap[size].h}
-          priority
-          className={cn(fullSizeMap[size].className, "flex-shrink-0")}
-          onError={() => setFullImageFailed(true)}
-        />
-      ) : (
-        renderMark
-      )}
-
-      {showText && variant !== "full" && (
+      {showText && (
         <span className="text-lg font-bold text-foreground">
           Stay<span className="text-primary-500">Plus</span>
         </span>

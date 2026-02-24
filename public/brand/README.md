@@ -2,9 +2,7 @@ Place branding assets in this folder.
 
 ## StayPlus logo
 
-Save the provided logo image as:
+The app currently uses the **built-in SVG logo** (`src/components/ui/Logo.tsx`).
 
-- `public/brand/stayplus-logo.jpg`
-
-Then the app will automatically use it anywhere it renders the `Logo` component with `variant="full"`.
+You can keep brand assets here for future use (e.g. a full wordmark), but they are not required right now.
 

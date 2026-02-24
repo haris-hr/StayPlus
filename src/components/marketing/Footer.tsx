@@ -3,7 +3,8 @@
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { Mail, Phone, MapPin } from "lucide-react";
-import { LanguageSwitcher, Logo } from "@/components/ui";
+import { LanguageSwitcher } from "@/components/ui";
+import { Logo } from "@/components/ui/Logo";
 
 const Footer = () => {
   const t = useTranslations();
@@ -33,7 +34,10 @@ const Footer = () => {
           {/* Brand */}
           <div className="lg:col-span-1">
             <Link href="/" className="flex items-center gap-2 mb-4">
-              <Logo size="lg" variant="full" />
+              <Logo size="md" />
+              <span className="text-xl font-bold">
+                Stay<span className="text-primary-400">Plus</span>
+              </span>
             </Link>
             <p className="text-white/60 text-sm mb-4">
               {t("common.tagline")}
