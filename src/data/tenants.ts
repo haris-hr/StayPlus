@@ -56,6 +56,7 @@ export const tenants: Record<string, Tenant> = {
     },
     branding: {
       heroImage: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=1600&q=80",
+      heroLayout: "split", // Split layout: text left, square image right
       primaryColor: "#1e40af",
       accentColor: "#0891b2",
       hideLogo: true, // Full white-label - hide StayPlus branding

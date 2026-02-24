@@ -9,4 +9,4 @@ export * from "./Spinner";
 export * from "./Avatar";
 export * from "./LanguageSwitcher";
 export * from "./Skeleton";
-export * from "./ImageUpload";export * from "./ImageUpload";
+export * from "./ImageUpload";

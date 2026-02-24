@@ -1,17 +1,29 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 /**
- * Hook that tracks a media query
+ * Hook that tracks a media query with proper SSR handling
+ * Returns undefined during SSR/hydration, then the actual value
  */
 export function useMediaQuery(query: string): boolean {
-  const [matches, setMatches] = useState(false);
+  // Start with a function to get the initial value only on client
+  const getMatches = useCallback(() => {
+    if (typeof window === "undefined") return false;
+    return window.matchMedia(query).matches;
+  }, [query]);
+
+  const [matches, setMatches] = useState<boolean>(getMatches);
+  const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
+    setIsHydrated(true);
+    
     if (typeof window === "undefined") return;
 
     const mediaQuery = window.matchMedia(query);
+    
+    // Set initial value after hydration
     setMatches(mediaQuery.matches);
 
     const handler = (event: MediaQueryListEvent) => {
@@ -22,6 +34,10 @@ export function useMediaQuery(query: string): boolean {
     return () => mediaQuery.removeEventListener("change", handler);
   }, [query]);
 
+  // Return false during SSR to match server render
+  // This prevents hydration mismatch
+  if (!isHydrated) return false;
+  
   return matches;
 }
 

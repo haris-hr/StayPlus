@@ -1,6 +1,6 @@
-import { initializeApp, getApps, FirebaseApp } from "firebase/app";
-import { getAuth, Auth } from "firebase/auth";
-import { getFirestore, Firestore } from "firebase/firestore";
+import type { FirebaseApp } from "firebase/app";
+import type { Auth } from "firebase/auth";
+import type { Firestore } from "firebase/firestore";
 
 // Firebase configuration - values must be set via environment variables
 const firebaseConfig = {
@@ -12,35 +12,80 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-// Validate required config in development
-if (typeof window !== "undefined" && process.env.NODE_ENV === "development") {
-  const missingKeys = Object.entries(firebaseConfig)
-    .filter(([, value]) => !value)
-    .map(([key]) => key);
+// Lazy-loaded Firebase instances
+let app: FirebaseApp | null = null;
+let auth: Auth | null = null;
+let db: Firestore | null = null;
+let initPromise: Promise<void> | null = null;
+
+/**
+ * Lazily initialize Firebase - only loads the SDK when actually needed
+ * This reduces initial bundle size significantly
+ */
+async function initializeFirebase(): Promise<void> {
+  if (typeof window === "undefined") return;
   
-  if (missingKeys.length > 0) {
-    console.warn(
-      `⚠️ Missing Firebase config: ${missingKeys.join(", ")}. ` +
-      "Please check your .env.local file."
-    );
-  }
+  if (initPromise) return initPromise;
+  
+  initPromise = (async () => {
+    const { initializeApp, getApps } = await import("firebase/app");
+    const { getAuth } = await import("firebase/auth");
+    const { getFirestore } = await import("firebase/firestore");
+    
+    if (!getApps().length) {
+      app = initializeApp(firebaseConfig);
+    } else {
+      app = getApps()[0];
+    }
+    
+    auth = getAuth(app);
+    db = getFirestore(app);
+    
+    // Validate config in development
+    if (process.env.NODE_ENV === "development") {
+      const missingKeys = Object.entries(firebaseConfig)
+        .filter(([, value]) => !value)
+        .map(([key]) => key);
+      
+      if (missingKeys.length > 0) {
+        console.warn(
+          `⚠️ Missing Firebase config: ${missingKeys.join(", ")}. ` +
+          "Please check your .env.local file."
+        );
+      }
+    }
+  })();
+  
+  return initPromise;
 }
 
-// Initialize Firebase
-let app: FirebaseApp;
-let auth: Auth;
-let db: Firestore;
-
-if (typeof window !== "undefined") {
-  // Client-side initialization
-  if (!getApps().length) {
-    app = initializeApp(firebaseConfig);
-  } else {
-    app = getApps()[0];
-  }
-  auth = getAuth(app);
-  db = getFirestore(app);
+/**
+ * Get Firebase App instance (lazy loaded)
+ */
+export async function getApp(): Promise<FirebaseApp> {
+  await initializeFirebase();
+  if (!app) throw new Error("Firebase app not initialized");
+  return app;
 }
 
+/**
+ * Get Firebase Auth instance (lazy loaded)
+ */
+export async function getAuthInstance(): Promise<Auth> {
+  await initializeFirebase();
+  if (!auth) throw new Error("Firebase auth not initialized");
+  return auth;
+}
+
+/**
+ * Get Firestore instance (lazy loaded)
+ */
+export async function getDb(): Promise<Firestore> {
+  await initializeFirebase();
+  if (!db) throw new Error("Firestore not initialized");
+  return db;
+}
+
+// For backwards compatibility - these will be null until initialized
 export { app, auth, db };
 export default firebaseConfig;

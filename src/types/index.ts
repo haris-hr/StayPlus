@@ -7,9 +7,12 @@ export interface I18nText {
 }
 
 // Tenant types
+export type HeroLayout = "fullwidth" | "split";
+
 export interface TenantBranding {
   logo?: string;
   heroImage?: string; // Hero banner image for the guest portal (top of guest portal)
+  heroLayout?: HeroLayout; // Layout style: fullwidth (banner) or split (text left, image right)
   primaryColor?: string;
   accentColor?: string;
   hideLogo?: boolean;

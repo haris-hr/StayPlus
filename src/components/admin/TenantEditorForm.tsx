@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Building2, ChevronLeft, Globe, Image as ImageIcon, MapPin, Palette } from "lucide-react";
+import { Building2, ChevronLeft, Globe, Image as ImageIcon, LayoutTemplate, MapPin, Palette } from "lucide-react";
 import { Button, Card, Input, Textarea, ImageUpload } from "@/components/ui";
 import { slugify } from "@/lib/utils";
-import type { Tenant } from "@/types";
+import type { Tenant, HeroLayout } from "@/types";
 import { useRouter } from "@/i18n/routing";
 
 interface TenantEditorFormProps {
@@ -31,6 +31,7 @@ export function TenantEditorForm({ tenant, mode, onSubmit, onDelete }: TenantEdi
     address: tenant?.contact?.address || "",
     logo: tenant?.branding?.logo || "",
     heroImage: tenant?.branding?.heroImage || "",
+    heroLayout: (tenant?.branding?.heroLayout || "fullwidth") as HeroLayout,
     primaryColor: tenant?.branding?.primaryColor || "#f96d4a",
     accentColor: tenant?.branding?.accentColor || "#05c7ae",
     hideLogo: tenant?.branding?.hideLogo || false,
@@ -53,6 +54,7 @@ export function TenantEditorForm({ tenant, mode, onSubmit, onDelete }: TenantEdi
       address: tenant?.contact?.address || "",
       logo: tenant?.branding?.logo || "",
       heroImage: tenant?.branding?.heroImage || "",
+      heroLayout: (tenant?.branding?.heroLayout || "fullwidth") as HeroLayout,
       primaryColor: tenant?.branding?.primaryColor || "#f96d4a",
       accentColor: tenant?.branding?.accentColor || "#05c7ae",
       hideLogo: tenant?.branding?.hideLogo || false,
@@ -89,6 +91,7 @@ export function TenantEditorForm({ tenant, mode, onSubmit, onDelete }: TenantEdi
         branding: {
           logo: formData.logo || undefined,
           heroImage: formData.heroImage || undefined,
+          heroLayout: formData.heroLayout,
           primaryColor: formData.primaryColor || undefined,
           accentColor: formData.accentColor || undefined,
           hideLogo: formData.hideLogo,
@@ -227,6 +230,98 @@ export function TenantEditorForm({ tenant, mode, onSubmit, onDelete }: TenantEdi
           </div>
         </Card>
 
+        {/* Hero Layout */}
+        <Card variant="outline" padding="md">
+          <div className="flex items-center gap-2 mb-4">
+            <LayoutTemplate className="w-5 h-5 text-primary-600" aria-hidden="true" />
+            <h2 className="font-semibold text-foreground">Hero Layout</h2>
+          </div>
+          <p className="text-sm text-foreground/60 mb-4">
+            Choose how your hero section appears on the guest portal
+          </p>
+          <div className="grid sm:grid-cols-2 gap-4">
+            {/* Full Width Option */}
+            <button
+              type="button"
+              onClick={() => setFormData((p) => ({ ...p, heroLayout: "fullwidth" }))}
+              className={`relative p-4 rounded-xl border-2 transition-all text-left ${
+                formData.heroLayout === "fullwidth"
+                  ? "border-primary-500 bg-primary-50"
+                  : "border-surface-200 hover:border-surface-300"
+              }`}
+            >
+              {/* Layout Preview */}
+              <div className="aspect-video bg-surface-200 rounded-lg mb-3 overflow-hidden relative">
+                <div 
+                  className="absolute inset-0"
+                  style={{
+                    background: `linear-gradient(135deg, ${formData.primaryColor}40 0%, ${formData.accentColor}40 100%)`,
+                  }}
+                />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="w-16 h-1 bg-white/80 rounded mx-auto mb-1" />
+                    <div className="w-24 h-1.5 bg-white rounded mx-auto mb-1" />
+                    <div className="w-20 h-1 bg-white/60 rounded mx-auto" />
+                  </div>
+                </div>
+              </div>
+              <div className="font-medium text-foreground">Full Width Banner</div>
+              <p className="text-xs text-foreground/60 mt-1">
+                Wide image with centered text overlay. Best for landscape photos.
+              </p>
+              {formData.heroLayout === "fullwidth" && (
+                <div className="absolute top-2 right-2 w-5 h-5 bg-primary-500 rounded-full flex items-center justify-center">
+                  <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+              )}
+            </button>
+
+            {/* Split Layout Option */}
+            <button
+              type="button"
+              onClick={() => setFormData((p) => ({ ...p, heroLayout: "split" }))}
+              className={`relative p-4 rounded-xl border-2 transition-all text-left ${
+                formData.heroLayout === "split"
+                  ? "border-primary-500 bg-primary-50"
+                  : "border-surface-200 hover:border-surface-300"
+              }`}
+            >
+              {/* Layout Preview */}
+              <div className="aspect-video bg-surface-100 rounded-lg mb-3 overflow-hidden relative">
+                <div className="absolute inset-0 flex">
+                  {/* Left side - text */}
+                  <div className="flex-1 p-3 flex flex-col justify-center">
+                    <div className="w-8 h-1 bg-surface-400 rounded mb-1" />
+                    <div className="w-12 h-1.5 bg-surface-500 rounded mb-1" />
+                    <div className="w-10 h-1 bg-surface-300 rounded" />
+                  </div>
+                  {/* Right side - square image */}
+                  <div 
+                    className="w-1/2 m-2 rounded-lg"
+                    style={{
+                      background: `linear-gradient(135deg, ${formData.primaryColor}60 0%, ${formData.accentColor}60 100%)`,
+                    }}
+                  />
+                </div>
+              </div>
+              <div className="font-medium text-foreground">Split Layout</div>
+              <p className="text-xs text-foreground/60 mt-1">
+                Text on left, square image on right. Best for square/portrait photos.
+              </p>
+              {formData.heroLayout === "split" && (
+                <div className="absolute top-2 right-2 w-5 h-5 bg-primary-500 rounded-full flex items-center justify-center">
+                  <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+              )}
+            </button>
+          </div>
+        </Card>
+
         {/* Hero Image */}
         <Card variant="outline" padding="md">
           <div className="flex items-center gap-2 mb-4">
@@ -236,14 +331,20 @@ export function TenantEditorForm({ tenant, mode, onSubmit, onDelete }: TenantEdi
           <ImageUpload
             value={formData.heroImage}
             onChange={(value) => setFormData((p) => ({ ...p, heroImage: value }))}
-            hint="Recommended: 1600x600px or larger, landscape orientation. Tip: Use a photo of your apartment, building exterior, or a scenic view."
+            hint={
+              formData.heroLayout === "fullwidth"
+                ? "Recommended: 1600x600px or larger, landscape orientation. Tip: Use a photo of your apartment, building exterior, or a scenic view."
+                : "Recommended: Square image (1:1 ratio). Tip: Use a photo of your apartment interior, building facade, or a welcoming scene."
+            }
             previewOverlay={
-              <>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                <div className="absolute bottom-2 left-3 text-white text-sm font-medium">
-                  {formData.name || "Tenant Name"}
-                </div>
-              </>
+              formData.heroLayout === "fullwidth" ? (
+                <>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                  <div className="absolute bottom-2 left-3 text-white text-sm font-medium">
+                    {formData.name || "Tenant Name"}
+                  </div>
+                </>
+              ) : undefined
             }
           />
         </Card>

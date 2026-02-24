@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { motion } from "framer-motion";
 import {
@@ -118,15 +118,16 @@ export default function AdminDashboardPage() {
     setSelectedRequest((prev) => (prev ? { ...prev, status } : null));
   };
 
-  // Calculate stats
-  const stats = {
-    total: requests.length,
-    pending: requests.filter((r) => r.status === "pending").length,
-    completed: requests.filter((r) => r.status === "completed").length,
-    thisWeek: requests.filter(
-      (r) => r.createdAt > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
-    ).length,
-  };
+  // Calculate stats - memoized to avoid recalculating on every render
+  const stats = useMemo(() => {
+    const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+    return {
+      total: requests.length,
+      pending: requests.filter((r) => r.status === "pending").length,
+      completed: requests.filter((r) => r.status === "completed").length,
+      thisWeek: requests.filter((r) => r.createdAt.getTime() > weekAgo).length,
+    };
+  }, [requests]);
 
   return (
     <div className="space-y-8">
