@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef, useCallback, useId } from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { Upload, Link as LinkIcon, X, Image as ImageIcon, Maximize2, Minimize2 } from "lucide-react";
@@ -41,6 +41,7 @@ const ImageUpload = ({
   const [isDragging, setIsDragging] = useState(false);
   const [objectFit, setObjectFit] = useState<ObjectFit>(defaultObjectFit);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const inputId = useId();
 
   // If the controlled value changes to/from a data URL, keep the UI mode in sync.
   useEffect(() => {
@@ -95,7 +96,13 @@ const ImageUpload = ({
     const file = e.target.files?.[0];
     if (file) {
       handleFileSelect(file);
+      // Reset input so the same file can be selected again if needed
+      e.target.value = "";
     }
+  };
+
+  const openFilePicker = () => {
+    fileInputRef.current?.click();
   };
 
   const clearImage = () => {
@@ -156,27 +163,40 @@ const ImageUpload = ({
         />
       )}
 
+      {/* Hidden file input - always in DOM */}
+      <input
+        ref={fileInputRef}
+        id={inputId}
+        type="file"
+        accept="image/*"
+        onChange={handleFileInputChange}
+        style={{
+          position: "absolute",
+          width: "1px",
+          height: "1px",
+          padding: 0,
+          margin: "-1px",
+          overflow: "hidden",
+          clip: "rect(0, 0, 0, 0)",
+          whiteSpace: "nowrap",
+          border: 0,
+        }}
+      />
+
       {/* File Upload */}
       {mode === "upload" && (
-        <div
+        <label
+          htmlFor={inputId}
           onDrop={handleDrop}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
-          onClick={() => fileInputRef.current?.click()}
           className={cn(
-            "relative border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-colors",
+            "relative block border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-colors",
             isDragging
               ? "border-primary-500 bg-primary-50"
               : "border-surface-300 hover:border-surface-400 hover:bg-surface-50"
           )}
         >
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            onChange={handleFileInputChange}
-            className="hidden"
-          />
           <Upload
             className={cn(
               "w-8 h-8 mx-auto mb-2",
@@ -190,7 +210,7 @@ const ImageUpload = ({
           <p className="text-xs text-foreground/50 mt-1">
             PNG, JPG, GIF up to 10MB
           </p>
-        </div>
+        </label>
       )}
 
       {hint && <p className="text-xs text-foreground/50">{hint}</p>}

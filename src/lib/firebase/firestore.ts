@@ -46,16 +46,34 @@ function convertTimestamps<T extends Record<string, unknown>>(data: T): T {
   return result;
 }
 
-// Helper to convert Dates to Firestore timestamps for storage
-function prepareForFirestore<T extends Record<string, unknown>>(data: T): T {
-  const result = { ...data };
-  for (const key in result) {
-    const value = result[key];
-    if (value instanceof Date) {
-      (result as Record<string, unknown>)[key] = Timestamp.fromDate(value);
+// Helper to convert Dates to Firestore timestamps and remove `undefined` values (Firestore rejects undefined)
+function prepareForFirestore<T>(data: T): T {
+  const transform = (value: unknown): unknown => {
+    if (value === undefined) return undefined;
+    if (value instanceof Date) return Timestamp.fromDate(value);
+    if (value instanceof Timestamp) return value;
+
+    if (Array.isArray(value)) {
+      // Firestore arrays cannot contain `undefined` either
+      return value
+        .map((v) => transform(v))
+        .filter((v) => v !== undefined);
     }
-  }
-  return result;
+
+    if (value !== null && typeof value === "object") {
+      const obj = value as Record<string, unknown>;
+      const out: Record<string, unknown> = {};
+      for (const k of Object.keys(obj)) {
+        const v = transform(obj[k]);
+        if (v !== undefined) out[k] = v;
+      }
+      return out;
+    }
+
+    return value;
+  };
+
+  return transform(data) as T;
 }
 
 // ==================== TENANTS ====================
