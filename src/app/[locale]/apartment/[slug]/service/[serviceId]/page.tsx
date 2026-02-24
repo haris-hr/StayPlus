@@ -13,7 +13,7 @@ import {
   Check,
   Sparkles,
 } from "lucide-react";
-import { Button, Card, Input, Textarea, Spinner } from "@/components/ui";
+import { Button, Card, Input, Textarea } from "@/components/ui";
 import { Link } from "@/i18n/routing";
 import { getLocalizedText, getPricingDisplay } from "@/lib/utils";
 import { useServicesStore, useTenantsStore } from "@/hooks";

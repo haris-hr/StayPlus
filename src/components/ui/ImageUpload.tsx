@@ -108,10 +108,6 @@ const ImageUpload = ({
     }
   };
 
-  const openFilePicker = () => {
-    fileInputRef.current?.click();
-  };
-
   const clearImage = () => {
     onChange("");
     if (fileInputRef.current) {

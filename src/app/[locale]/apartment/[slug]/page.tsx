@@ -12,7 +12,6 @@ import {
   CategoryTabs,
   ServiceCard,
 } from "@/components/guest";
-import { Spinner } from "@/components/ui";
 import { Link, useRouter } from "@/i18n/routing";
 import { categories as allCategories } from "@/data/categories";
 import { useTenantsStore } from "@/hooks";
