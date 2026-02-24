@@ -9,9 +9,8 @@ import Image from "next/image";
 import { ChevronLeft, Plus, Trash2, Image as ImageIcon } from "lucide-react";
 import { Button, Input, Textarea, Select, Card, Spinner } from "@/components/ui";
 import { categories as allCategories } from "@/data/categories";
-import { getAllTenants } from "@/data/tenants";
-import { allServices } from "@/data/services";
-import type { Service, ServiceCategory, Tenant, PricingType, ServiceTier } from "@/types";
+import type { Service, ServiceCategory, PricingType, ServiceTier } from "@/types";
+import { useServicesStore, useTenantsStore } from "@/hooks";
 
 const pricingTypes: { value: PricingType; label: string }[] = [
   { value: "free", label: "Free" },
@@ -25,10 +24,11 @@ export default function EditServicePage() {
   const router = useRouter();
   const params = useParams();
   const serviceId = params.id as string;
+  const { getServiceById, updateService, deleteService } = useServicesStore();
+  const { tenants } = useTenantsStore();
 
   const [service, setService] = useState<Service | null>(null);
   const [categories, setCategories] = useState<ServiceCategory[]>([]);
-  const [tenants, setTenants] = useState<Tenant[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -53,34 +53,33 @@ export default function EditServicePage() {
   });
 
   useEffect(() => {
-    setTimeout(() => {
-      const foundService = allServices.find((s) => s.id === serviceId);
-      if (foundService) {
-        setService(foundService);
-        setFormData({
-          tenantId: foundService.tenantId,
-          categoryId: foundService.categoryId,
-          nameEn: foundService.name.en,
-          nameBs: foundService.name.bs,
-          descriptionEn: foundService.description.en,
-          descriptionBs: foundService.description.bs,
-          shortDescriptionEn: foundService.shortDescription?.en || "",
-          shortDescriptionBs: foundService.shortDescription?.bs || "",
-          image: foundService.image || "",
-          pricingType: foundService.pricingType,
-          price: foundService.price?.toString() || "",
-          currency: foundService.currency,
-          tiers: foundService.tiers || [],
-          active: foundService.active,
-          featured: foundService.featured || false,
-          order: foundService.order?.toString() || "0",
-        });
-      }
-      setCategories(allCategories);
-      setTenants(getAllTenants());
-      setIsLoading(false);
-    }, 200);
-  }, [serviceId]);
+    const foundService = getServiceById(serviceId);
+    if (foundService) {
+      setService(foundService);
+      setFormData({
+        tenantId: foundService.tenantId,
+        categoryId: foundService.categoryId,
+        nameEn: foundService.name.en,
+        nameBs: foundService.name.bs,
+        descriptionEn: foundService.description.en,
+        descriptionBs: foundService.description.bs,
+        shortDescriptionEn: foundService.shortDescription?.en || "",
+        shortDescriptionBs: foundService.shortDescription?.bs || "",
+        image: foundService.image || "",
+        pricingType: foundService.pricingType,
+        price: foundService.price?.toString() || "",
+        currency: foundService.currency,
+        tiers: foundService.tiers || [],
+        active: foundService.active,
+        featured: foundService.featured || false,
+        order: foundService.order?.toString() || "0",
+      });
+    } else {
+      setService(null);
+    }
+    setCategories(allCategories);
+    setIsLoading(false);
+  }, [serviceId, getServiceById]);
 
   const addTier = () => {
     setFormData({
@@ -129,8 +128,23 @@ export default function EditServicePage() {
     setIsSubmitting(true);
 
     try {
-      console.log("Updating service:", serviceId, formData);
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      updateService(serviceId, {
+        tenantId: formData.tenantId,
+        categoryId: formData.categoryId,
+        name: { en: formData.nameEn, bs: formData.nameBs },
+        description: { en: formData.descriptionEn, bs: formData.descriptionBs },
+        shortDescription: formData.shortDescriptionEn
+          ? { en: formData.shortDescriptionEn, bs: formData.shortDescriptionBs }
+          : undefined,
+        image: formData.image || undefined,
+        pricingType: formData.pricingType,
+        price: formData.price ? parseFloat(formData.price) : undefined,
+        currency: formData.currency,
+        tiers: formData.tiers.length > 0 ? formData.tiers : undefined,
+        active: formData.active,
+        featured: formData.featured,
+        order: parseInt(formData.order) || 0,
+      });
       router.push("/admin/services");
     } finally {
       setIsSubmitting(false);
@@ -141,8 +155,7 @@ export default function EditServicePage() {
     if (!confirm("Are you sure you want to delete this service?")) return;
     setIsDeleting(true);
     try {
-      console.log("Deleting service:", serviceId);
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      deleteService(serviceId);
       router.push("/admin/services");
     } finally {
       setIsDeleting(false);

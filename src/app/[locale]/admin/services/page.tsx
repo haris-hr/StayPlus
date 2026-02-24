@@ -1,43 +1,31 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/routing";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { Plus, Edit2, Trash2, Star, Image as ImageIcon } from "lucide-react";
-import { Button, Card, Badge, Spinner, Select } from "@/components/ui";
+import { Button, Card, Badge, Select } from "@/components/ui";
 import { getLocalizedText, getPricingDisplay } from "@/lib/utils";
 import { categories as allCategories } from "@/data/categories";
-import { getAllTenants } from "@/data/tenants";
-import { allServices as initialServices } from "@/data/services";
-import type { Service, ServiceCategory, Tenant, Locale } from "@/types";
+import type { ServiceCategory, Locale } from "@/types";
+import { useServicesStore, useTenantsStore } from "@/hooks";
 
 export default function ServicesPage() {
   const t = useTranslations("admin");
   const locale = useLocale() as Locale;
   const router = useRouter();
   
-  const [services, setServices] = useState<Service[]>([]);
-  const [categories, setCategories] = useState<ServiceCategory[]>([]);
-  const [tenants, setTenants] = useState<Tenant[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { services, deleteService } = useServicesStore();
+  const { tenants } = useTenantsStore();
+  const categories = allCategories as ServiceCategory[];
   const [filterTenant, setFilterTenant] = useState<string>("");
   const [filterCategory, setFilterCategory] = useState<string>("");
 
-  useEffect(() => {
-    // Load data from the data layer
-    setTimeout(() => {
-      setServices(initialServices);
-      setCategories(allCategories);
-      setTenants(getAllTenants());
-      setIsLoading(false);
-    }, 300);
-  }, []);
-
   const handleDelete = async (serviceId: string) => {
     if (confirm("Are you sure you want to delete this service?")) {
-      setServices(services.filter((s) => s.id !== serviceId));
+      deleteService(serviceId);
     }
   };
 
@@ -56,14 +44,6 @@ export default function ServicesPage() {
     const tenant = tenants.find((t) => t.id === tenantId);
     return tenant?.name || tenantId;
   };
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <Spinner size="lg" />
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-8">

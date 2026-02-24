@@ -9,3 +9,4 @@ export {
   usePrefersReducedMotion,
 } from "./useMediaQuery";
 export { useTenantsStore } from "./useTenantsStore";
+export { useServicesStore } from "./useServicesStore";

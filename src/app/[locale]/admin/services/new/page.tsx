@@ -8,8 +8,8 @@ import Image from "next/image";
 import { ChevronLeft, Plus, Trash2, Image as ImageIcon } from "lucide-react";
 import { Button, Input, Textarea, Select, Card, Spinner } from "@/components/ui";
 import { categories as allCategories } from "@/data/categories";
-import { getAllTenants } from "@/data/tenants";
-import type { ServiceCategory, Tenant, PricingType, ServiceTier } from "@/types";
+import type { Service, ServiceCategory, PricingType, ServiceTier } from "@/types";
+import { useServicesStore, useTenantsStore } from "@/hooks";
 
 const pricingTypes: { value: PricingType; label: string }[] = [
   { value: "free", label: "Free" },
@@ -21,9 +21,10 @@ const pricingTypes: { value: PricingType; label: string }[] = [
 export default function NewServicePage() {
   const t = useTranslations("admin");
   const router = useRouter();
+  const { addService } = useServicesStore();
+  const { tenants } = useTenantsStore();
 
   const [categories, setCategories] = useState<ServiceCategory[]>([]);
-  const [tenants, setTenants] = useState<Tenant[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -49,7 +50,6 @@ export default function NewServicePage() {
   useEffect(() => {
     setTimeout(() => {
       setCategories(allCategories);
-      setTenants(getAllTenants());
       setIsLoading(false);
     }, 200);
   }, []);
@@ -101,8 +101,9 @@ export default function NewServicePage() {
     setIsSubmitting(true);
 
     try {
-      // In production, this would call an API
-      console.log("Creating service:", {
+      const now = new Date();
+      const newService: Service = {
+        id: `service-${Date.now()}`,
         tenantId: formData.tenantId,
         categoryId: formData.categoryId,
         name: { en: formData.nameEn, bs: formData.nameBs },
@@ -118,10 +119,11 @@ export default function NewServicePage() {
         active: formData.active,
         featured: formData.featured,
         order: parseInt(formData.order) || 0,
-      });
-      
-      // Simulate API delay
-      await new Promise((resolve) => setTimeout(resolve, 500));
+        createdAt: now,
+        updatedAt: now,
+      };
+
+      addService(newService);
       router.push("/admin/services");
     } finally {
       setIsSubmitting(false);

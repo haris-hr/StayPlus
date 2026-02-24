@@ -6,6 +6,8 @@ import { MapPin, Phone, Mail, MessageCircle } from "lucide-react";
 import type { Tenant, Locale } from "@/types";
 import { getLocalizedText } from "@/lib/utils";
 
+type HeroLayout = "fullwidth" | "split";
+
 interface HeroBannerProps {
   tenant: Tenant;
   locale: Locale;
@@ -14,9 +16,16 @@ interface HeroBannerProps {
 
 export function HeroBanner({ tenant, locale, guestName }: HeroBannerProps) {
   const description = getLocalizedText(tenant.description, locale);
-  const primaryColor = tenant.branding?.primaryColor || "#f96d4a";
-  const accentColor = tenant.branding?.accentColor || "#333";
-  const heroLayout = tenant.branding?.heroLayout || "fullwidth";
+  // NOTE: some TS toolchains may not pick up `heroImage`/`heroLayout` on TenantBranding reliably.
+  // Use an intersection type accessor to keep editor diagnostics happy.
+  const branding = tenant.branding as Tenant["branding"] & {
+    heroImage?: string;
+    heroLayout?: HeroLayout;
+  };
+
+  const primaryColor = branding.primaryColor || "#f96d4a";
+  const accentColor = branding.accentColor || "#333";
+  const heroLayout = branding.heroLayout || "fullwidth";
   
   // Generate greeting based on time of day
   const getGreeting = () => {
@@ -158,7 +167,7 @@ export function HeroBanner({ tenant, locale, guestName }: HeroBannerProps) {
             </motion.div>
 
             {/* Right: Image */}
-            {tenant.branding?.heroImage && (
+            {branding.heroImage && (
               <motion.div
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -167,7 +176,7 @@ export function HeroBanner({ tenant, locale, guestName }: HeroBannerProps) {
               >
                 <div className="relative w-full max-w-[420px] lg:max-w-[460px] aspect-[4/5] rounded-2xl overflow-hidden shadow-2xl bg-surface-100">
                   <Image
-                    src={tenant.branding.heroImage}
+                    src={branding.heroImage}
                     alt={tenant.name}
                     fill
                     className="object-cover scale-[1.02]"
@@ -186,10 +195,10 @@ export function HeroBanner({ tenant, locale, guestName }: HeroBannerProps) {
   return (
     <div className="relative overflow-hidden">
       {/* Background Image */}
-      {tenant.branding?.heroImage ? (
+      {branding.heroImage ? (
         <div className="absolute inset-0">
           <Image
-            src={tenant.branding.heroImage}
+            src={branding.heroImage}
             alt={tenant.name}
             fill
             className="object-cover"
