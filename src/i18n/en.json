@@ -187,7 +187,10 @@
     "apartmentNotFoundDescription": "The apartment you're looking for doesn't exist or the link may be incorrect. Please check the URL or contact your host.",
     "backToHome": "Back to Home"
     ,
-    "serviceNotFound": "Service not found"
+    "serviceNotFound": "Service not found",
+    "badgePopular": "Popular",
+    "badgeLuxury": "Luxury",
+    "badgeBudget": "Budget"
   },
   "categories": {
     "free": "Free Amenities",

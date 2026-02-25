@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Plus, Trash2 } from "lucide-react";
 import { Button, Input, Textarea, Select, Card, ImageUpload } from "@/components/ui";
-import type { Service, ServiceCategory, Tenant, PricingType, ServiceTier } from "@/types";
+import type { Service, ServiceCategory, Tenant, PricingType, ServiceTier, TierBadge } from "@/types";
 
 interface ServiceFormProps {
   isOpen: boolean;
@@ -21,6 +21,13 @@ const pricingTypes: { value: PricingType; label: string }[] = [
   { value: "fixed", label: "Fixed Price" },
   { value: "variable", label: "Variable (From price)" },
   { value: "quote", label: "Request Quote" },
+];
+
+const tierBadgeOptions: { value: TierBadge | ""; label: string }[] = [
+  { value: "", label: "No Badge" },
+  { value: "popular", label: "Popular" },
+  { value: "luxury", label: "Luxury" },
+  { value: "budget", label: "Budget" },
 ];
 
 const getInitialFormData = (service?: Service | null) => ({
@@ -101,6 +108,11 @@ const ServiceForm = ({
       newTiers[index] = {
         ...newTiers[index],
         price: value ? parseFloat(value) : undefined,
+      };
+    } else if (field === "badge") {
+      newTiers[index] = {
+        ...newTiers[index],
+        badge: value ? (value as TierBadge) : undefined,
       };
     }
     setFormData({ ...formData, tiers: newTiers });
@@ -339,7 +351,7 @@ const ServiceForm = ({
                             key={tier.id}
                             className="flex items-start gap-4 p-4 rounded-xl bg-surface-50"
                           >
-                            <div className="flex-1 grid sm:grid-cols-3 gap-4">
+                            <div className="flex-1 grid sm:grid-cols-4 gap-4">
                               <Input
                                 placeholder="Name (EN)"
                                 value={tier.name.en}
@@ -361,6 +373,13 @@ const ServiceForm = ({
                                 value={tier.price?.toString() || ""}
                                 onChange={(e) =>
                                   updateTier(index, "price", e.target.value)
+                                }
+                              />
+                              <Select
+                                options={tierBadgeOptions}
+                                value={tier.badge || ""}
+                                onChange={(e) =>
+                                  updateTier(index, "badge", e.target.value)
                                 }
                               />
                             </div>

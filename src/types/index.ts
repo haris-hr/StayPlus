@@ -40,6 +40,7 @@ export interface Tenant {
 
 // Service types
 export type PricingType = "fixed" | "variable" | "quote" | "free";
+export type TierBadge = "popular" | "luxury" | "budget";
 
 export interface ServiceTier {
   id: string;
@@ -47,6 +48,7 @@ export interface ServiceTier {
   price?: number;
   description?: I18nText;
   image?: string; // Vehicle/option photo for visual tier selection
+  badge?: TierBadge;
 }
 
 export interface Service {

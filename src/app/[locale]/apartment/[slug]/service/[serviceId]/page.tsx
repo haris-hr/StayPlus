@@ -18,10 +18,10 @@ import { Link } from "@/i18n/routing";
 import { getLocalizedText, getPricingDisplay } from "@/lib/utils";
 import { useServicesStore } from "@/hooks/useServicesStore";
 import { useTenantsStore } from "@/hooks/useTenantsStore";
-import type { Service, Locale } from "@/types";
+import type { Service, Locale, ServiceTier } from "@/types";
 import { createRequest } from "@/lib/firebase";
 
-type Tier = (NonNullable<Service["tiers"]>[number] & { image?: string });
+type Tier = ServiceTier;
 
 export default function ServiceRequestPage() {
   const params = useParams();
@@ -374,12 +374,22 @@ export default function ServiceRequestPage() {
                                 <h3 className="font-semibold text-foreground text-lg">
                                   {getLocalizedText(tier.name, locale)}
                                 </h3>
-                                {index === 1 && (
+                                {tier.badge && (
                                   <span
-                                    className="px-2 py-0.5 text-xs font-medium rounded-full text-white"
-                                    style={{ backgroundColor: primaryColor }}
+                                    className={`px-2 py-0.5 text-xs font-medium rounded-full text-white ${
+                                      tier.badge === "popular"
+                                        ? ""
+                                        : tier.badge === "luxury"
+                                        ? "bg-amber-500"
+                                        : "bg-emerald-500"
+                                    }`}
+                                    style={tier.badge === "popular" ? { backgroundColor: primaryColor } : undefined}
                                   >
-                                    Popular
+                                    {tier.badge === "popular"
+                                      ? t("badgePopular")
+                                      : tier.badge === "luxury"
+                                      ? t("badgeLuxury")
+                                      : t("badgeBudget")}
                                   </span>
                                 )}
                               </div>

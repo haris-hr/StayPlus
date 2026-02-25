@@ -186,7 +186,10 @@
     "apartmentNotFoundDescription": "Apartman koji tražite ne postoji ili link nije ispravan. Provjerite URL ili kontaktirajte domaćina.",
     "backToHome": "Nazad na Početnu"
     ,
-    "serviceNotFound": "Usluga nije pronađena"
+    "serviceNotFound": "Usluga nije pronađena",
+    "badgePopular": "Popularno",
+    "badgeLuxury": "Luksuz",
+    "badgeBudget": "Povoljno"
   },
   "categories": {
     "free": "Besplatne Pogodnosti",
