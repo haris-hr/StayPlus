@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import Image from "next/image";
 import {
   ChevronLeft,
@@ -377,32 +377,28 @@ export default function ServiceRequestPage() {
                               )}
                             </div>
                             <div className="text-right flex-shrink-0">
-                              <p
-                                className="text-xl font-bold"
-                                style={{ color: primaryColor }}
-                              >
-                                {tier.price !== undefined
-                                  ? `€${tier.price}`
-                                  : t("free")}
-                              </p>
+                              <div className="flex items-center justify-end gap-2">
+                                {isSelected && (
+                                  <span
+                                    className="w-6 h-6 rounded-full flex items-center justify-center"
+                                    style={{ backgroundColor: primaryColor }}
+                                    aria-label="Selected"
+                                    title="Selected"
+                                  >
+                                    <Check className="w-4 h-4 text-white" />
+                                  </span>
+                                )}
+                                <p
+                                  className="text-xl font-bold"
+                                  style={{ color: primaryColor }}
+                                >
+                                  {tier.price !== undefined ? `€${tier.price}` : t("free")}
+                                </p>
+                              </div>
                             </div>
                           </div>
                         </div>
 
-                        {/* Selection indicator */}
-                        <AnimatePresence>
-                          {isSelected && (
-                            <motion.div
-                              initial={{ scale: 0 }}
-                              animate={{ scale: 1 }}
-                              exit={{ scale: 0 }}
-                              className="absolute top-3 right-3 w-6 h-6 rounded-full flex items-center justify-center"
-                              style={{ backgroundColor: primaryColor }}
-                            >
-                              <Check className="w-4 h-4 text-white" />
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
                       </div>
                     </motion.button>
                   );
