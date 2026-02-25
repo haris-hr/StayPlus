@@ -190,6 +190,10 @@ export default function EditServicePage() {
         if (tier.image) {
           cleanTier.image = tier.image;
         }
+        // Only add badge if it has a value
+        if (tier.badge) {
+          cleanTier.badge = tier.badge;
+        }
         return cleanTier;
       });
 
