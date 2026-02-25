@@ -3,11 +3,12 @@
 import { useState, useEffect } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { motion } from "framer-motion";
-import { RequestsTable, RequestDetailModal } from "@/components/admin";
+import { RequestsTable } from "@/components/admin";
 import { Card, CardHeader, CardTitle, CardContent, Spinner, Select } from "@/components/ui";
-import type { ServiceRequest, Locale, RequestStatus } from "@/types";
-import { subscribeRequests, updateRequestStatus } from "@/lib/firebase/firestore";
+import type { ServiceRequest, Locale } from "@/types";
+import { subscribeRequests } from "@/lib/firebase/firestore";
 import { useTenantsStore } from "@/hooks";
+import { useRouter } from "@/i18n/routing";
 import {
   FIRESTORE_LISTENER_ERROR_EVENT,
   type FirestoreListenerErrorDetail,
@@ -26,12 +27,11 @@ export default function RequestsPage() {
   const t = useTranslations("admin");
   const locale = useLocale() as Locale;
   const { tenants } = useTenantsStore();
+  const router = useRouter();
   
   const [requests, setRequests] = useState<ServiceRequest[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [selectedRequest, setSelectedRequest] = useState<ServiceRequest | null>(null);
-  const [showRequestModal, setShowRequestModal] = useState(false);
   const [filterStatus, setFilterStatus] = useState<string>("");
 
   // Subscribe to real-time requests from Firestore
@@ -61,18 +61,7 @@ export default function RequestsPage() {
   }, []);
 
   const handleViewRequest = (request: ServiceRequest) => {
-    setSelectedRequest(request);
-    setShowRequestModal(true);
-  };
-
-  const handleUpdateStatus = async (requestId: string, status: RequestStatus) => {
-    try {
-      await updateRequestStatus(requestId, status);
-      // Update local state for the modal
-      setSelectedRequest((prev) => (prev ? { ...prev, status } : null));
-    } catch (error) {
-      console.error("Failed to update request status:", error);
-    }
+    router.push(`/admin/requests/${request.id}`);
   };
 
   const filteredRequests = requests.filter((r) => {
@@ -157,18 +146,6 @@ export default function RequestsPage() {
           </CardContent>
         </Card>
       </motion.div>
-
-      {/* Request Detail Modal */}
-      <RequestDetailModal
-        isOpen={showRequestModal}
-        onClose={() => {
-          setShowRequestModal(false);
-          setSelectedRequest(null);
-        }}
-        request={selectedRequest}
-        locale={locale}
-        onUpdateStatus={handleUpdateStatus}
-      />
     </div>
   );
 }
