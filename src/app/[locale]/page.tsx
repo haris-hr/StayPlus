@@ -1,5 +1,10 @@
 import dynamic from "next/dynamic";
+import { notFound } from "next/navigation";
 import { Header, Hero } from "@/components/marketing";
+
+// TODO: Re-enable the marketing landing page by setting this to `true`
+// (or replacing with a real permission/persistence-backed rollout flag).
+const MARKETING_LANDING_ENABLED = false;
 
 // Lazy load below-the-fold components
 const Features = dynamic(() => import("@/components/marketing/Features").then(mod => ({ default: mod.Features })), {
@@ -23,6 +28,12 @@ const Footer = dynamic(() => import("@/components/marketing/Footer").then(mod =>
 });
 
 export default function HomePage() {
+  // NOTE: This hides/restricts `/`, `/en`, `/bs`, and any hash variants like `/bs#how-it-works`
+  // because hashes are client-side only and still load the same route.
+  if (!MARKETING_LANDING_ENABLED) {
+    notFound();
+  }
+
   return (
     <main className="min-h-screen">
       <Header />
