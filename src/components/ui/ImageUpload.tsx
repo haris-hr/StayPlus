@@ -43,6 +43,73 @@ const ImageUpload = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const inputId = useId();
 
+  // Firestore documents have a 1 MiB limit; base64 data URLs can easily exceed it.
+  // Keep uploads reasonably small so they can be safely stored as strings.
+  const MAX_DATA_URL_CHARS = 700_000; // ~0.7MB chars; conservative vs 1MiB doc cap
+  const MAX_DIMENSION = 1600;
+  const OUTPUT_QUALITY = 0.82;
+
+  const compressImageToDataUrl = useCallback(
+    async (file: File): Promise<string> => {
+      // Avoid stripping animation from GIFs; require URL instead.
+      if (file.type === "image/gif") {
+        throw new Error("GIF upload isn’t supported. Please use an image URL instead.");
+      }
+
+      const objectUrl = URL.createObjectURL(file);
+      try {
+        const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+          const i = new window.Image();
+          i.onload = () => resolve(i);
+          i.onerror = () => reject(new Error("Failed to read image"));
+          i.src = objectUrl;
+        });
+
+        const { width, height } = img;
+        const scale = Math.min(1, MAX_DIMENSION / Math.max(width, height));
+        const targetW = Math.max(1, Math.round(width * scale));
+        const targetH = Math.max(1, Math.round(height * scale));
+
+        const canvas = document.createElement("canvas");
+        canvas.width = targetW;
+        canvas.height = targetH;
+
+        const ctx = canvas.getContext("2d");
+        if (!ctx) throw new Error("Canvas not supported");
+
+        ctx.drawImage(img, 0, 0, targetW, targetH);
+
+        const toBlob = (type: string) =>
+          new Promise<Blob | null>((resolve) =>
+            canvas.toBlob(resolve, type, OUTPUT_QUALITY)
+          );
+
+        // Prefer webp for size, fall back to jpeg.
+        let blob = await toBlob("image/webp");
+        if (!blob) blob = await toBlob("image/jpeg");
+        if (!blob) throw new Error("Failed to compress image");
+
+        const dataUrl = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(String(reader.result));
+          reader.onerror = () => reject(new Error("Failed to read compressed image"));
+          reader.readAsDataURL(blob);
+        });
+
+        if (dataUrl.length > MAX_DATA_URL_CHARS) {
+          throw new Error(
+            "Image is too large to save. Try a smaller image, or use an image URL."
+          );
+        }
+
+        return dataUrl;
+      } finally {
+        URL.revokeObjectURL(objectUrl);
+      }
+    },
+    []
+  );
+
   // Only sync mode on initial mount or when value changes externally
   // Don't auto-switch mode based on value type - let user control the mode
   const prevValueRef = useRef(value);
@@ -58,21 +125,20 @@ const ImageUpload = ({
   }, [value, mode]);
 
   const handleFileSelect = useCallback(
-    (file: File) => {
+    async (file: File) => {
       if (!file.type.startsWith("image/")) {
         alert("Please select an image file");
         return;
       }
 
-      // Convert to base64 for preview (in production, you'd upload to a server/cloud storage)
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const result = e.target?.result as string;
+      try {
+        const result = await compressImageToDataUrl(file);
         onChange(result);
-      };
-      reader.readAsDataURL(file);
+      } catch (err) {
+        alert(err instanceof Error ? err.message : "Failed to upload image");
+      }
     },
-    [onChange]
+    [compressImageToDataUrl, onChange]
   );
 
   const handleDrop = useCallback(
