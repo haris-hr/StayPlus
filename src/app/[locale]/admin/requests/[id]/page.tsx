@@ -95,7 +95,7 @@ export default function AdminRequestDetailPage() {
     return () => {
       cancelled = true;
     };
-  }, [requestId]);
+  }, [requestId, t]);
 
   const handleStatusChange = async (next: RequestStatus) => {
     if (!request || next === request.status) return;

@@ -463,10 +463,35 @@ export async function getRequestsByStatus(status: RequestStatus): Promise<Servic
   return snapshot.docs.map((doc) => convertTimestamps({ ...doc.data(), id: doc.id }) as ServiceRequest);
 }
 
-export async function createRequest(request: ServiceRequest): Promise<void> {
+export async function createRequest(request: ServiceRequest): Promise<void>;
+export async function createRequest(
+  data: Omit<ServiceRequest, "id" | "createdAt" | "updatedAt">
+): Promise<string>;
+export async function createRequest(
+  arg: ServiceRequest | Omit<ServiceRequest, "id" | "createdAt" | "updatedAt">
+): Promise<void | string> {
   const db = await getDb();
-  const docRef = doc(db, REQUESTS_COLLECTION, request.id);
-  await setDoc(docRef, prepareForFirestore(request as unknown as Record<string, unknown>));
+
+  // Back-compat: allow creating requests without an id/timestamps (e.g. guest portal).
+  if (!("id" in arg)) {
+    const id =
+      typeof crypto !== "undefined" && "randomUUID" in crypto
+        ? crypto.randomUUID()
+        : `req_${Date.now()}_${Math.random().toString(16).slice(2)}`;
+    const now = new Date();
+    const request: ServiceRequest = {
+      id,
+      createdAt: now,
+      updatedAt: now,
+      ...arg,
+    } as ServiceRequest;
+    const docRef = doc(db, REQUESTS_COLLECTION, id);
+    await setDoc(docRef, prepareForFirestore(request as unknown as Record<string, unknown>));
+    return id;
+  }
+
+  const docRef = doc(db, REQUESTS_COLLECTION, arg.id);
+  await setDoc(docRef, prepareForFirestore(arg as unknown as Record<string, unknown>));
 }
 
 export async function updateRequest(requestId: string, data: Partial<ServiceRequest>): Promise<void> {

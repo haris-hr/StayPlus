@@ -58,7 +58,7 @@ export default function AdminDashboardPage() {
     };
     window.addEventListener(FIRESTORE_LISTENER_ERROR_EVENT, handler);
     return () => window.removeEventListener(FIRESTORE_LISTENER_ERROR_EVENT, handler);
-  }, []);
+  }, [t]);
 
   const handleViewRequest = (request: ServiceRequest) => {
     setSelectedRequest(request);
