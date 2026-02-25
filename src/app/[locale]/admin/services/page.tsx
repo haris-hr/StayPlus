@@ -20,6 +20,7 @@ import type { DocumentData, QueryDocumentSnapshot } from "firebase/firestore";
 
 export default function ServicesPage() {
   const t = useTranslations("admin");
+  const tc = useTranslations("common");
   const locale = useLocale() as Locale;
   const router = useRouter();
   
@@ -54,7 +55,7 @@ export default function ServicesPage() {
       setNextCursor(res.nextCursor);
       setHasMore(res.hasMore);
     } catch (err) {
-      setLoadError(err instanceof Error ? err.message : "Failed to load services");
+      setLoadError(err instanceof Error ? err.message : t("failedToLoadServices"));
       setServices([]);
       setNextCursor(null);
       setHasMore(false);
@@ -186,7 +187,7 @@ export default function ServicesPage() {
             <div className="p-6 border-b border-surface-200 bg-white">
               <div className="flex items-center gap-3 text-sm text-foreground/60">
                 <Spinner size="sm" />
-                Loading services…
+                {t("loadingServices")}
               </div>
             </div>
           )}
@@ -325,7 +326,7 @@ export default function ServicesPage() {
           {filteredServices.length === 0 && (
             <div className="text-center py-12">
               <p className="text-foreground/60">
-                {isLoading ? "Loading…" : t("noServicesFound")}
+                {isLoading ? tc("loading") : t("noServicesFound")}
               </p>
             </div>
           )}
@@ -333,7 +334,7 @@ export default function ServicesPage() {
           {/* Pagination */}
           <div className="flex items-center justify-between p-4 border-t border-surface-200 bg-white">
             <p className="text-sm text-foreground/60">
-              Showing {filteredServices.length} service{filteredServices.length === 1 ? "" : "s"} (10 per page)
+              {t("showingServices", { count: filteredServices.length })}
             </p>
             <div className="flex items-center gap-2">
               <Button
@@ -348,7 +349,7 @@ export default function ServicesPage() {
                 }}
                 disabled={pageIndex === 0 || isLoading}
               >
-                Prev
+                {tc("back")}
               </Button>
               <Button
                 variant="secondary"
@@ -366,7 +367,7 @@ export default function ServicesPage() {
                 }}
                 disabled={!hasMore || isLoading}
               >
-                Next
+                {tc("next")}
               </Button>
             </div>
           </div>

@@ -43,6 +43,7 @@ const iconEmojis: Record<string, string> = {
 
 export default function CategoriesPage() {
   const t = useTranslations("admin");
+  const tc = useTranslations("common");
   const locale = useLocale() as Locale;
   
   const [categories, setCategories] = useState<ServiceCategory[]>([]);
@@ -109,7 +110,7 @@ export default function CategoriesPage() {
   };
 
   const handleDelete = async (categoryId: string) => {
-    if (confirm("Are you sure you want to delete this category?")) {
+    if (confirm(t("deleteCategoryPrompt"))) {
       try {
         await deleteFirestoreCategory(categoryId);
       } catch (error) {
@@ -123,13 +124,13 @@ export default function CategoriesPage() {
     try {
       const importedCount = await seedCategoriesCollection();
       if (importedCount === 0) {
-        alert("Categories already exist (nothing imported).");
+        alert(t("categoriesAlreadyExist"));
       } else {
-        alert(`Imported ${importedCount} default categories.`);
+        alert(t("importedDefaultCategories", { count: importedCount }));
       }
     } catch (error) {
       console.error("Failed to import default categories:", error);
-      alert(error instanceof Error ? error.message : "Failed to import default categories");
+      alert(error instanceof Error ? error.message : t("failedToImportDefaultCategories"));
     } finally {
       setIsImportingDefaults(false);
     }
@@ -154,7 +155,7 @@ export default function CategoriesPage() {
         <div>
           <h1 className="text-3xl font-bold text-foreground">{t("categories")}</h1>
           <p className="text-foreground/60 mt-1">
-            Manage service categories
+            {t("manageCategories")}
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -164,7 +165,7 @@ export default function CategoriesPage() {
               onClick={handleImportDefaults}
               isLoading={isImportingDefaults}
             >
-              Import Default Categories
+              {t("importDefaultCategories")}
             </Button>
           )}
           <Button
@@ -175,7 +176,7 @@ export default function CategoriesPage() {
             }}
             leftIcon={<Plus className="w-5 h-5" />}
           >
-            Add Category
+            {t("addCategory")}
           </Button>
         </div>
       </motion.div>
@@ -215,7 +216,7 @@ export default function CategoriesPage() {
                   </div>
                   <div className="flex items-center gap-3">
                     <Badge variant={category.active ? "success" : "default"}>
-                      {category.active ? "Active" : "Inactive"}
+                      {category.active ? t("active") : t("inactive")}
                     </Badge>
                     <button
                       onClick={() => handleEdit(category)}
@@ -237,14 +238,14 @@ export default function CategoriesPage() {
             </div>
           ) : (
             <div className="text-center py-12">
-              <p className="text-foreground/60 mb-4">No categories yet</p>
+              <p className="text-foreground/60 mb-4">{t("noCategoriesYet")}</p>
               <div className="flex items-center justify-center gap-3 flex-wrap">
                 <Button
                   variant="secondary"
                   onClick={handleImportDefaults}
                   isLoading={isImportingDefaults}
                 >
-                  Import Default Categories
+                  {t("importDefaultCategories")}
                 </Button>
                 <Button
                   onClick={() => {
@@ -254,7 +255,7 @@ export default function CategoriesPage() {
                   }}
                   leftIcon={<Plus className="w-5 h-5" />}
                 >
-                  Add Your First Category
+                  {t("addYourFirstCategory")}
                 </Button>
               </div>
             </div>
@@ -269,24 +270,24 @@ export default function CategoriesPage() {
           setShowForm(false);
           setEditingCategory(null);
         }}
-        title={editingCategory ? "Edit Category" : "Add Category"}
+        title={editingCategory ? t("editCategory") : t("addCategory")}
       >
         <div className="space-y-4">
           <Input
-            label="Name (English)"
+            label={t("nameEnglish")}
             value={formData.nameEn}
             onChange={(e) => setFormData({ ...formData, nameEn: e.target.value })}
             placeholder="e.g., Transport"
           />
           <Input
-            label="Name (Bosanski)"
+            label={t("nameBosnian")}
             value={formData.nameBs}
             onChange={(e) => setFormData({ ...formData, nameBs: e.target.value })}
             placeholder="e.g., Transport"
           />
           <div>
             <label className="block text-sm font-medium text-foreground mb-2">
-              Icon
+              {t("iconLabel")}
             </label>
             <div className="flex flex-wrap gap-2">
               {iconOptions.map((icon) => (
@@ -314,14 +315,14 @@ export default function CategoriesPage() {
               onChange={(e) => setFormData({ ...formData, active: e.target.checked })}
               className="w-5 h-5 rounded border-surface-300 text-primary-600 focus:ring-primary-500"
             />
-            <span className="text-foreground">Active</span>
+            <span className="text-foreground">{t("active")}</span>
           </label>
           <div className="flex justify-end gap-3 pt-4">
             <Button variant="ghost" onClick={() => setShowForm(false)}>
-              Cancel
+              {t("cancel")}
             </Button>
             <Button onClick={handleSubmit} isLoading={isSubmitting}>
-              {editingCategory ? "Save Changes" : "Create Category"}
+              {editingCategory ? tc("save") : t("createCategory")}
             </Button>
           </div>
         </div>
