@@ -12,6 +12,7 @@ import {
   createCategory,
   updateCategory,
   deleteCategory as deleteFirestoreCategory,
+  seedCategoriesCollection,
 } from "@/lib/firebase/firestore";
 
 const iconOptions = [
@@ -21,6 +22,9 @@ const iconOptions = [
   { value: "utensils", label: "Utensils" },
   { value: "heart", label: "Heart" },
   { value: "shopping", label: "Shopping" },
+  { value: "shopping-bag", label: "Shopping Bag" },
+  { value: "wrench", label: "Wrench" },
+  { value: "camera", label: "Camera" },
   { value: "sparkles", label: "Sparkles" },
 ];
 
@@ -31,6 +35,9 @@ const iconEmojis: Record<string, string> = {
   utensils: "🍽️",
   heart: "❤️",
   shopping: "🛍️",
+  "shopping-bag": "🛍️",
+  wrench: "🔧",
+  camera: "📷",
   sparkles: "✨",
 };
 
@@ -43,6 +50,7 @@ export default function CategoriesPage() {
   const [showForm, setShowForm] = useState(false);
   const [editingCategory, setEditingCategory] = useState<ServiceCategory | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isImportingDefaults, setIsImportingDefaults] = useState(false);
   const [formData, setFormData] = useState({
     nameEn: "",
     nameBs: "",
@@ -110,6 +118,23 @@ export default function CategoriesPage() {
     }
   };
 
+  const handleImportDefaults = async () => {
+    setIsImportingDefaults(true);
+    try {
+      const importedCount = await seedCategoriesCollection();
+      if (importedCount === 0) {
+        alert("Categories already exist (nothing imported).");
+      } else {
+        alert(`Imported ${importedCount} default categories.`);
+      }
+    } catch (error) {
+      console.error("Failed to import default categories:", error);
+      alert(error instanceof Error ? error.message : "Failed to import default categories");
+    } finally {
+      setIsImportingDefaults(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-20">
@@ -132,16 +157,27 @@ export default function CategoriesPage() {
             Manage service categories
           </p>
         </div>
-        <Button
-          onClick={() => {
-            setEditingCategory(null);
-            setFormData({ nameEn: "", nameBs: "", icon: "sparkles", active: true });
-            setShowForm(true);
-          }}
-          leftIcon={<Plus className="w-5 h-5" />}
-        >
-          Add Category
-        </Button>
+        <div className="flex items-center gap-3">
+          {categories.length === 0 && (
+            <Button
+              variant="secondary"
+              onClick={handleImportDefaults}
+              isLoading={isImportingDefaults}
+            >
+              Import Default Categories
+            </Button>
+          )}
+          <Button
+            onClick={() => {
+              setEditingCategory(null);
+              setFormData({ nameEn: "", nameBs: "", icon: "sparkles", active: true });
+              setShowForm(true);
+            }}
+            leftIcon={<Plus className="w-5 h-5" />}
+          >
+            Add Category
+          </Button>
+        </div>
       </motion.div>
 
       {/* Categories List */}
@@ -202,16 +238,25 @@ export default function CategoriesPage() {
           ) : (
             <div className="text-center py-12">
               <p className="text-foreground/60 mb-4">No categories yet</p>
-              <Button
-                onClick={() => {
-                  setEditingCategory(null);
-                  setFormData({ nameEn: "", nameBs: "", icon: "sparkles", active: true });
-                  setShowForm(true);
-                }}
-                leftIcon={<Plus className="w-5 h-5" />}
-              >
-                Add Your First Category
-              </Button>
+              <div className="flex items-center justify-center gap-3 flex-wrap">
+                <Button
+                  variant="secondary"
+                  onClick={handleImportDefaults}
+                  isLoading={isImportingDefaults}
+                >
+                  Import Default Categories
+                </Button>
+                <Button
+                  onClick={() => {
+                    setEditingCategory(null);
+                    setFormData({ nameEn: "", nameBs: "", icon: "sparkles", active: true });
+                    setShowForm(true);
+                  }}
+                  leftIcon={<Plus className="w-5 h-5" />}
+                >
+                  Add Your First Category
+                </Button>
+              </div>
             </div>
           )}
         </Card>

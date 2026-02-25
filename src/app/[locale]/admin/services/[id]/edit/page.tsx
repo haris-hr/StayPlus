@@ -7,10 +7,10 @@ import { useRouter } from "@/i18n/routing";
 import { motion } from "framer-motion";
 import { ChevronLeft, Plus, Trash2 } from "lucide-react";
 import { Button, Input, Textarea, Select, Card, Spinner, ConfirmDialog, ImageUpload } from "@/components/ui";
-import { categories as allCategories } from "@/data/categories";
 import type { Service, ServiceCategory, PricingType, ServiceTier } from "@/types";
 import { useTenantsStore } from "@/hooks";
 import { deleteService, getServiceById, updateService } from "@/lib/firebase";
+import { subscribeCategories } from "@/lib/firebase/firestore";
 
 const pricingTypes: { value: PricingType; label: string }[] = [
   { value: "free", label: "Free" },
@@ -79,12 +79,18 @@ export default function EditServicePage() {
       } else {
         setService(null);
       }
-      setCategories(allCategories);
       setIsLoading(false);
     };
 
     void load();
   }, [serviceId]);
+
+  useEffect(() => {
+    const unsub = subscribeCategories((cats) => {
+      setCategories(cats);
+    });
+    return () => unsub();
+  }, []);
 
   const addTier = () => {
     setFormData({

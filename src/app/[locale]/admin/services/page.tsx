@@ -9,10 +9,13 @@ import { Plus, Edit2, Trash2, Star, Image as ImageIcon } from "lucide-react";
 import { Button, Card, Badge, Select, Spinner } from "@/components/ui";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { getLocalizedText, getPricingDisplay } from "@/lib/utils";
-import { categories as allCategories } from "@/data/categories";
 import type { Locale, Service, ServiceCategory } from "@/types";
 import { useTenantsStore } from "@/hooks";
-import { getServicesPage, deleteService as deleteServiceFromDb } from "@/lib/firebase/firestore";
+import {
+  getServicesPage,
+  deleteService as deleteServiceFromDb,
+  subscribeCategories,
+} from "@/lib/firebase/firestore";
 import type { DocumentData, QueryDocumentSnapshot } from "firebase/firestore";
 
 export default function ServicesPage() {
@@ -21,7 +24,7 @@ export default function ServicesPage() {
   const router = useRouter();
   
   const { tenants } = useTenantsStore();
-  const categories = allCategories as ServiceCategory[];
+  const [categories, setCategories] = useState<ServiceCategory[]>([]);
   const [filterTenant, setFilterTenant] = useState<string>("");
   const [filterCategory, setFilterCategory] = useState<string>("");
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
@@ -72,6 +75,12 @@ export default function ServicesPage() {
   useEffect(() => {
     void loadPage(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Subscribe to categories from Firestore (source of truth for admin)
+  useEffect(() => {
+    const unsub = subscribeCategories(setCategories);
+    return () => unsub();
   }, []);
 
   const confirmDelete = async () => {
