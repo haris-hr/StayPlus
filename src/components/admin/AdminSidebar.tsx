@@ -43,14 +43,20 @@ const AdminSidebar = ({
   const t = useTranslations("admin");
   const pathname = usePathname();
 
-  const menuItems = [
+  const menuItems: Array<{
+    icon: React.ComponentType<{ className?: string }>;
+    label: string;
+    href: string;
+    disabled?: boolean;
+  }> = [
     { icon: LayoutDashboard, label: t("overview"), href: "/admin" },
     { icon: Building2, label: t("tenants"), href: "/admin/tenants" },
     { icon: Layers, label: t("services"), href: "/admin/services" },
     { icon: FolderOpen, label: t("categories"), href: "/admin/categories" },
     { icon: ClipboardList, label: t("requests"), href: "/admin/requests" },
     { icon: Users, label: t("users"), href: "/admin/users" },
-    { icon: Settings, label: t("settings"), href: "/admin/settings" },
+    // TEMP: Keep Settings visible but disabled until we wire real persistence + permissions.
+    { icon: Settings, label: t("settings"), href: "/admin/settings", disabled: true },
   ];
 
   const isActive = (href: string) => {
@@ -117,44 +123,77 @@ const AdminSidebar = ({
         <ul className="space-y-1" role="list">
           {menuItems.map((item) => {
             const active = isActive(item.href);
+            const disabled = item.disabled === true;
             return (
               <li key={item.href}>
-                <Link
-                  href={item.href}
-                  onClick={onMobileClose}
-                  className={cn(
-                    "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200",
-                    active
-                      ? "bg-primary-50 text-primary-600"
-                      : "text-foreground/70 hover:bg-surface-100 hover:text-foreground"
-                  )}
-                  aria-current={active ? "page" : undefined}
-                  aria-label={isCollapsed && !isMobile ? item.label : undefined}
-                >
-                  <item.icon
+                {disabled ? (
+                  <div
                     className={cn(
-                      "w-5 h-5 flex-shrink-0",
-                      active ? "text-primary-600" : "text-foreground/50"
+                      "flex items-center gap-3 px-3 py-2.5 rounded-xl",
+                      "text-foreground/40 opacity-60 cursor-not-allowed",
+                      active && "bg-surface-100"
                     )}
-                    aria-hidden="true"
-                  />
-                  {(!isCollapsed || isMobile) && (
-                    <motion.span
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      className="font-medium"
-                    >
-                      {item.label}
-                    </motion.span>
-                  )}
-                  {active && (!isCollapsed || isMobile) && (
-                    <motion.div
-                      layoutId="activeIndicator"
-                      className="ml-auto w-1.5 h-1.5 rounded-full bg-primary-500"
+                    aria-disabled="true"
+                    title="Temporarily disabled"
+                  >
+                    <item.icon
+                      className="w-5 h-5 flex-shrink-0 text-foreground/40"
                       aria-hidden="true"
                     />
-                  )}
-                </Link>
+                    {(!isCollapsed || isMobile) && (
+                      <motion.span
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="font-medium"
+                      >
+                        {item.label}
+                      </motion.span>
+                    )}
+                    {active && (!isCollapsed || isMobile) && (
+                      <div
+                        className="ml-auto w-1.5 h-1.5 rounded-full bg-foreground/30"
+                        aria-hidden="true"
+                      />
+                    )}
+                  </div>
+                ) : (
+                  <Link
+                    href={item.href}
+                    onClick={onMobileClose}
+                    className={cn(
+                      "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200",
+                      active
+                        ? "bg-primary-50 text-primary-600"
+                        : "text-foreground/70 hover:bg-surface-100 hover:text-foreground"
+                    )}
+                    aria-current={active ? "page" : undefined}
+                    aria-label={isCollapsed && !isMobile ? item.label : undefined}
+                  >
+                    <item.icon
+                      className={cn(
+                        "w-5 h-5 flex-shrink-0",
+                        active ? "text-primary-600" : "text-foreground/50"
+                      )}
+                      aria-hidden="true"
+                    />
+                    {(!isCollapsed || isMobile) && (
+                      <motion.span
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="font-medium"
+                      >
+                        {item.label}
+                      </motion.span>
+                    )}
+                    {active && (!isCollapsed || isMobile) && (
+                      <motion.div
+                        layoutId="activeIndicator"
+                        className="ml-auto w-1.5 h-1.5 rounded-full bg-primary-500"
+                        aria-hidden="true"
+                      />
+                    )}
+                  </Link>
+                )}
               </li>
             );
           })}
