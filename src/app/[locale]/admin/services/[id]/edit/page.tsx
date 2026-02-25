@@ -7,7 +7,7 @@ import { useRouter } from "@/i18n/routing";
 import { motion } from "framer-motion";
 import { ChevronLeft, Plus, Trash2 } from "lucide-react";
 import { Button, Input, Textarea, Select, Card, Spinner, ConfirmDialog, ImageUpload } from "@/components/ui";
-import type { Service, ServiceCategory, PricingType, ServiceTier } from "@/types";
+import type { Service, ServiceCategory, PricingType, ServiceTier, TierBadge } from "@/types";
 import { useTenantsStore } from "@/hooks";
 import { deleteService, getServiceById, updateService } from "@/lib/firebase";
 import { subscribeCategories } from "@/lib/firebase/firestore";
@@ -25,6 +25,13 @@ export default function EditServicePage() {
     { value: "fixed", label: t("pricingFixed") },
     { value: "variable", label: t("pricingVariableFrom") },
     { value: "quote", label: t("pricingRequestQuote") },
+  ];
+
+  const tierBadgeOptions: { value: TierBadge | ""; label: string }[] = [
+    { value: "", label: t("badgeNone") },
+    { value: "popular", label: t("badgePopular") },
+    { value: "luxury", label: t("badgeLuxury") },
+    { value: "budget", label: t("badgeBudget") },
   ];
 
   const [service, setService] = useState<Service | null>(null);
@@ -147,6 +154,11 @@ export default function EditServicePage() {
       newTiers[index] = {
         ...newTiers[index],
         image: value || undefined,
+      };
+    } else if (field === "badge") {
+      newTiers[index] = {
+        ...newTiers[index],
+        badge: value ? (value as TierBadge) : undefined,
       };
     }
     setFormData({ ...formData, tiers: newTiers });
@@ -539,17 +551,25 @@ export default function EditServicePage() {
                           updateTier(index, "price", e.target.value)
                         }
                       />
-                      <div className="sm:col-span-2">
-                        <ImageUpload
-                          label={t("tierImageLabel")}
-                          value={tier.image || ""}
-                          onChange={(value) => updateTier(index, "image", value)}
-                          hint={t("tierImageHint")}
-                          previewHeight="h-24"
-                          defaultObjectFit="cover"
-                          showFitToggle={false}
-                        />
-                      </div>
+                      <Select
+                        label={t("tierBadgeLabel")}
+                        options={tierBadgeOptions}
+                        value={tier.badge || ""}
+                        onChange={(e) =>
+                          updateTier(index, "badge", e.target.value)
+                        }
+                      />
+                    </div>
+                    <div className="mt-3">
+                      <ImageUpload
+                        label={t("tierImageLabel")}
+                        value={tier.image || ""}
+                        onChange={(value) => updateTier(index, "image", value)}
+                        hint={t("tierImageHint")}
+                        previewHeight="h-24"
+                        defaultObjectFit="cover"
+                        showFitToggle={false}
+                      />
                     </div>
                   </div>
                 ))}
