@@ -18,6 +18,7 @@ import { Link } from "@/i18n/routing";
 import { getLocalizedText, getPricingDisplay } from "@/lib/utils";
 import { useServicesStore, useTenantsStore } from "@/hooks";
 import type { Service, ServiceTier, Locale } from "@/types";
+import { createRequest } from "@/lib/firebase/firestore";
 
 export default function ServiceRequestPage() {
   const params = useParams();
@@ -89,22 +90,40 @@ export default function ServiceRequestPage() {
 
     setIsSubmitting(true);
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    try {
+      const now = new Date();
+      const requestId =
+        typeof crypto !== "undefined" && "randomUUID" in crypto
+          ? crypto.randomUUID()
+          : `req_${Date.now()}_${Math.random().toString(16).slice(2)}`;
 
-    // In production, this would submit to an API
-    console.log("Submitting request:", {
-      serviceId: service.id,
-      serviceName: service.name,
-      tenantId: service.tenantId,
-      selectedTier: selectedTier?.id,
-      tierName: selectedTier?.name,
-      price: selectedTier?.price || service.price,
-      ...formData,
-    });
+      await createRequest({
+        id: requestId,
+        tenantId: service.tenantId,
+        serviceId: service.id,
+        serviceName: service.name,
+        categoryId: service.categoryId,
+        guestName: formData.guestName.trim(),
+        guestEmail: formData.guestEmail?.trim() || undefined,
+        guestPhone: formData.guestPhone?.trim() || undefined,
+        status: "pending",
+        selectedTier: selectedTier?.id || undefined,
+        date: formData.date ? new Date(`${formData.date}T00:00:00`) : undefined,
+        time: formData.time || undefined,
+        notes: formData.notes?.trim() || undefined,
+        price: selectedTier?.price ?? service.price ?? undefined,
+        currency: service.currency,
+        createdAt: now,
+        updatedAt: now,
+      });
 
-    setIsSubmitting(false);
-    setIsSubmitted(true);
+      setIsSubmitted(true);
+    } catch (err) {
+      console.error("Failed to submit request:", err);
+      alert(err instanceof Error ? err.message : "Failed to submit request");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const currentPrice = selectedTier?.price ?? service?.price;
