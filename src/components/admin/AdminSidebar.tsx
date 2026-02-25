@@ -47,8 +47,8 @@ const AdminSidebar = ({
   const menuItems = [
     { icon: LayoutDashboard, label: t("overview"), href: "/admin" },
     { icon: Building2, label: t("tenants"), href: "/admin/tenants" },
-    { icon: FolderOpen, label: t("categories"), href: "/admin/categories" },
     { icon: Layers, label: t("services"), href: "/admin/services" },
+    { icon: FolderOpen, label: t("categories"), href: "/admin/categories" },
     { icon: ClipboardList, label: t("requests"), href: "/admin/requests" },
     { icon: Users, label: t("users"), href: "/admin/users" },
     { icon: Languages, label: t("translations"), href: "/admin/translations" },
