@@ -12,7 +12,6 @@ import {
   FolderOpen,
   Users,
   Settings,
-  Languages,
   LogOut,
   ChevronLeft,
 } from "lucide-react";
@@ -51,7 +50,6 @@ const AdminSidebar = ({
     { icon: FolderOpen, label: t("categories"), href: "/admin/categories" },
     { icon: ClipboardList, label: t("requests"), href: "/admin/requests" },
     { icon: Users, label: t("users"), href: "/admin/users" },
-    { icon: Languages, label: t("translations"), href: "/admin/translations" },
     { icon: Settings, label: t("settings"), href: "/admin/settings" },
   ];
 
