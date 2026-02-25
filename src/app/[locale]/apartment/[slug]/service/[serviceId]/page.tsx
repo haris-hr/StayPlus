@@ -16,9 +16,12 @@ import {
 import { Button, Card, Input, Textarea } from "@/components/ui";
 import { Link } from "@/i18n/routing";
 import { getLocalizedText, getPricingDisplay } from "@/lib/utils";
-import { useServicesStore, useTenantsStore } from "@/hooks";
-import type { Service, ServiceTier, Locale } from "@/types";
-import { createRequest } from "@/lib/firebase/firestore";
+import { useServicesStore } from "@/hooks/useServicesStore";
+import { useTenantsStore } from "@/hooks/useTenantsStore";
+import type { Service, Locale } from "@/types";
+import { createRequest } from "@/lib/firebase";
+
+type Tier = (NonNullable<Service["tiers"]>[number] & { image?: string });
 
 export default function ServiceRequestPage() {
   const params = useParams();
@@ -34,7 +37,7 @@ export default function ServiceRequestPage() {
   const [dataLoaded, setDataLoaded] = useState(false);
   const [service, setService] = useState<Service | null>(null);
   const [tenant, setTenant] = useState<ReturnType<typeof getTenantBySlug>>(undefined);
-  const [selectedTier, setSelectedTier] = useState<ServiceTier | null>(null);
+  const [selectedTier, setSelectedTier] = useState<Tier | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
@@ -91,14 +94,7 @@ export default function ServiceRequestPage() {
     setIsSubmitting(true);
 
     try {
-      const now = new Date();
-      const requestId =
-        typeof crypto !== "undefined" && "randomUUID" in crypto
-          ? crypto.randomUUID()
-          : `req_${Date.now()}_${Math.random().toString(16).slice(2)}`;
-
       await createRequest({
-        id: requestId,
         tenantId: service.tenantId,
         serviceId: service.id,
         serviceName: service.name,
@@ -113,8 +109,6 @@ export default function ServiceRequestPage() {
         notes: formData.notes?.trim() || undefined,
         price: selectedTier?.price ?? service.price ?? undefined,
         currency: service.currency,
-        createdAt: now,
-        updatedAt: now,
       });
 
       setIsSubmitted(true);
@@ -205,10 +199,10 @@ export default function ServiceRequestPage() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-surface-50 p-4">
         <h1 className="text-2xl font-bold text-foreground mb-4">
-          Service not found
+          {t("serviceNotFound")}
         </h1>
         <Link href={`/apartment/${slug}`}>
-          <Button variant="secondary">Back to Services</Button>
+          <Button variant="secondary">{t("backToServices")}</Button>
         </Link>
       </div>
     );
@@ -338,7 +332,7 @@ export default function ServiceRequestPage() {
                 {t("selectOption")}
               </h2>
               <div className="grid gap-4">
-                {service.tiers.map((tier, index) => {
+                {(service.tiers as Tier[]).map((tier, index) => {
                   const isSelected = selectedTier?.id === tier.id;
                   return (
                     <motion.button

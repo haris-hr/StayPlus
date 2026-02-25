@@ -11,17 +11,18 @@ import { useTenantsStore } from "@/hooks";
 import { createService } from "@/lib/firebase";
 import { subscribeCategories } from "@/lib/firebase/firestore";
 
-const pricingTypes: { value: PricingType; label: string }[] = [
-  { value: "free", label: "Free" },
-  { value: "fixed", label: "Fixed Price" },
-  { value: "variable", label: "Variable (From price)" },
-  { value: "quote", label: "Request Quote" },
-];
-
 export default function NewServicePage() {
   const t = useTranslations("admin");
+  const tc = useTranslations("common");
   const router = useRouter();
   const { tenants } = useTenantsStore();
+
+  const pricingTypes: { value: PricingType; label: string }[] = [
+    { value: "free", label: t("pricingFree") },
+    { value: "fixed", label: t("pricingFixed") },
+    { value: "variable", label: t("pricingVariableFrom") },
+    { value: "quote", label: t("pricingRequestQuote") },
+  ];
 
   const [categories, setCategories] = useState<ServiceCategory[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -192,7 +193,7 @@ export default function NewServicePage() {
           type="button"
           onClick={() => router.push("/admin/services")}
           className="p-2 rounded-lg hover:bg-surface-100 transition-colors mt-1"
-          aria-label="Back to services"
+          aria-label={t("backToServices")}
         >
           <ChevronLeft className="w-5 h-5 text-foreground/70" />
         </button>
@@ -201,7 +202,7 @@ export default function NewServicePage() {
             {t("addService")}
           </h1>
           <p className="text-foreground/60 mt-1">
-            Create a new service for guests to request
+            {t("createServiceSubtitle")}
           </p>
         </div>
       </motion.div>
@@ -227,7 +228,7 @@ export default function NewServicePage() {
               onChange={(e) =>
                 setFormData({ ...formData, tenantId: e.target.value })
               }
-              placeholder="Select tenant"
+              placeholder={t("selectTenant")}
               required
             />
             <Select
@@ -240,7 +241,7 @@ export default function NewServicePage() {
               onChange={(e) =>
                 setFormData({ ...formData, categoryId: e.target.value })
               }
-              placeholder="Select category"
+              placeholder={t("selectCategory")}
               required
             />
           </div>
@@ -253,7 +254,7 @@ export default function NewServicePage() {
           </h3>
           <div className="grid sm:grid-cols-2 gap-4">
             <Input
-              label="English"
+              label={tc("languageEnglish")}
               value={formData.nameEn}
               onChange={(e) =>
                 setFormData({ ...formData, nameEn: e.target.value })
@@ -262,7 +263,7 @@ export default function NewServicePage() {
               required
             />
             <Input
-              label="Bosanski"
+              label={tc("languageBosnian")}
               value={formData.nameBs}
               onChange={(e) =>
                 setFormData({ ...formData, nameBs: e.target.value })
@@ -276,24 +277,24 @@ export default function NewServicePage() {
         {/* Short Description */}
         <Card>
           <h3 className="font-semibold text-foreground mb-4">
-            Short Description (shown in cards)
+            {t("shortDescriptionTitle")}
           </h3>
           <div className="grid sm:grid-cols-2 gap-4">
             <Input
-              label="English"
+              label={tc("languageEnglish")}
               value={formData.shortDescriptionEn}
               onChange={(e) =>
                 setFormData({ ...formData, shortDescriptionEn: e.target.value })
               }
-              placeholder="Brief summary..."
+              placeholder={t("shortDescriptionPlaceholder")}
             />
             <Input
-              label="Bosanski"
+              label={tc("languageBosnian")}
               value={formData.shortDescriptionBs}
               onChange={(e) =>
                 setFormData({ ...formData, shortDescriptionBs: e.target.value })
               }
-              placeholder="Kratak opis..."
+              placeholder={t("shortDescriptionPlaceholder")}
             />
           </div>
         </Card>
@@ -305,22 +306,22 @@ export default function NewServicePage() {
           </h3>
           <div className="grid sm:grid-cols-2 gap-4">
             <Textarea
-              label="English"
+              label={tc("languageEnglish")}
               value={formData.descriptionEn}
               onChange={(e) =>
                 setFormData({ ...formData, descriptionEn: e.target.value })
               }
-              placeholder="Full description of the service..."
+              placeholder={t("fullDescriptionPlaceholder")}
               rows={4}
               required
             />
             <Textarea
-              label="Bosanski"
+              label={tc("languageBosnian")}
               value={formData.descriptionBs}
               onChange={(e) =>
                 setFormData({ ...formData, descriptionBs: e.target.value })
               }
-              placeholder="Puni opis usluge..."
+              placeholder={t("fullDescriptionPlaceholder")}
               rows={4}
               required
             />
@@ -334,7 +335,7 @@ export default function NewServicePage() {
           </h3>
           <div className="grid sm:grid-cols-3 gap-4">
             <Select
-              label="Type"
+              label={t("typeLabel")}
               options={pricingTypes}
               value={formData.pricingType}
               onChange={(e) =>
@@ -376,10 +377,10 @@ export default function NewServicePage() {
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h3 className="font-semibold text-foreground">
-                  Service Tiers
+                  {t("serviceTiersTitle")}
                 </h3>
                 <p className="text-sm text-foreground/60">
-                  Optional pricing options like Standard, Premium, VIP
+                  {t("serviceTiersHint")}
                 </p>
               </div>
               <Button
@@ -389,7 +390,7 @@ export default function NewServicePage() {
                 onClick={addTier}
                 leftIcon={<Plus className="w-4 h-4" />}
               >
-                Add Tier
+                {t("addTier")}
               </Button>
             </div>
             {formData.tiers.length > 0 ? (
@@ -413,14 +414,14 @@ export default function NewServicePage() {
                     </div>
                     <div className="grid sm:grid-cols-2 gap-3 mb-3">
                       <Input
-                        placeholder="Name (English) e.g. Standard"
+                        placeholder={t("tierNamePlaceholder", { language: tc("languageEnglish"), example: "Standard" })}
                         value={tier.name.en}
                         onChange={(e) =>
                           updateTier(index, "nameEn", e.target.value)
                         }
                       />
                       <Input
-                        placeholder="Name (Bosanski)"
+                        placeholder={t("tierNamePlaceholder", { language: tc("languageBosnian"), example: "Standard" })}
                         value={tier.name.bs}
                         onChange={(e) =>
                           updateTier(index, "nameBs", e.target.value)
@@ -429,14 +430,14 @@ export default function NewServicePage() {
                     </div>
                     <div className="grid sm:grid-cols-2 gap-3 mb-3">
                       <Input
-                        placeholder="Description (English) e.g. Comfortable sedan"
+                        placeholder={t("tierDescriptionPlaceholder", { language: tc("languageEnglish"), example: "Comfortable sedan" })}
                         value={tier.description?.en || ""}
                         onChange={(e) =>
                           updateTier(index, "descEn", e.target.value)
                         }
                       />
                       <Input
-                        placeholder="Description (Bosanski)"
+                        placeholder={t("tierDescriptionPlaceholder", { language: tc("languageBosnian"), example: "Comfortable sedan" })}
                         value={tier.description?.bs || ""}
                         onChange={(e) =>
                           updateTier(index, "descBs", e.target.value)
@@ -445,7 +446,7 @@ export default function NewServicePage() {
                     </div>
                     <div className="grid sm:grid-cols-2 gap-3">
                       <Input
-                        placeholder="Price"
+                        placeholder={t("tierPricePlaceholder")}
                         type="number"
                         step="0.01"
                         value={tier.price?.toString() || ""}
@@ -455,10 +456,10 @@ export default function NewServicePage() {
                       />
                       <div className="sm:col-span-2">
                         <ImageUpload
-                          label="Tier image"
+                          label={t("tierImageLabel")}
                           value={tier.image || ""}
                           onChange={(value) => updateTier(index, "image", value)}
-                          hint="Optional: upload a photo or paste a URL"
+                          hint={t("tierImageHint")}
                           previewHeight="h-24"
                           defaultObjectFit="cover"
                           showFitToggle={false}
@@ -470,7 +471,7 @@ export default function NewServicePage() {
               </div>
             ) : (
               <p className="text-foreground/50 text-sm py-4 text-center border-2 border-dashed border-surface-200 rounded-xl">
-                No tiers added yet. Add tiers like &quot;Standard&quot;, &quot;Premium&quot;, &quot;Luxury&quot; with different prices and vehicle photos.
+                {t("noTiersYet")}
               </p>
             )}
           </Card>
@@ -478,11 +479,11 @@ export default function NewServicePage() {
 
         {/* Image */}
         <Card>
-          <h3 className="font-semibold text-foreground mb-4">Service Image</h3>
+          <h3 className="font-semibold text-foreground mb-4">{t("serviceImageTitle")}</h3>
           <ImageUpload
             value={formData.image}
             onChange={(value) => setFormData({ ...formData, image: value })}
-            hint="Recommended: 800x600px or larger. Upload will be saved as a data URL for now (we can switch to Firebase Storage later)."
+            hint={t("serviceImageHint")}
             previewHeight="h-48"
             defaultObjectFit="cover"
           />
@@ -490,16 +491,16 @@ export default function NewServicePage() {
 
         {/* Options */}
         <Card>
-          <h3 className="font-semibold text-foreground mb-4">Options</h3>
+          <h3 className="font-semibold text-foreground mb-4">{t("optionsTitle")}</h3>
           <div className="grid sm:grid-cols-2 gap-4 mb-4">
             <Input
-              label="Display Order"
+              label={t("displayOrder")}
               type="number"
               value={formData.order}
               onChange={(e) =>
                 setFormData({ ...formData, order: e.target.value })
               }
-              hint="Lower numbers appear first"
+              hint={t("displayOrderHint")}
             />
           </div>
           <div className="flex flex-wrap gap-6">
@@ -512,7 +513,7 @@ export default function NewServicePage() {
                 }
                 className="w-5 h-5 rounded border-surface-300 text-primary-600 focus:ring-primary-500"
               />
-              <span className="text-foreground">Active</span>
+              <span className="text-foreground">{tc("active")}</span>
             </label>
             <label className="flex items-center gap-3 cursor-pointer">
               <input
@@ -535,10 +536,10 @@ export default function NewServicePage() {
             variant="ghost"
             onClick={() => router.push("/admin/services")}
           >
-            Cancel
+            {tc("cancel")}
           </Button>
           <Button type="submit" isLoading={isSubmitting}>
-            Create Service
+            {t("createService")}
           </Button>
         </div>
       </motion.form>

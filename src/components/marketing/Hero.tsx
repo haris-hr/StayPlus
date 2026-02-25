@@ -10,9 +10,9 @@ const Hero = () => {
   const t = useTranslations("home.hero");
 
   const stats = [
-    { icon: Star, value: "4.9", label: "Rating" },
-    { icon: Users, value: "2K+", label: "Guests" },
-    { icon: Zap, value: "50+", label: "Services" },
+    { icon: Star, value: "4.9", label: t("stats.rating") },
+    { icon: Users, value: "2K+", label: t("stats.guests") },
+    { icon: Zap, value: "50+", label: t("stats.services") },
   ];
 
   return (
@@ -153,9 +153,9 @@ const Hero = () => {
                 <div className="mt-6 pt-6 border-t border-surface-200">
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-foreground/60">
-                      50+ services available
+                      {t("servicesAvailable", { count: 50 })}
                     </span>
-                    <Button size="sm">Browse All</Button>
+                    <Button size="sm">{t("browseAll")}</Button>
                   </div>
                 </div>
               </div>
@@ -173,9 +173,9 @@ const Hero = () => {
               </div>
               <div>
                 <p className="text-sm font-medium text-foreground">
-                  Request Confirmed
+                  {t("requestConfirmed")}
                 </p>
-                <p className="text-xs text-foreground/60">Just now</p>
+                <p className="text-xs text-foreground/60">{t("justNow")}</p>
               </div>
             </motion.div>
           </motion.div>

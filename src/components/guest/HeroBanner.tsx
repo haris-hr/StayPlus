@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { motion } from "framer-motion";
+import { useTranslations } from "next-intl";
 import { MapPin, Phone, Mail, MessageCircle } from "lucide-react";
 import type { Tenant, Locale } from "@/types";
 import { getLocalizedText } from "@/lib/utils";
@@ -15,6 +16,7 @@ interface HeroBannerProps {
 }
 
 export function HeroBanner({ tenant, locale, guestName }: HeroBannerProps) {
+  const tc = useTranslations("common");
   const description = getLocalizedText(tenant.description, locale);
   // NOTE: some TS toolchains may not pick up `heroImage`/`heroLayout` on TenantBranding reliably.
   // Use an intersection type accessor to keep editor diagnostics happy.
@@ -85,10 +87,10 @@ export function HeroBanner({ tenant, locale, guestName }: HeroBannerProps) {
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center gap-2 px-4 py-2 bg-green-500 rounded-full text-sm text-white hover:bg-green-600 transition-colors"
-          aria-label="Contact via WhatsApp"
+          aria-label={tc("contactViaWhatsApp")}
         >
           <MessageCircle className="w-4 h-4" aria-hidden="true" />
-          <span>WhatsApp</span>
+          <span>{tc("whatsapp")}</span>
         </a>
       )}
 

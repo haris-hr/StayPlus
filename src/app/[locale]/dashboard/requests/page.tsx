@@ -11,15 +11,6 @@ import { subscribeRequestsByTenant } from "@/lib/firebase/firestore";
 // For now, hardcode the tenant ID - in production this would come from auth context
 const CURRENT_TENANT_ID = "sunny-sarajevo";
 
-const statusOptions = [
-  { value: "", label: "All Statuses" },
-  { value: "pending", label: "Pending" },
-  { value: "confirmed", label: "Confirmed" },
-  { value: "in_progress", label: "In Progress" },
-  { value: "completed", label: "Completed" },
-  { value: "cancelled", label: "Cancelled" },
-];
-
 const statusConfig: Record<RequestStatus, { variant: "default" | "primary" | "success" | "warning" | "danger" | "info" }> = {
   pending: { variant: "warning" },
   confirmed: { variant: "info" },
@@ -30,7 +21,27 @@ const statusConfig: Record<RequestStatus, { variant: "default" | "primary" | "su
 
 export default function TenantRequestsPage() {
   const t = useTranslations("admin");
+  const tc = useTranslations("common");
+  const tg = useTranslations("guest");
+  const ts = useTranslations("status");
   const locale = useLocale() as Locale;
+
+  const statusLabel: Record<RequestStatus, string> = {
+    pending: ts("pending"),
+    confirmed: ts("confirmed"),
+    in_progress: ts("inProgress"),
+    completed: ts("completed"),
+    cancelled: ts("cancelled"),
+  };
+
+  const statusOptions = [
+    { value: "", label: `${tc("all")} ${t("status")}` },
+    { value: "pending", label: statusLabel.pending },
+    { value: "confirmed", label: statusLabel.confirmed },
+    { value: "in_progress", label: statusLabel.in_progress },
+    { value: "completed", label: statusLabel.completed },
+    { value: "cancelled", label: statusLabel.cancelled },
+  ];
   
   const [requests, setRequests] = useState<ServiceRequest[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -116,11 +127,11 @@ export default function TenantRequestsPage() {
                         {getLocalizedText(request.serviceName, locale)}
                       </h3>
                       <Badge variant={statusConfig[request.status].variant}>
-                        {request.status.replace("_", " ")}
+                        {statusLabel[request.status]}
                       </Badge>
                     </div>
                     <p className="text-foreground/60 text-sm">
-                      Guest: {request.guestName}
+                      {t("guestTitle")}: {request.guestName}
                       {request.guestEmail && ` • ${request.guestEmail}`}
                     </p>
                   </div>
@@ -147,13 +158,13 @@ export default function TenantRequestsPage() {
                     <div className="grid sm:grid-cols-2 gap-4 text-sm">
                       {request.selectedTier && (
                         <div>
-                          <p className="text-foreground/60">Selected Option</p>
+                          <p className="text-foreground/60">{t("optionLabel")}</p>
                           <p className="font-medium">{request.selectedTier}</p>
                         </div>
                       )}
                       {request.date && (
                         <div>
-                          <p className="text-foreground/60">Preferred Date</p>
+                          <p className="text-foreground/60">{tg("preferredDate")}</p>
                           <p className="font-medium">
                             {formatDateTime(request.date, locale)}
                           </p>
@@ -161,19 +172,19 @@ export default function TenantRequestsPage() {
                       )}
                       {request.time && (
                         <div>
-                          <p className="text-foreground/60">Preferred Time</p>
+                          <p className="text-foreground/60">{tg("preferredTime")}</p>
                           <p className="font-medium">{request.time}</p>
                         </div>
                       )}
                       {request.guestPhone && (
                         <div>
-                          <p className="text-foreground/60">Phone</p>
+                          <p className="text-foreground/60">{tg("phone")}</p>
                           <p className="font-medium">{request.guestPhone}</p>
                         </div>
                       )}
                       {request.notes && (
                         <div className="sm:col-span-2">
-                          <p className="text-foreground/60">Notes</p>
+                          <p className="text-foreground/60">{tg("additionalNotes")}</p>
                           <p className="font-medium">{request.notes}</p>
                         </div>
                       )}

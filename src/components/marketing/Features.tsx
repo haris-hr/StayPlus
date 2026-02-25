@@ -14,6 +14,7 @@ import { Card } from "@/components/ui";
 
 const Features = () => {
   const t = useTranslations("home.features");
+  const tc = useTranslations("common");
 
   const features = [
     {
@@ -130,7 +131,7 @@ const Features = () => {
 
                 {/* Hover indicator */}
                 <div className="mt-4 flex items-center gap-2 text-primary-600 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <span className="text-sm font-medium">Learn more</span>
+                  <span className="text-sm font-medium">{tc("learnMore")}</span>
                   <span className="transform group-hover:translate-x-1 transition-transform">
                     →
                   </span>

@@ -126,8 +126,7 @@ export default function TenantDashboardPage() {
         className="p-4 rounded-xl bg-blue-50 border border-blue-100"
       >
         <p className="text-blue-800 text-sm">
-          <strong>Note:</strong> This is a read-only dashboard. To manage requests
-          or update their status, please contact the StayPlus admin team.
+          {t("dashboardReadOnlyNote")}
         </p>
       </motion.div>
     </div>

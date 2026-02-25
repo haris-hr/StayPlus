@@ -1,12 +1,14 @@
 "use client";
 
 import { useParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { TenantEditorForm } from "@/components/admin";
 import { useTenantsStore } from "@/hooks";
 import { Link, useRouter } from "@/i18n/routing";
 import type { Tenant } from "@/types";
 
 export default function EditTenantPage() {
+  const t = useTranslations("admin");
   const params = useParams();
   const router = useRouter();
   const tenantId = params.tenantId as string;
@@ -27,12 +29,12 @@ export default function EditTenantPage() {
   if (!tenant) {
     return (
       <div className="max-w-3xl">
-        <h1 className="text-2xl font-bold text-foreground mb-2">Tenant not found</h1>
+        <h1 className="text-2xl font-bold text-foreground mb-2">{t("tenantNotFoundTitle")}</h1>
         <p className="text-foreground/60 mb-6">
-          This tenant may have been deleted or the URL is incorrect.
+          {t("tenantNotFoundDescription")}
         </p>
         <Link href="/admin/tenants" className="text-primary-600 hover:text-primary-700 font-medium">
-          ← Back to Tenants
+          ← {t("backToTenants")}
         </Link>
       </div>
     );

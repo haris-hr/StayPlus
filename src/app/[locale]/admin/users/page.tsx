@@ -29,25 +29,9 @@ const initialUsers: (UserType & { tenantName?: string })[] = [
   },
 ];
 
-const roleConfig: Record<UserRole, { label: string; variant: "primary" | "success" | "default" }> = {
-  super_admin: { label: "Super Admin", variant: "primary" },
-  tenant_admin: { label: "Tenant Admin", variant: "success" },
-  tenant_viewer: { label: "Viewer", variant: "default" },
-};
-
-const roleOptions = [
-  { value: "super_admin", label: "Super Admin" },
-  { value: "tenant_admin", label: "Tenant Admin" },
-  { value: "tenant_viewer", label: "Viewer" },
-];
-
-const tenantOptions = [
-  { value: "", label: "No tenant (Super Admin)" },
-  { value: "demo", label: "Sunny Sarajevo Apartment" },
-];
-
 export default function UsersPage() {
   const t = useTranslations("admin");
+  const tc = useTranslations("common");
   const [users, setUsers] = useState<(UserType & { tenantName?: string })[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -59,6 +43,23 @@ export default function UsersPage() {
     tenantId: "",
     active: true,
   });
+
+  const roleConfig: Record<UserRole, { label: string; variant: "primary" | "success" | "default" }> = {
+    super_admin: { label: t("roleSuperAdmin"), variant: "primary" },
+    tenant_admin: { label: t("roleTenantAdmin"), variant: "success" },
+    tenant_viewer: { label: t("roleViewer"), variant: "default" },
+  };
+
+  const roleOptions = [
+    { value: "super_admin", label: t("roleSuperAdmin") },
+    { value: "tenant_admin", label: t("roleTenantAdmin") },
+    { value: "tenant_viewer", label: t("roleViewer") },
+  ];
+
+  const tenantOptions = [
+    { value: "", label: t("noTenantSuperAdmin") },
+    { value: "demo", label: "Sunny Sarajevo Apartment" },
+  ];
 
   useEffect(() => {
     setTimeout(() => {
@@ -91,14 +92,14 @@ export default function UsersPage() {
   };
 
   const handleDelete = (userId: string) => {
-    if (confirm("Are you sure you want to delete this user?")) {
+    if (confirm(t("deleteUserPrompt"))) {
       setUsers(users.filter((u) => u.id !== userId));
     }
   };
 
   const handleSubmit = () => {
     if (!formData.email) {
-      alert("Email is required");
+      alert(t("emailRequired"));
       return;
     }
 
@@ -159,7 +160,7 @@ export default function UsersPage() {
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-foreground">{t("users")}</h1>
           <p className="text-foreground/60 mt-1 text-sm sm:text-base">
-            Manage admin users and their permissions
+            {t("manageUsersSubtitle")}
           </p>
         </div>
         <Button
@@ -170,8 +171,8 @@ export default function UsersPage() {
           leftIcon={<Plus className="w-5 h-5" />}
           className="w-full sm:w-auto whitespace-nowrap"
         >
-          <span className="sm:hidden">Add</span>
-          <span className="hidden sm:inline">Add User</span>
+          <span className="sm:hidden">{tc("add")}</span>
+          <span className="hidden sm:inline">{t("addUser")}</span>
         </Button>
       </motion.div>
 
@@ -187,19 +188,19 @@ export default function UsersPage() {
               <thead>
                 <tr className="border-b border-surface-200 bg-surface-50">
                   <th className="text-left py-3 px-4 text-sm font-medium text-foreground/60">
-                    User
+                    {t("user")}
                   </th>
                   <th className="text-left py-3 px-4 text-sm font-medium text-foreground/60">
-                    Role
+                    {t("role")}
                   </th>
                   <th className="text-left py-3 px-4 text-sm font-medium text-foreground/60">
-                    Tenant
+                    {t("tenant")}
                   </th>
                   <th className="text-left py-3 px-4 text-sm font-medium text-foreground/60">
-                    Status
+                    {t("status")}
                   </th>
                   <th className="text-right py-3 px-4 text-sm font-medium text-foreground/60">
-                    Actions
+                    {t("actions")}
                   </th>
                 </tr>
               </thead>
@@ -221,7 +222,7 @@ export default function UsersPage() {
                         />
                         <div>
                           <p className="font-medium text-foreground">
-                            {user.displayName || "No name"}
+                            {user.displayName || t("noName")}
                           </p>
                           <p className="text-xs text-foreground/60">
                             {user.email}
@@ -242,7 +243,7 @@ export default function UsersPage() {
                     </td>
                     <td className="py-4 px-4">
                       <Badge variant={user.active ? "success" : "danger"}>
-                        {user.active ? "Active" : "Inactive"}
+                        {user.active ? tc("active") : tc("inactive")}
                       </Badge>
                     </td>
                     <td className="py-4 px-4">
@@ -250,14 +251,14 @@ export default function UsersPage() {
                         <button
                           onClick={() => handleEdit(user)}
                           className="p-2 rounded-lg hover:bg-surface-100 transition-colors"
-                          title="Edit user"
+                          title={tc("edit")}
                         >
                           <Edit2 className="w-4 h-4 text-foreground/60" />
                         </button>
                         <button
                           onClick={() => handleDelete(user.id)}
                           className="p-2 rounded-lg hover:bg-red-50 transition-colors"
-                          title="Delete user"
+                          title={tc("delete")}
                         >
                           <Trash2 className="w-4 h-4 text-red-500" />
                         </button>
@@ -271,7 +272,7 @@ export default function UsersPage() {
 
           {users.length === 0 && (
             <div className="text-center py-12">
-              <p className="text-foreground/60">No users found</p>
+              <p className="text-foreground/60">{t("noUsersFound")}</p>
             </div>
           )}
         </Card>
@@ -284,12 +285,12 @@ export default function UsersPage() {
           setShowForm(false);
           resetForm();
         }}
-        title={editingUser ? "Edit User" : "Add User"}
+        title={editingUser ? t("editUser") : t("addUser")}
         size="md"
       >
         <div className="space-y-4">
           <Input
-            label="Email"
+            label={tc("email")}
             type="email"
             value={formData.email}
             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
@@ -298,25 +299,25 @@ export default function UsersPage() {
           />
 
           <Input
-            label="Display Name"
+            label={t("displayName")}
             value={formData.displayName}
             onChange={(e) => setFormData({ ...formData, displayName: e.target.value })}
             placeholder="John Doe"
           />
 
           <Select
-            label="Role"
+            label={t("role")}
             options={roleOptions}
             value={formData.role}
             onChange={(e) => setFormData({ ...formData, role: e.target.value as UserRole })}
           />
 
           <Select
-            label="Tenant (for Tenant Admin/Viewer)"
+            label={t("tenantForUser")}
             options={tenantOptions}
             value={formData.tenantId}
             onChange={(e) => setFormData({ ...formData, tenantId: e.target.value })}
-            hint="Leave empty for Super Admin"
+            hint={t("leaveEmptyForSuperAdmin")}
           />
 
           <label className="flex items-center gap-3 cursor-pointer">
@@ -326,7 +327,7 @@ export default function UsersPage() {
               onChange={(e) => setFormData({ ...formData, active: e.target.checked })}
               className="w-5 h-5 rounded border-surface-300 text-primary-600 focus:ring-primary-500"
             />
-            <span className="text-foreground">Active</span>
+            <span className="text-foreground">{tc("active")}</span>
           </label>
 
           <div className="flex justify-end gap-3 pt-4 border-t border-surface-200">
@@ -337,10 +338,10 @@ export default function UsersPage() {
                 resetForm();
               }}
             >
-              Cancel
+              {tc("cancel")}
             </Button>
             <Button onClick={handleSubmit}>
-              {editingUser ? "Save Changes" : "Add User"}
+              {editingUser ? t("saveChanges") : t("addUser")}
             </Button>
           </div>
         </div>

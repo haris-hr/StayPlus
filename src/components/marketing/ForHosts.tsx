@@ -8,6 +8,7 @@ import { Link } from "@/i18n/routing";
 
 const ForHosts = () => {
   const t = useTranslations("home.hosts");
+  const ts = useTranslations("status");
 
   const benefits = [
     { icon: TrendingUp, text: t("benefit1") },
@@ -38,9 +39,9 @@ const ForHosts = () => {
                 <div className="flex items-center justify-between pb-4 border-b border-surface-200">
                   <div>
                     <h4 className="font-semibold text-foreground">
-                      Dashboard Overview
+                      {t("dashboardOverview")}
                     </h4>
-                    <p className="text-sm text-foreground/60">This month</p>
+                    <p className="text-sm text-foreground/60">{t("thisMonth")}</p>
                   </div>
                   <div className="text-right">
                     <p className="text-2xl font-bold text-primary-600">€1,240</p>
@@ -51,9 +52,9 @@ const ForHosts = () => {
                 {/* Stats */}
                 <div className="grid grid-cols-3 gap-4">
                   {[
-                    { label: "Requests", value: "47" },
-                    { label: "Completed", value: "42" },
-                    { label: "Rating", value: "4.9" },
+                    { label: t("requestsLabel"), value: "47" },
+                    { label: t("completedLabel"), value: "42" },
+                    { label: t("ratingLabel"), value: "4.9" },
                   ].map((stat, index) => (
                     <div
                       key={index}
@@ -70,11 +71,11 @@ const ForHosts = () => {
                 {/* Recent activity */}
                 <div className="space-y-3">
                   <p className="text-sm font-medium text-foreground/60">
-                    Recent Requests
+                    {t("recentRequests")}
                   </p>
                   {[
-                    { service: "Airport Transfer", guest: "John D.", status: "Completed" },
-                    { service: "Grocery Pre-stock", guest: "Maria S.", status: "Pending" },
+                    { service: "Airport Transfer", guest: "John D.", status: "completed" as const },
+                    { service: "Grocery Pre-stock", guest: "Maria S.", status: "pending" as const },
                   ].map((item, index) => (
                     <div
                       key={index}
@@ -88,12 +89,12 @@ const ForHosts = () => {
                       </div>
                       <span
                         className={`text-xs px-2 py-1 rounded-full ${
-                          item.status === "Completed"
+                          item.status === "completed"
                             ? "bg-green-100 text-green-700"
                             : "bg-amber-100 text-amber-700"
                         }`}
                       >
-                        {item.status}
+                        {item.status === "completed" ? ts("completed") : ts("pending")}
                       </span>
                     </div>
                   ))}

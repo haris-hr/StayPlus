@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef, useCallback, useId } from "react";
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { Upload, Link as LinkIcon, X, Image as ImageIcon, Maximize2, Minimize2 } from "lucide-react";
@@ -35,6 +36,7 @@ const ImageUpload = ({
   defaultObjectFit = "cover",
   showFitToggle = true,
 }: ImageUploadProps) => {
+  const t = useTranslations("common");
   const [mode, setMode] = useState<"url" | "upload">(() =>
     value?.startsWith("data:") ? "upload" : "url"
   );
@@ -53,7 +55,7 @@ const ImageUpload = ({
     async (file: File): Promise<string> => {
       // Avoid stripping animation from GIFs; require URL instead.
       if (file.type === "image/gif") {
-        throw new Error("GIF upload isn’t supported. Please use an image URL instead.");
+        throw new Error(t("imageUploadGifNotSupported"));
       }
 
       const objectUrl = URL.createObjectURL(file);
@@ -61,7 +63,7 @@ const ImageUpload = ({
         const img = await new Promise<HTMLImageElement>((resolve, reject) => {
           const i = new window.Image();
           i.onload = () => resolve(i);
-          i.onerror = () => reject(new Error("Failed to read image"));
+          i.onerror = () => reject(new Error(t("imageUploadFailedReadImage")));
           i.src = objectUrl;
         });
 
@@ -75,7 +77,7 @@ const ImageUpload = ({
         canvas.height = targetH;
 
         const ctx = canvas.getContext("2d");
-        if (!ctx) throw new Error("Canvas not supported");
+        if (!ctx) throw new Error(t("imageUploadCanvasNotSupported"));
 
         ctx.drawImage(img, 0, 0, targetW, targetH);
 
@@ -87,19 +89,17 @@ const ImageUpload = ({
         // Prefer webp for size, fall back to jpeg.
         let blob = await toBlob("image/webp");
         if (!blob) blob = await toBlob("image/jpeg");
-        if (!blob) throw new Error("Failed to compress image");
+        if (!blob) throw new Error(t("imageUploadFailedCompressImage"));
 
         const dataUrl = await new Promise<string>((resolve, reject) => {
           const reader = new FileReader();
           reader.onload = () => resolve(String(reader.result));
-          reader.onerror = () => reject(new Error("Failed to read compressed image"));
+          reader.onerror = () => reject(new Error(t("imageUploadFailedReadCompressedImage")));
           reader.readAsDataURL(blob);
         });
 
         if (dataUrl.length > MAX_DATA_URL_CHARS) {
-          throw new Error(
-            "Image is too large to save. Try a smaller image, or use an image URL."
-          );
+          throw new Error(t("imageUploadTooLarge"));
         }
 
         return dataUrl;
@@ -107,7 +107,7 @@ const ImageUpload = ({
         URL.revokeObjectURL(objectUrl);
       }
     },
-    []
+    [t]
   );
 
   // Only sync mode on initial mount or when value changes externally
@@ -127,7 +127,7 @@ const ImageUpload = ({
   const handleFileSelect = useCallback(
     async (file: File) => {
       if (!file.type.startsWith("image/")) {
-        alert("Please select an image file");
+        alert(t("imageUploadSelectImageFile"));
         return;
       }
 
@@ -135,10 +135,10 @@ const ImageUpload = ({
         const result = await compressImageToDataUrl(file);
         onChange(result);
       } catch (err) {
-        alert(err instanceof Error ? err.message : "Failed to upload image");
+        alert(err instanceof Error ? err.message : t("imageUploadFailedUpload"));
       }
     },
-    [compressImageToDataUrl, onChange]
+    [compressImageToDataUrl, onChange, t]
   );
 
   const handleDrop = useCallback(
@@ -206,7 +206,7 @@ const ImageUpload = ({
           )}
         >
           <LinkIcon className="w-4 h-4" />
-          URL
+          {t("imageUploadUrl")}
         </button>
         <button
           type="button"
@@ -219,7 +219,7 @@ const ImageUpload = ({
           )}
         >
           <Upload className="w-4 h-4" />
-          Upload
+          {t("imageUploadUpload")}
         </button>
       </div>
 
@@ -261,11 +261,13 @@ const ImageUpload = ({
             )}
           />
           <p className="text-sm text-foreground/70 pointer-events-none">
-            <span className="font-medium text-primary-600">Click to upload</span>{" "}
-            or drag and drop
+            <span className="font-medium text-primary-600">
+              {t("imageUploadClickToUpload")}
+            </span>{" "}
+            {t("imageUploadOrDragDrop")}
           </p>
           <p className="text-xs text-foreground/50 mt-1 pointer-events-none">
-            PNG, JPG, GIF up to 10MB
+            {t("imageUploadFileTypes")}
           </p>
         </div>
       )}
@@ -283,7 +285,7 @@ const ImageUpload = ({
         >
           <Image
             src={value}
-            alt="Preview"
+            alt={t("imageUploadPreviewAlt")}
             fill
             className={cn(
               objectFit === "cover" ? "object-cover" : "object-contain"
@@ -305,8 +307,16 @@ const ImageUpload = ({
                   toggleObjectFit();
                 }}
                 className="p-1.5 bg-black/50 hover:bg-black/70 rounded-lg transition-colors"
-                aria-label={objectFit === "cover" ? "Show full image" : "Fill preview"}
-                title={objectFit === "cover" ? "Show full image" : "Fill preview"}
+                aria-label={
+                  objectFit === "cover"
+                    ? t("imageUploadShowFullImage")
+                    : t("imageUploadFillPreview")
+                }
+                title={
+                  objectFit === "cover"
+                    ? t("imageUploadShowFullImage")
+                    : t("imageUploadFillPreview")
+                }
               >
                 {objectFit === "cover" ? (
                   <Minimize2 className="w-4 h-4 text-white" />
@@ -322,7 +332,7 @@ const ImageUpload = ({
                 clearImage();
               }}
               className="p-1.5 bg-black/50 hover:bg-black/70 rounded-lg transition-colors"
-              aria-label="Remove image"
+              aria-label={t("imageUploadRemoveImage")}
             >
               <X className="w-4 h-4 text-white" />
             </button>
@@ -335,7 +345,7 @@ const ImageUpload = ({
         <div className={cn("flex items-center justify-center bg-surface-50 rounded-xl border-2 border-dashed border-surface-200", previewHeight)}>
           <div className="text-center text-foreground/40">
             <ImageIcon className="w-8 h-8 mx-auto mb-2" />
-            <p className="text-sm">No image</p>
+            <p className="text-sm">{t("imageUploadNoImage")}</p>
           </div>
         </div>
       )}

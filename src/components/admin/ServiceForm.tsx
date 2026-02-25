@@ -51,6 +51,7 @@ const ServiceForm = ({
   onSubmit,
 }: ServiceFormProps) => {
   const t = useTranslations("admin");
+  const tc = useTranslations("common");
   const isEditing = !!service;
 
   const [formData, setFormData] = useState(getInitialFormData(service));
@@ -375,8 +376,7 @@ const ServiceForm = ({
                       </div>
                     ) : (
                       <p className="text-foreground/60 text-sm">
-                        No tiers added. Click &quot;Add Tier&quot; to create options like
-                        Standard, Premium, VIP.
+                        {t("noTiersYet")}
                       </p>
                     )}
                   </Card>
@@ -384,18 +384,18 @@ const ServiceForm = ({
 
                 {/* Image & Options */}
                 <Card variant="outline" padding="md">
-                  <h3 className="font-semibold text-foreground mb-4">Service Image</h3>
+                  <h3 className="font-semibold text-foreground mb-4">{t("serviceImageTitle")}</h3>
                   <ImageUpload
                     value={formData.image}
                     onChange={(value) => setFormData({ ...formData, image: value })}
-                    hint="Upload will be saved as a data URL for now (we can switch to Firebase Storage later)."
+                    hint={t("serviceImageHint")}
                     previewHeight="h-40"
                   />
                 </Card>
 
                 <div className="grid sm:grid-cols-2 gap-4">
                   <Input
-                    label="Display Order"
+                    label={t("displayOrder")}
                     type="number"
                     value={formData.order}
                     onChange={(e) =>
@@ -415,7 +415,7 @@ const ServiceForm = ({
                       }
                       className="w-5 h-5 rounded border-surface-300 text-primary-600 focus:ring-primary-500"
                     />
-                    <span className="text-foreground">Active</span>
+                    <span className="text-foreground">{tc("active")}</span>
                   </label>
                   <label className="flex items-center gap-3 cursor-pointer">
                     <input
@@ -433,10 +433,10 @@ const ServiceForm = ({
                 {/* Actions */}
                 <div className="flex justify-end gap-3 pt-4 border-t border-surface-200">
                   <Button type="button" variant="ghost" onClick={onClose}>
-                    Cancel
+                    {tc("cancel")}
                   </Button>
                   <Button type="submit" isLoading={isSubmitting}>
-                    {isEditing ? "Save Changes" : "Create Service"}
+                    {isEditing ? t("saveChanges") : t("createService")}
                   </Button>
                 </div>
               </form>

@@ -51,8 +51,8 @@ export default function AdminDashboardPage() {
       if (!detail || detail.context !== "requests") return;
       setLoadError(
         detail.code === "permission-denied"
-          ? "Firestore permission denied. Update Firestore Rules or enable real admin auth."
-          : detail.message || "Failed to load requests"
+          ? t("firestorePermissionDenied")
+          : detail.message || t("failedToLoadRequests")
       );
       setIsLoading(false);
     };
@@ -154,7 +154,7 @@ export default function AdminDashboardPage() {
           icon={Clock}
           iconBg="bg-amber-100"
           iconColor="text-amber-600"
-          change={stats.pending > 0 ? "Needs attention" : "All clear"}
+          change={stats.pending > 0 ? t("needsAttention") : t("allClear")}
           changeType={stats.pending > 0 ? "negative" : "positive"}
           delay={0.1}
         />
@@ -192,7 +192,7 @@ export default function AdminDashboardPage() {
             </CardHeader>
             <CardContent>
               <div className="text-4xl font-bold text-foreground mb-2">{activeTenants}</div>
-              <p className="text-foreground/60 text-sm">Active tenants</p>
+              <p className="text-foreground/60 text-sm">{t("activeTenantsLabel")}</p>
             </CardContent>
           </Card>
         </motion.div>
@@ -211,7 +211,7 @@ export default function AdminDashboardPage() {
             </CardHeader>
             <CardContent>
               <div className="text-4xl font-bold text-foreground mb-2">{activeServices}</div>
-              <p className="text-foreground/60 text-sm">Active services</p>
+              <p className="text-foreground/60 text-sm">{t("activeServicesLabel")}</p>
             </CardContent>
           </Card>
         </motion.div>
@@ -240,7 +240,7 @@ export default function AdminDashboardPage() {
                     </div>
                   ))
                 ) : (
-                  <p className="text-foreground/60 text-sm">No requests yet</p>
+                  <p className="text-foreground/60 text-sm">{t("noRequests")}</p>
                 )}
               </div>
             </CardContent>

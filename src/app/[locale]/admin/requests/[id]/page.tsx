@@ -12,25 +12,6 @@ import { getRequestById, updateRequestStatus } from "@/lib/firebase/firestore";
 import { useTenantsStore } from "@/hooks";
 import type { Locale, RequestStatus, ServiceRequest } from "@/types";
 
-const statusOptions: { value: RequestStatus; label: string }[] = [
-  { value: "pending", label: "Pending" },
-  { value: "confirmed", label: "Confirmed" },
-  { value: "in_progress", label: "In Progress" },
-  { value: "completed", label: "Completed" },
-  { value: "cancelled", label: "Cancelled" },
-];
-
-const statusConfig: Record<
-  RequestStatus,
-  { variant: "default" | "primary" | "success" | "warning" | "danger" | "info"; label: string }
-> = {
-  pending: { variant: "warning", label: "Pending" },
-  confirmed: { variant: "info", label: "Confirmed" },
-  in_progress: { variant: "primary", label: "In Progress" },
-  completed: { variant: "success", label: "Completed" },
-  cancelled: { variant: "danger", label: "Cancelled" },
-};
-
 function InfoRow({
   icon: Icon,
   label,
@@ -54,6 +35,9 @@ function InfoRow({
 
 export default function AdminRequestDetailPage() {
   const t = useTranslations("admin");
+  const tc = useTranslations("common");
+  const tg = useTranslations("guest");
+  const ts = useTranslations("status");
   const locale = useLocale() as Locale;
   const router = useRouter();
   const params = useParams();
@@ -65,6 +49,25 @@ export default function AdminRequestDetailPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
+
+  const statusOptions: { value: RequestStatus; label: string }[] = [
+    { value: "pending", label: ts("pending") },
+    { value: "confirmed", label: ts("confirmed") },
+    { value: "in_progress", label: ts("inProgress") },
+    { value: "completed", label: ts("completed") },
+    { value: "cancelled", label: ts("cancelled") },
+  ];
+
+  const statusConfig: Record<
+    RequestStatus,
+    { variant: "default" | "primary" | "success" | "warning" | "danger" | "info"; label: string }
+  > = {
+    pending: { variant: "warning", label: ts("pending") },
+    confirmed: { variant: "info", label: ts("confirmed") },
+    in_progress: { variant: "primary", label: ts("inProgress") },
+    completed: { variant: "success", label: ts("completed") },
+    cancelled: { variant: "danger", label: ts("cancelled") },
+  };
 
   const tenantName = useMemo(() => {
     const tenant = tenants.find((x) => x.id === request?.tenantId);
@@ -82,7 +85,7 @@ export default function AdminRequestDetailPage() {
         setRequest(found);
       } catch (err) {
         if (cancelled) return;
-        setLoadError(err instanceof Error ? err.message : "Failed to load request");
+        setLoadError(err instanceof Error ? err.message : t("failedToLoadRequest"));
         setRequest(null);
       } finally {
         if (!cancelled) setIsLoading(false);
@@ -116,11 +119,11 @@ export default function AdminRequestDetailPage() {
   if (loadError) {
     return (
       <div className="py-20 text-center">
-        <p className="text-red-600 font-medium">{t("common.error")}</p>
+        <p className="text-red-600 font-medium">{tc("error")}</p>
         <p className="text-foreground/60 mt-2">{loadError}</p>
         <div className="mt-6">
           <Button variant="secondary" onClick={() => router.push("/admin/requests")}>
-            Back to Requests
+            {t("backToRequests")}
           </Button>
         </div>
       </div>
@@ -130,10 +133,10 @@ export default function AdminRequestDetailPage() {
   if (!request) {
     return (
       <div className="py-20 text-center">
-        <h2 className="text-xl font-semibold text-foreground mb-2">Request not found</h2>
-        <p className="text-foreground/60 mb-6">The request you&apos;re looking for doesn&apos;t exist.</p>
+        <h2 className="text-xl font-semibold text-foreground mb-2">{t("requestNotFound")}</h2>
+        <p className="text-foreground/60 mb-6">{t("requestNotFoundDescription")}</p>
         <Button variant="secondary" onClick={() => router.push("/admin/requests")}>
-          Back to Requests
+          {t("backToRequests")}
         </Button>
       </div>
     );
@@ -154,14 +157,14 @@ export default function AdminRequestDetailPage() {
             type="button"
             onClick={() => router.push("/admin/requests")}
             className="p-2 rounded-lg hover:bg-surface-100 transition-colors mt-1"
-            aria-label="Back to requests"
+            aria-label={t("backToRequests")}
           >
             <ChevronLeft className="w-5 h-5 text-foreground/70" />
           </button>
           <div>
             <div className="flex flex-wrap items-center gap-3">
               <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
-                Request #{request.id.slice(0, 8)}
+                {t("request")} #{request.id.slice(0, 8)}
               </h1>
               <Badge variant={status.variant}>{status.label}</Badge>
             </div>
@@ -178,14 +181,16 @@ export default function AdminRequestDetailPage() {
         <div className="lg:col-span-2 space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Service</CardTitle>
+              <CardTitle>{t("service")}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
               <p className="font-semibold text-foreground">
                 {getLocalizedText(request.serviceName, locale)}
               </p>
               {request.selectedTier && (
-                <p className="text-sm text-foreground/60">Option: {request.selectedTier}</p>
+                <p className="text-sm text-foreground/60">
+                  {t("optionLabel")}: {request.selectedTier}
+                </p>
               )}
               {request.price !== undefined && (
                 <p className="text-sm font-medium text-primary-600">
@@ -197,20 +202,20 @@ export default function AdminRequestDetailPage() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Request details</CardTitle>
+              <CardTitle>{t("requestDetailsTitle")}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <InfoRow
                 icon={Calendar}
-                label="Preferred Date"
+                label={tg("preferredDate")}
                 value={request.date ? formatDateTime(request.date, locale) : null}
               />
-              <InfoRow icon={Clock} label="Preferred Time" value={request.time} />
-              <InfoRow icon={MessageSquare} label="Notes" value={request.notes} />
+              <InfoRow icon={Clock} label={tg("preferredTime")} value={request.time} />
+              <InfoRow icon={MessageSquare} label={tg("additionalNotes")} value={request.notes} />
               <div className="flex items-start gap-3">
                 <Tag className="w-5 h-5 text-foreground/40 mt-0.5" aria-hidden="true" />
                 <div>
-                  <p className="text-xs text-foreground/60">Status</p>
+                  <p className="text-xs text-foreground/60">{t("status")}</p>
                   <Badge variant={status.variant}>{status.label}</Badge>
                 </div>
               </div>
@@ -222,12 +227,12 @@ export default function AdminRequestDetailPage() {
         <div className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Guest</CardTitle>
+              <CardTitle>{t("guestTitle")}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <InfoRow icon={User} label="Name" value={request.guestName} />
-              <InfoRow icon={Mail} label="Email" value={request.guestEmail} />
-              <InfoRow icon={Phone} label="Phone" value={request.guestPhone} />
+              <InfoRow icon={User} label={tc("name")} value={request.guestName} />
+              <InfoRow icon={Mail} label={tc("email")} value={request.guestEmail} />
+              <InfoRow icon={Phone} label={tg("phone")} value={request.guestPhone} />
             </CardContent>
           </Card>
 
@@ -246,10 +251,10 @@ export default function AdminRequestDetailPage() {
                 className="w-full"
                 onClick={() => router.push("/admin/requests")}
               >
-                Back to Requests
+                {t("backToRequests")}
               </Button>
               {isUpdatingStatus && (
-                <p className="text-xs text-foreground/60">Updating…</p>
+                <p className="text-xs text-foreground/60">{tc("updating")}</p>
               )}
             </CardContent>
           </Card>

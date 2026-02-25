@@ -25,15 +25,6 @@ interface RequestDetailModalProps {
   onUpdateStatus: (requestId: string, status: RequestStatus) => Promise<void>;
 }
 
-const statusOptions = [
-  { value: "", label: "Select new status" },
-  { value: "pending", label: "Pending" },
-  { value: "confirmed", label: "Confirmed" },
-  { value: "in_progress", label: "In Progress" },
-  { value: "completed", label: "Completed" },
-  { value: "cancelled", label: "Cancelled" },
-];
-
 const statusConfig: Record<
   RequestStatus,
   { variant: "default" | "primary" | "success" | "warning" | "danger" | "info" }
@@ -53,8 +44,28 @@ const RequestDetailModal = ({
   onUpdateStatus,
 }: RequestDetailModalProps) => {
   const t = useTranslations("admin");
+  const tc = useTranslations("common");
+  const tg = useTranslations("guest");
+  const ts = useTranslations("status");
   const [newStatus, setNewStatus] = useState<RequestStatus | "">("");
   const [isUpdating, setIsUpdating] = useState(false);
+
+  const statusLabel: Record<RequestStatus, string> = {
+    pending: ts("pending"),
+    confirmed: ts("confirmed"),
+    in_progress: ts("inProgress"),
+    completed: ts("completed"),
+    cancelled: ts("cancelled"),
+  };
+
+  const statusOptions = [
+    { value: "", label: t("selectNewStatus") },
+    { value: "pending", label: statusLabel.pending },
+    { value: "confirmed", label: statusLabel.confirmed },
+    { value: "in_progress", label: statusLabel.in_progress },
+    { value: "completed", label: statusLabel.completed },
+    { value: "cancelled", label: statusLabel.cancelled },
+  ];
 
   if (!request) return null;
 
@@ -157,29 +168,29 @@ const RequestDetailModal = ({
                   <h4 className="text-sm font-medium text-foreground/60 uppercase tracking-wide">
                     Guest Information
                   </h4>
-                  <InfoRow icon={User} label="Name" value={request.guestName} />
-                  <InfoRow icon={Mail} label="Email" value={request.guestEmail} />
-                  <InfoRow icon={Phone} label="Phone" value={request.guestPhone} />
+                  <InfoRow icon={User} label={tc("name")} value={request.guestName} />
+                  <InfoRow icon={Mail} label={tc("email")} value={request.guestEmail} />
+                  <InfoRow icon={Phone} label={tg("phone")} value={request.guestPhone} />
                 </div>
 
                 {/* Request details */}
                 <div className="space-y-3">
                   <h4 className="text-sm font-medium text-foreground/60 uppercase tracking-wide">
-                    Request Details
+                    {t("requestDetailsTitle")}
                   </h4>
                   <InfoRow
                     icon={Calendar}
-                    label="Preferred Date"
+                    label={tg("preferredDate")}
                     value={request.date ? formatDateTime(request.date, locale) : null}
                   />
-                  <InfoRow icon={Clock} label="Preferred Time" value={request.time} />
-                  <InfoRow icon={MessageSquare} label="Notes" value={request.notes} />
+                  <InfoRow icon={Clock} label={tg("preferredTime")} value={request.time} />
+                  <InfoRow icon={MessageSquare} label={tg("additionalNotes")} value={request.notes} />
                   <div className="flex items-start gap-3">
                     <Tag className="w-5 h-5 text-foreground/40 mt-0.5" />
                     <div>
-                      <p className="text-xs text-foreground/60">Status</p>
+                      <p className="text-xs text-foreground/60">{t("status")}</p>
                       <Badge variant={statusConfig[request.status].variant}>
-                        {request.status.replace("_", " ")}
+                        {statusLabel[request.status]}
                       </Badge>
                     </div>
                   </div>
@@ -202,7 +213,7 @@ const RequestDetailModal = ({
                       disabled={!newStatus || newStatus === request.status}
                       isLoading={isUpdating}
                     >
-                      Update
+                      {tc("update")}
                     </Button>
                   </div>
                 </div>
@@ -211,7 +222,7 @@ const RequestDetailModal = ({
               {/* Footer */}
               <div className="p-6 border-t border-surface-200 bg-surface-50">
                 <p className="text-xs text-foreground/60">
-                  Created: {formatDateTime(request.createdAt, locale)}
+                  {t("createdLabel")} {formatDateTime(request.createdAt, locale)}
                 </p>
               </div>
             </motion.div>

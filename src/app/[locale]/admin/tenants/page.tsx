@@ -11,6 +11,7 @@ import { useServicesStore, useTenantsStore } from "@/hooks";
 
 export default function TenantsPage() {
   const t = useTranslations("admin");
+  const tc = useTranslations("common");
   const router = useRouter();
   const { tenants, deleteTenant } = useTenantsStore();
   const { services } = useServicesStore();
@@ -25,7 +26,7 @@ export default function TenantsPage() {
   }, [services]);
 
   const handleDelete = async (tenantId: string) => {
-    if (confirm("Are you sure you want to delete this tenant?")) {
+    if (confirm(t("deleteTenantPrompt"))) {
       await deleteTenant(tenantId);
     }
   };
@@ -94,7 +95,7 @@ export default function TenantsPage() {
                       }
                     >
                       <Edit2 className="w-3.5 h-3.5" aria-hidden="true" />
-                      <span>Click to edit</span>
+                      <span>{t("clickToEdit")}</span>
                     </div>
                   </div>
 
@@ -143,11 +144,11 @@ export default function TenantsPage() {
                   <div className="flex items-center gap-2 flex-wrap">
                     {tenant.branding.hideLogo && (
                       <Badge variant="warning" className="text-xs whitespace-nowrap">
-                        White-label
+                        {t("whiteLabel")}
                       </Badge>
                     )}
                     <Badge variant={tenant.active ? "success" : "default"} className="whitespace-nowrap">
-                      {tenant.active ? "Active" : "Inactive"}
+                      {tenant.active ? tc("active") : tc("inactive")}
                     </Badge>
                   </div>
                 </div>
@@ -172,7 +173,7 @@ export default function TenantsPage() {
                   <div className="flex items-center gap-2">
                     <ImageIcon className="w-3.5 h-3.5 flex-shrink-0" aria-hidden="true" />
                     <span className="truncate">
-                      {heroImage ? "Hero image set" : "No hero image"}
+                      {heroImage ? t("heroImageSet") : t("noHeroImage")}
                     </span>
                   </div>
                 </div>
@@ -186,7 +187,7 @@ export default function TenantsPage() {
                     className="flex items-center gap-1 text-primary-600 hover:text-primary-700 text-sm font-medium"
                   >
                     <ExternalLink className="w-4 h-4" />
-                    View Portal
+                    {t("viewPortal")}
                   </Link>
                   <button
                     onClick={(e) => {
@@ -194,7 +195,7 @@ export default function TenantsPage() {
                       handleDelete(tenant.id);
                     }}
                     className="p-2 rounded-lg hover:bg-red-50 transition-colors"
-                    title="Delete"
+                    title={tc("delete")}
                     aria-label={`Delete ${tenant.name}`}
                   >
                     <Trash2 className="w-4 h-4 text-red-500" />
@@ -207,12 +208,12 @@ export default function TenantsPage() {
         </div>
       ) : (
         <Card className="text-center py-12">
-          <p className="text-foreground/60 mb-4">No tenants yet</p>
+          <p className="text-foreground/60 mb-4">{t("noTenantsYet")}</p>
           <Button
             onClick={() => router.push("/admin/tenants/new")}
             leftIcon={<Plus className="w-5 h-5" />}
           >
-            Add Your First Tenant
+            {t("addYourFirstTenant")}
           </Button>
         </Card>
       )}

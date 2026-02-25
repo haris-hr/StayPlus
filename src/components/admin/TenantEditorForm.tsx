@@ -17,6 +17,7 @@ interface TenantEditorFormProps {
 
 export function TenantEditorForm({ tenant, mode, onSubmit, onDelete }: TenantEditorFormProps) {
   const t = useTranslations("admin");
+  const tc = useTranslations("common");
   const router = useRouter();
   const isEditing = mode === "edit";
 
@@ -106,7 +107,7 @@ export function TenantEditorForm({ tenant, mode, onSubmit, onDelete }: TenantEdi
 
   const handleDelete = async () => {
     if (!onDelete) return;
-    const ok = confirm("Are you sure you want to delete this tenant?");
+    const ok = confirm(t("deleteTenantPrompt"));
     if (!ok) return;
     setIsDeleting(true);
     try {
@@ -125,8 +126,8 @@ export function TenantEditorForm({ tenant, mode, onSubmit, onDelete }: TenantEdi
             type="button"
             onClick={() => router.push("/admin/tenants")}
             className="p-2 rounded-lg hover:bg-surface-100 transition-colors"
-            aria-label="Back to tenants"
-            title="Back"
+            aria-label={t("backToTenants")}
+            title={tc("back")}
           >
             <ChevronLeft className="w-5 h-5 text-foreground/70" aria-hidden="true" />
           </button>
@@ -136,8 +137,8 @@ export function TenantEditorForm({ tenant, mode, onSubmit, onDelete }: TenantEdi
             </h1>
             <p className="text-foreground/60 mt-1 text-sm sm:text-base">
               {mode === "edit"
-                ? "Update tenant branding, contact info, and portal settings."
-                : "Create a new tenant with branding, contact info, and portal settings."}
+                ? t("tenantUpdateSubtitle")
+                : t("tenantCreateSubtitle")}
             </p>
           </div>
         </div>
@@ -149,7 +150,7 @@ export function TenantEditorForm({ tenant, mode, onSubmit, onDelete }: TenantEdi
             isLoading={isDeleting}
             className="w-full sm:w-auto"
           >
-            Delete
+            {tc("delete")}
           </Button>
         )}
       </div>
@@ -159,7 +160,7 @@ export function TenantEditorForm({ tenant, mode, onSubmit, onDelete }: TenantEdi
         <Card variant="outline" padding="md">
           <div className="flex items-center gap-2 mb-4">
             <Building2 className="w-5 h-5 text-primary-600" aria-hidden="true" />
-            <h2 className="font-semibold text-foreground">Basic Information</h2>
+            <h2 className="font-semibold text-foreground">{t("basicInformationTitle")}</h2>
           </div>
           <div className="grid sm:grid-cols-2 gap-4">
             <Input
@@ -172,24 +173,24 @@ export function TenantEditorForm({ tenant, mode, onSubmit, onDelete }: TenantEdi
               label={t("tenantSlug")}
               value={formData.slug}
               onChange={(e) => setFormData((p) => ({ ...p, slug: e.target.value }))}
-              hint="Used in URL: /apartment/your-slug"
+              hint={t("tenantSlugHint")}
               required
             />
             <div className="sm:col-span-2">
               <Textarea
-                label="Description (English)"
+                label={t("tenantDescriptionEnglish")}
                 value={formData.descriptionEn}
                 onChange={(e) => setFormData((p) => ({ ...p, descriptionEn: e.target.value }))}
-                placeholder="Welcome message for your guests..."
+                placeholder={t("tenantWelcomeMessagePlaceholder")}
                 rows={2}
               />
             </div>
             <div className="sm:col-span-2">
               <Textarea
-                label="Description (Bosnian)"
+                label={t("tenantDescriptionBosnian")}
                 value={formData.descriptionBs}
                 onChange={(e) => setFormData((p) => ({ ...p, descriptionBs: e.target.value }))}
-                placeholder="Poruka dobrodošlice za vaše goste..."
+                placeholder={t("tenantWelcomeMessagePlaceholder")}
                 rows={2}
               />
             </div>
@@ -200,32 +201,32 @@ export function TenantEditorForm({ tenant, mode, onSubmit, onDelete }: TenantEdi
         <Card variant="outline" padding="md">
           <div className="flex items-center gap-2 mb-4">
             <MapPin className="w-5 h-5 text-primary-600" aria-hidden="true" />
-            <h2 className="font-semibold text-foreground">Contact Information</h2>
+            <h2 className="font-semibold text-foreground">{t("contactInformationTitle")}</h2>
           </div>
           <div className="grid sm:grid-cols-2 gap-4">
             <Input
-              label="Contact Email"
+              label={t("tenantEmail")}
               type="email"
               value={formData.email}
               onChange={(e) => setFormData((p) => ({ ...p, email: e.target.value }))}
               required
             />
             <Input
-              label="Contact Phone"
+              label={t("tenantPhone")}
               value={formData.phone}
               onChange={(e) => setFormData((p) => ({ ...p, phone: e.target.value }))}
             />
             <Input
-              label="WhatsApp"
+              label={t("tenantWhatsApp")}
               value={formData.whatsapp}
               onChange={(e) => setFormData((p) => ({ ...p, whatsapp: e.target.value }))}
               placeholder="+387 61 123 456"
             />
             <Input
-              label="Address"
+              label={t("tenantAddress")}
               value={formData.address}
               onChange={(e) => setFormData((p) => ({ ...p, address: e.target.value }))}
-              placeholder="Street, City, ZIP"
+              placeholder={t("tenantAddressPlaceholder")}
             />
           </div>
         </Card>
@@ -234,10 +235,10 @@ export function TenantEditorForm({ tenant, mode, onSubmit, onDelete }: TenantEdi
         <Card variant="outline" padding="md">
           <div className="flex items-center gap-2 mb-4">
             <LayoutTemplate className="w-5 h-5 text-primary-600" aria-hidden="true" />
-            <h2 className="font-semibold text-foreground">Hero Layout</h2>
+            <h2 className="font-semibold text-foreground">{t("heroLayoutTitle")}</h2>
           </div>
           <p className="text-sm text-foreground/60 mb-4">
-            Choose how your hero section appears on the guest portal
+            {t("heroLayoutSubtitle")}
           </p>
           <div className="grid sm:grid-cols-2 gap-4">
             {/* Full Width Option */}
@@ -266,9 +267,9 @@ export function TenantEditorForm({ tenant, mode, onSubmit, onDelete }: TenantEdi
                   </div>
                 </div>
               </div>
-              <div className="font-medium text-foreground">Full Width Banner</div>
+              <div className="font-medium text-foreground">{t("heroLayoutFullWidthTitle")}</div>
               <p className="text-xs text-foreground/60 mt-1">
-                Wide image with centered text overlay. Best for landscape photos.
+                {t("heroLayoutFullWidthDescription")}
               </p>
               {formData.heroLayout === "fullwidth" && (
                 <div className="absolute top-2 right-2 w-5 h-5 bg-primary-500 rounded-full flex items-center justify-center">
@@ -307,9 +308,9 @@ export function TenantEditorForm({ tenant, mode, onSubmit, onDelete }: TenantEdi
                   />
                 </div>
               </div>
-              <div className="font-medium text-foreground">Split Layout</div>
+              <div className="font-medium text-foreground">{t("heroLayoutSplitTitle")}</div>
               <p className="text-xs text-foreground/60 mt-1">
-                Text on left, square image on right. Best for square/portrait photos.
+                {t("heroLayoutSplitDescription")}
               </p>
               {formData.heroLayout === "split" && (
                 <div className="absolute top-2 right-2 w-5 h-5 bg-primary-500 rounded-full flex items-center justify-center">
@@ -326,22 +327,22 @@ export function TenantEditorForm({ tenant, mode, onSubmit, onDelete }: TenantEdi
         <Card variant="outline" padding="md">
           <div className="flex items-center gap-2 mb-4">
             <ImageIcon className="w-5 h-5 text-primary-600" aria-hidden="true" />
-            <h2 className="font-semibold text-foreground">Hero Banner Image</h2>
+            <h2 className="font-semibold text-foreground">{t("heroBannerImageTitle")}</h2>
           </div>
           <ImageUpload
             value={formData.heroImage}
             onChange={(value) => setFormData((p) => ({ ...p, heroImage: value }))}
             hint={
               formData.heroLayout === "fullwidth"
-                ? "Recommended: 1600x600px or larger, landscape orientation. Tip: Use a photo of your apartment, building exterior, or a scenic view."
-                : "Recommended: Square image (1:1 ratio). Tip: Use a photo of your apartment interior, building facade, or a welcoming scene."
+                ? t("heroImageHintFullWidth")
+                : t("heroImageHintSplit")
             }
             previewOverlay={
               formData.heroLayout === "fullwidth" ? (
                 <>
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                   <div className="absolute bottom-2 left-3 text-white text-sm font-medium">
-                    {formData.name || "Tenant Name"}
+                    {formData.name || t("tenantNameFallback")}
                   </div>
                 </>
               ) : undefined
@@ -361,7 +362,7 @@ export function TenantEditorForm({ tenant, mode, onSubmit, onDelete }: TenantEdi
               value={formData.logo}
               onChange={(e) => setFormData((p) => ({ ...p, logo: e.target.value }))}
               placeholder="https://..."
-              hint="Your logo image URL"
+              hint={t("tenantLogoHint")}
             />
             <div className="flex items-end gap-4">
               <div className="flex-1">
@@ -374,7 +375,7 @@ export function TenantEditorForm({ tenant, mode, onSubmit, onDelete }: TenantEdi
                     value={formData.primaryColor}
                     onChange={(e) => setFormData((p) => ({ ...p, primaryColor: e.target.value }))}
                     className="w-10 h-10 rounded-lg cursor-pointer border border-surface-200"
-                    aria-label="Primary color picker"
+                    aria-label={t("primaryColorPickerAria")}
                   />
                   <Input
                     value={formData.primaryColor}
@@ -392,7 +393,7 @@ export function TenantEditorForm({ tenant, mode, onSubmit, onDelete }: TenantEdi
                     value={formData.accentColor}
                     onChange={(e) => setFormData((p) => ({ ...p, accentColor: e.target.value }))}
                     className="w-10 h-10 rounded-lg cursor-pointer border border-surface-200"
-                    aria-label="Accent color picker"
+                    aria-label={t("accentColorPickerAria")}
                   />
                   <Input
                     value={formData.accentColor}
@@ -420,7 +421,7 @@ export function TenantEditorForm({ tenant, mode, onSubmit, onDelete }: TenantEdi
                 <div>
                   <span className="text-foreground">{t("hideLogo")}</span>
                   <p className="text-xs text-foreground/50">
-                    Enable white-label mode - removes all StayPlus branding
+                    {t("whiteLabelModeDescription")}
                   </p>
                 </div>
               </label>
@@ -438,7 +439,7 @@ export function TenantEditorForm({ tenant, mode, onSubmit, onDelete }: TenantEdi
             value={formData.customDomain}
             onChange={(e) => setFormData((p) => ({ ...p, customDomain: e.target.value }))}
             placeholder="services.yourdomain.com"
-            hint="Optional: Point your domain to this tenant"
+            hint={t("tenantCustomDomainHint")}
           />
         </Card>
 
@@ -461,10 +462,10 @@ export function TenantEditorForm({ tenant, mode, onSubmit, onDelete }: TenantEdi
             onClick={() => router.push("/admin/tenants")}
             className="w-full sm:w-auto"
           >
-            Cancel
+            {tc("cancel")}
           </Button>
           <Button type="submit" isLoading={isSubmitting} className="w-full sm:w-auto">
-            {mode === "edit" ? "Save Changes" : "Create Tenant"}
+            {mode === "edit" ? t("saveChanges") : t("createTenant")}
           </Button>
         </div>
       </form>

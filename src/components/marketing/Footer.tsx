@@ -64,7 +64,7 @@ const Footer = () => {
 
           {/* Company */}
           <div>
-            <h4 className="font-semibold mb-4">Company</h4>
+            <h4 className="font-semibold mb-4">{t("footer.company")}</h4>
             <ul className="space-y-2">
               {footerLinks.company.map((link, index) => (
                 <li key={index}>
@@ -93,7 +93,7 @@ const Footer = () => {
               </li>
               <li className="flex items-center gap-3 text-white/60 text-sm">
                 <MapPin className="w-4 h-4" />
-                <span>Sarajevo, Bosnia</span>
+                <span>{t("footer.location")}</span>
               </li>
             </ul>
           </div>
