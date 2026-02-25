@@ -1,8 +1,9 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { motion } from "framer-motion";
-import { Eye, MoreVertical } from "lucide-react";
+import { Check, Copy, Eye, MoreVertical } from "lucide-react";
 import { Badge, Avatar } from "@/components/ui";
 import { formatRelativeTime, getLocalizedText } from "@/lib/utils";
 import type { ServiceRequest, Locale, RequestStatus } from "@/types";
@@ -34,6 +35,31 @@ const RequestsTable = ({
   tenantNames = {},
 }: RequestsTableProps) => {
   const t = useTranslations("admin");
+  const [openMenuForId, setOpenMenuForId] = useState<string | null>(null);
+  const [justCopiedId, setJustCopiedId] = useState<string | null>(null);
+  const menuRootRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!openMenuForId) return;
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpenMenuForId(null);
+    };
+    const onMouseDown = (e: MouseEvent) => {
+      const el = menuRootRef.current;
+      if (!el) return;
+      if (!el.contains(e.target as Node)) {
+        setOpenMenuForId(null);
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    window.addEventListener("mousedown", onMouseDown);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("mousedown", onMouseDown);
+    };
+  }, [openMenuForId]);
 
   if (requests.length === 0) {
     return (
@@ -86,7 +112,7 @@ const RequestsTable = ({
       </div>
 
       {/* Desktop table view */}
-      <div className="hidden md:block overflow-x-auto">
+      <div className="hidden md:block overflow-x-auto" ref={menuRootRef}>
         <table className="w-full min-w-[600px]">
           <thead>
             <tr className="border-b border-surface-200">
@@ -172,9 +198,66 @@ const RequestsTable = ({
                       >
                         <Eye className="w-4 h-4 text-foreground/60" />
                       </button>
-                      <button className="p-2 rounded-lg hover:bg-surface-100 transition-colors">
+                      <div className="relative">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setOpenMenuForId((prev) => (prev === request.id ? null : request.id))
+                          }
+                          className="p-2 rounded-lg hover:bg-surface-100 transition-colors"
+                          aria-haspopup="menu"
+                          aria-expanded={openMenuForId === request.id}
+                          title="More actions"
+                        >
                         <MoreVertical className="w-4 h-4 text-foreground/60" />
-                      </button>
+                        </button>
+
+                        {openMenuForId === request.id && (
+                          <div
+                            role="menu"
+                            className="absolute right-0 top-full mt-2 w-44 rounded-xl border border-surface-200 bg-white shadow-lg overflow-hidden z-20"
+                          >
+                            <button
+                              type="button"
+                              role="menuitem"
+                              onClick={() => {
+                                setOpenMenuForId(null);
+                                onViewRequest(request);
+                              }}
+                              className="w-full px-3 py-2 text-left text-sm text-foreground hover:bg-surface-50 flex items-center gap-2"
+                            >
+                              <Eye className="w-4 h-4 text-foreground/60" />
+                              View details
+                            </button>
+                            <button
+                              type="button"
+                              role="menuitem"
+                              onClick={async () => {
+                                try {
+                                  await navigator.clipboard.writeText(request.id);
+                                  setJustCopiedId(request.id);
+                                  window.setTimeout(() => {
+                                    setJustCopiedId((prev) => (prev === request.id ? null : prev));
+                                  }, 1200);
+                                } catch {
+                                  // Fallback if clipboard is blocked
+                                  window.prompt("Copy request id:", request.id);
+                                } finally {
+                                  setOpenMenuForId(null);
+                                }
+                              }}
+                              className="w-full px-3 py-2 text-left text-sm text-foreground hover:bg-surface-50 flex items-center gap-2"
+                            >
+                              {justCopiedId === request.id ? (
+                                <Check className="w-4 h-4 text-foreground/60" />
+                              ) : (
+                                <Copy className="w-4 h-4 text-foreground/60" />
+                              )}
+                              {justCopiedId === request.id ? "Copied" : "Copy ID"}
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </td>
                 </motion.tr>
