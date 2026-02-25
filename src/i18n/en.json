@@ -389,6 +389,7 @@
     "settingsSecurityHint": "Access and authentication",
     "settingsRequireApproval": "Require approval for new users",
     "settingsAllowGoogleSignIn": "Allow Google sign-in",
+    "settingsDisabledDescription": "Settings is temporarily disabled until we wire persistence (Firestore) and permissions.",
     "firestorePermissionDenied": "Firestore permission denied. Update Firestore Rules or enable real admin auth.",
     "failedToLoadRequests": "Failed to load requests",
     "needsAttention": "Needs attention",

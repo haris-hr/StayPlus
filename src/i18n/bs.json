@@ -388,6 +388,7 @@
     "settingsSecurityHint": "Pristup i autentikacija",
     "settingsRequireApproval": "Zahtijevaj odobrenje za nove korisnike",
     "settingsAllowGoogleSignIn": "Dozvoli prijavu putem Google-a",
+    "settingsDisabledDescription": "Postavke su privremeno onemogućene dok ne povežemo spremanje (Firestore) i dozvole.",
     "firestorePermissionDenied": "Firestore dozvole odbijene. Ažurirajte Firestore Rules ili omogućite pravi admin auth.",
     "failedToLoadRequests": "Neuspjelo učitavanje zahtjeva",
     "needsAttention": "Potrebna pažnja",
